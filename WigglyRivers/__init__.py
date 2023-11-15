@@ -2,19 +2,17 @@
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 #
-#                       Coded by Daniel Gonzalez-Duque
+#                       Coded by: Daniel Gonzalez-Duque
 # _____________________________________________________________________________
 # _____________________________________________________________________________
-"""
-
-This package serves as a Template to create python packages, it only has
-some basic functionality.
-____________________________________________________________________________
-This class is of free use and can be modify, if you have some 
-problem please contact the programmer to the following e-mails:
-
-- daniel.gonzalez@vanderbilt.edu
-- danielgondu@gmail.com 
-____________________________________________________________________________
 
 """
+
+This package searches from meanders within the NHD-HR data.
+____________________________________________________________________________
+"""
+from .rivers import *
+from .utilities import *
+from .utilities.Logger import Logger
+from .wavelet_tree import *
+from .nhd_extract.nhd_extract import *

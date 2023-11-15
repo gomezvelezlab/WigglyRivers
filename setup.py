@@ -8,25 +8,23 @@
 
 """
 
-This package serves as a Template to create python packages, it only has
-some basic functionality.
+This package uses spectral tools to analyze systems at a reach scales
 ____________________________________________________________________________
-This class is of free use and can be modify, if you have some 
+This class is of free use and can be modify, if you have some
 problem please contact the programmer to the following e-mails:
 
 - daniel.gonzalez@vanderbilt.edu
-- danielgondu@gmail.com 
-____________________________________________________________________________
+- danielgondu@gmail.com
 """
 
 from setuptools import setup
 
 setup(
-    name="PyModel",
-    version="0.0.1",
+    name="WigglyRivers",
+    version="1.0.1",
     author="Daniel Gonzalez-Duque",
-    description="Template to create python packages",
+    description="Exploration of reach and meander characteristics",
     license="GNUv3",
-    packages=["PyModel"],
-    pyhon_requires='>=3.6',
+    packages=["WigglyRivers"],
+    pyhon_requires='>=3.7',
 )
