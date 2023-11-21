@@ -23,7 +23,8 @@ setup(
     name="WigglyRivers",
     version="1.0.1",
     author="Daniel Gonzalez-Duque",
-    description="Exploration of reach and meander characteristics",
+    description=("Exploring the multiscale meandering characteristics of river"
+                 " transects"),
     license="GNUv3",
     packages=["WigglyRivers"],
     pyhon_requires='>=3.7',

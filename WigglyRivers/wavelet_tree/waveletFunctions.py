@@ -92,8 +92,9 @@ import numpy as np
 
 from scipy.optimize import fminbound
 from scipy.special._ufuncs import gamma, gammainc
+from scipy.signal import find_peaks
 
-__author__ = 'Evgeniya Predybaylo, Michael von Papen'
+__author__ = 'Evgeniya Predybaylo, Michael von Papen, Daniel Gonzalez-Duque'
 
 
 def wavelet(Y, dt, pad=0, dj=-1, s0=-1, J1=-1, mother=-1, param=-1, freq=None):
@@ -554,3 +555,73 @@ def iwavelet(Y, dt, scale, scale_indices=None, mother='MORLET', param=None):
     c_r = r_sum * factor
 
     return c_r
+
+
+def calculate_global_wavelet_spectrum(wave):
+    """
+    Description:
+    ------------
+
+        Calculates the global wavelet spectrum (GWS) from the wavelet transform
+        using equation (22) in Torrence and Compo (1998). This function also
+        finds the index for the peaks in the global wavelet spectrum.
+
+        Created by Daniel Gonzalez-Duque on 11/19/2023.
+
+        References:
+        -----------
+        Torrence, C., and G. P. Compo, 1998: A Practical Guide to Wavelet
+        Analysis. Bull. Amer. Meteor. Soc., 79, 61–78,
+        https://doi.org/10.1175/1520-0477(1998)079<0061:APGTWA>2.0.CO;2
+    ____________________________________________________________________________
+
+    Args:
+    -----
+        :param wave: np.ndarray,
+            Wavelet transform.
+        :return
+    """
+    gws = np.nanmean(np.abs(wave)**2, axis=1)
+    # find peaks in the gws
+    peaks, _ = find_peaks(gws)
+    return gws, peaks
+
+
+def calculate_scale_averaged_wavelet_power(wave, scales, ds, dj, c_delta):
+    """
+    Description:
+    ------------
+
+        Calculates the scale-averaged wavelet power (SAWP) from the wavelet
+        transform using equation (9) in Zolezzi and Güneralp (2016).
+
+        Created by Daniel Gonzalez-Duque on 11/19/2023.
+
+        References:
+        ------------
+        Zolezzi, G., & Güneralp, I. (2016). Continuous wavelet
+        characterization of the wavelengths and regularity of
+        meandering rivers. Geomorphology, 252, 98–111.
+        https://doi.org/10.1016/j.geomorph.2015.07.029
+
+    ____________________________________________________________________________
+
+    Args:
+    -----
+        :param wave: np.ndarray,
+            Wavelet transform.
+        :param scales: np.ndarray,
+            Vector of scales.
+        :param dt: float,
+            Time or spatial resolution of the data.
+        :param dj: float,
+            Scale increment.
+        :param c_delta: float,
+            Reconstruction factor.
+        :return
+    """
+    power = np.abs(wave)**2
+    scales_p = np.tile(scales, (power.shape[1], 1)).T
+    sawp = (dj*ds)/c_delta * np.nansum(power/scales_p, axis=0)
+
+    return sawp

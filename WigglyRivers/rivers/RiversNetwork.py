@@ -44,6 +44,7 @@ from .ReachExtraction import CompleteReachExtraction as CRE
 from . import RiverFunctions as RF
 from ..utilities import filesManagement as FM
 from ..wavelet_tree import WaveletTreeFunctions as WTFunc
+from ..wavelet_tree import waveletFunctions as cwt_func
 from ..utilities.classExceptions import *
 from ..utilities import graphs
 from ..utilities.Logger import Logger
@@ -67,7 +68,7 @@ CALC_VARS = ['lambda', 'lambda_inf', 'l', 'l_inf', 'sinuosity', 'sinuosity_inf',
 # -----------
 # Classes
 # -----------
-class RiverDataset:
+class RiverDatasets:
     """
     This class generates rivers from NHD Information.
 
@@ -218,13 +219,10 @@ class RiverDataset:
         if uid is None:
             uid = str(uuid.uuid1())
         self.rivers[id_value] = RiverTransect(
-            uid, id_value, x, y, s, z, so, comid,
-            da_sqkm, w_m, huc04, huc_n, start_comid,
-            resample_flag=resample_flag,
-            within_waterbody=within_waterbody,
-            kwargs_resample=kwargs_resample,
-            scale_by_width=scale_by_width,
-            logger=self.logger)
+            uid, id_value, x, y, s, z, so, comid, da_sqkm, w_m, huc04, huc_n,
+            start_comid, resample_flag=resample_flag,
+            within_waterbody=within_waterbody, kwargs_resample=kwargs_resample,
+            scale_by_width=scale_by_width, logger=self.logger)
         if self.translate:
             self.rivers[id_value].translate_xy_start()
         self.rivers[id_value].scale_coordinates(self.scale)
@@ -722,7 +720,7 @@ class RiverDataset:
         :type huc: int
         :param kwargs_resample: dict
             kwargs to resample the reach. by default the method is
-            'geometric_mean'. For more information look at the RiverTransect class.
+            'geometric_mean'. For more information look at the River class.
         :type kwargs_resample: dict
         :param scale_by_width: bool, default=False
             If True, the reach will be scaled by the width of the river.
@@ -773,7 +771,7 @@ class RiverDataset:
         within_waterbody = reach_generator.data_info.loc[
             comid, 'within_waterbody'].values
         
-        self.logger.info('Adding RiverTransect')
+        self.logger.info('Adding River')
         self.add_river(id_value, data[keys_lab['x']],
                        data[keys_lab['y']], s=data[keys_lab['s']], z=data[keys_lab['z']],
                        so=data[keys_lab['so']], da_sqkm=data[keys_lab['da_sqkm']],
@@ -1422,6 +1420,8 @@ class RiverTransect:
         self.cwt_gws_c = None
         self.cwt_gws_peak_wavelength_c = None
         self.cwt_swap_c = None
+        self.cwt_signif_c = None
+        self.cwt_conn_c = None
         # Tree information
         self.cwt_conn = None
         self.cwt_regions = None
@@ -1449,6 +1449,8 @@ class RiverTransect:
         self.cwt_gws_angle = None
         self.cwt_gws_peak_wavelength_angle = None
         self.cwt_sawp_angle = None
+        self.cwt_signif_angle = None
+        self.cwt_conn_angle = None
         # -------------------------
         # Meanders
         # -------------------------
@@ -1752,14 +1754,14 @@ class RiverTransect:
         self.set_data_source(data_source)
         x, y, s, add_data = self._extract_data_source(give_add_data=True)
         # Calculate the curvature
-        r, c, s_c = RF.calculate_curvature(s, x, y, self.planimetry_derivatives)
-        angle = RF.calculate_direction_angle(s, x, y, self.planimetry_derivatives)
+        r, c, angle = RF.calculate_curvature(s, x, y, self.planimetry_derivatives)
+        # angle = RF.calculate_direction_angle(s, x, y, self.planimetry_derivatives)
         # if self.scale_by_width and not(np.isnan(self.w_m_gm)):
         #     self.logger.info(' Scaling curvature by width')
         #     c *= self.w_m_gm
         self.r = r
         self.c = c
-        self.s = s_c
+        # self.s = s_c
         self.angle = angle
         return
 
@@ -1822,7 +1824,8 @@ class RiverTransect:
         return
 
     def get_cwt_curvature(self, pad: float=1, dj: float=5e-2, s0: float=-1,
-                          j1: float=-1, mother: str='DOG', m: int=2):
+                          j1: float=-1, mother: str='DOG', m: int=2,
+                          sigtest=0, lag1=0, siglvl=0.95, dof=None):
         """
         Description:
         ------------
@@ -1853,32 +1856,47 @@ class RiverTransect:
         # Calculate CWT
         wave, period, scales, power, gws, peak_period, sawp, coi, parameters = \
             WTFunc.calculate_cwt(c, ds, pad, dj, s0, j1, mother, m)
+        
+        signif, sig95 = WTFunc.find_wave_significance(
+            c, ds, scales, sigtest=0, lag1=0.72, siglvl=0.95)
+        
+        # Values of power where sig95 > 1 are significant
+        sig95 = power/sig95
+        power_sig95 = copy.deepcopy(power)
+        power_sig95[sig95 <= 1] = 0
+        wave_sig95 = copy.deepcopy(wave)
+        wave_sig95[sig95 <= 1] = 0
 
-        wave_all = copy.deepcopy(wave)
-        # wave = wave.real
+        # Recalculate GWS and SAWP
+        gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
+            wave_sig95)
+        peak_periods_sig95 = period[peaks]
+
+        # Find SAWP (Spectral-Average Wave Period) using Zolezzi and Guneralp (2016)
+        dj = parameters['dj']
+        c_delta = parameters['C_delta']
+        sawp_sig95 = cwt_func.calculate_scale_averaged_wavelet_power(
+            wave_sig95, scales, ds, dj, c_delta)
+
+
         # Store data
         self.cwt_parameters_c = parameters
         self.cwt_wave_c = wave
         self.cwt_power_c = power
-        # self.cwt_wave_complex = wave_all
         self.cwt_wavelength_c = period
         self.cwt_scales_c = scales
         self.cwt_coi_c = coi
         self.cwt_gws_c = gws
         self.cwt_gws_peak_wavelength_c = peak_period
         self.cwt_sawp_c = sawp
+        self.cwt_signif_c = signif
+        self.cwt_sig95_c = sig95
 
-        # Add Morlet wavelet
-        # mother = 'MORLET'
-        # wave, period, scales, gws, peak_period, coi, parameters = \
-        #     WTFunc.calculate_cwt(c, ds, pad, dj, s0, j1, mother, m)
-        # # Store data
-        # self.cwt_wave_morlet = wave
-        # self.cwt_wavelength_morlet = period
-        # self.cwt_scales_morlet = scales
-        # self.cwt_coi_morlet = coi
-        # self.cwt_gws_morlet = gws
-        # self.cwt_gws_peak_wavelength_morlet = peak_period
+        self.cwt_power_c_sig = power_sig95
+        self.cwt_gws_c_sig = gws_sig95
+        self.cwt_sawp_c_sig = sawp_sig95
+
+
         return
 
 
@@ -1916,6 +1934,30 @@ class RiverTransect:
         wave, period, scales, power, gws, peak_period, sawp, coi, parameters = \
             WTFunc.calculate_cwt(angle, ds, pad, dj, s0, j1, mother, m)
 
+        signif, sig95 = WTFunc.find_wave_significance(
+            angle, ds, scales, sigtest=0, lag1=0.72, siglvl=0.95)
+
+        # Values of power where sig95 > 1 are significant
+        sig95 = power/sig95
+
+        # Values of power where sig95 > 1 are significant
+        sig95 = power/sig95
+        power_sig95 = copy.deepcopy(power)
+        power_sig95[sig95 <= 1] = 0
+        wave_sig95 = copy.deepcopy(wave)
+        wave_sig95[sig95 <= 1] = 0
+
+        # Recalculate GWS and SAWP
+        gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
+            wave_sig95)
+        peak_periods_sig95 = period[peaks]
+
+        # Find SAWP (Spectral-Average Wave Period) using Zolezzi and Guneralp (2016)
+        dj = parameters['dj']
+        c_delta = parameters['C_delta']
+        sawp_sig95 = cwt_func.calculate_scale_averaged_wavelet_power(
+            wave_sig95, scales, ds, dj, c_delta)
+
         # Store data
         self.cwt_parameters_angle = parameters
         self.cwt_wave_angle = wave
@@ -1926,6 +1968,12 @@ class RiverTransect:
         self.cwt_gws_angle = gws
         self.cwt_gws_peak_wavelength_angle = peak_period
         self.cwt_sawp_angle = sawp
+        self.cwt_signif_angle = signif
+        self.cwt_sig95_angle = sig95
+
+        self.cwt_power_angle_sig = power_sig95
+        self.cwt_gws_angle_sig = gws_sig95
+        self.cwt_sawp_angle_sig = sawp_sig95
         return
 
     def extract_tree(self):
@@ -2241,7 +2289,7 @@ class RiverTransect:
                         c_m = c[start: middle + idx_start + 1]
                         s_m = s[start: middle + idx_start + 1]
                         s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(
-                            c_m, s_m)
+                            s_m, c_m)
                         i_r+= 1
                         if idx_start - i_r < 0 and len(s_inf) == 0:
                             s_inf = np.array([s_m[0]])
@@ -2259,7 +2307,7 @@ class RiverTransect:
                         c_m = c[middle + idx_start: idx_end + i_r + 1]
                         s_m = s[middle + idx_start: idx_end + i_r + 1]
                         s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(
-                            c_m, s_m)
+                            s_m, c_m)
                         i_r += 1
                         if idx_end + i_r > len(c) and len(s_inf) == 0:
                             s_inf = np.array([s_m[-1]])
@@ -3234,7 +3282,7 @@ class Meander:
 
         # Calculate curvature
         if c is None:
-            r, c, s_curvature = RF.calculate_curvature(s, x, y)
+            r, c, theta = RF.calculate_curvature(s, x, y)
         self.c = c
 
         # Do curvature side on the smooth data
@@ -3302,7 +3350,7 @@ class Meander:
                 s_smooth += s[0]
                 _, c_smooth, s_c_smooth = RF.calculate_curvature(
                     s_smooth, x_smooth, y_smooth)
-                s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(c_smooth, s_c_smooth)
+                s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(s_c_smooth, c_smooth)
 
                 len_x_inf = len(s_inf)
                 idx_inf_st = 0
@@ -3425,31 +3473,39 @@ class Meander:
                 self.so)[0][0]
         return
     
+    def calculate_wavelength(self):
+        self.data['wavelength'] = self.data['lambda'] * 2
+        return
+    
     def calculate_radius(self):
         x = self.x[self.ind_inf_st: self.ind_inf_end + 1]
         y = self.y[self.ind_inf_st: self.ind_inf_end + 1]
-        x_inf_st = self.x_inf_st
-        y_inf_st = self.y_inf_st
-        x_inf_end = self.x_inf_end
-        y_inf_end = self.y_inf_end
-        x_mid = x[len(x)//2]
-        y_mid = y[len(y)//2]
 
-        # plt.plot(self.x, self.y, 'k')
-        # plt.plot(x, y, 'r')
-        coordinates = np.vstack((x, y)).T
-        x_cen, y_cen, r, sigma = taubinSVD(coordinates)
+        x_c, y_c, radius = RF.calculate_radius_of_curvature(
+            x, y, self.data['wavelength'])
 
-        # Calculate wavelength
-        wavelength = self.data['lambda'] * 2
-        # Calculate Omega
-        w = wavelength / (2 * np.pi)
-        rvec = np.array([x_cen - x_mid, y_cen - y_mid])/r
+        # x_inf_st = self.x_inf_st
+        # y_inf_st = self.y_inf_st
+        # x_inf_end = self.x_inf_end
+        # y_inf_end = self.y_inf_end
+        # x_mid = x[len(x)//2]
+        # y_mid = y[len(y)//2]
 
-        x_c = x_mid + rvec[0] * w
-        y_c = y_mid + rvec[1] * w
+        # # plt.plot(self.x, self.y, 'k')
+        # # plt.plot(x, y, 'r')
+        # coordinates = np.vstack((x, y)).T
+        # x_cen, y_cen, r, sigma = taubinSVD(coordinates)
 
-        radius = np.sqrt((x_c - x_mid)**2 + (y_c - y_mid)**2)
+        # # Calculate wavelength
+        # wavelength = self.data['wavelength']
+        # # Calculate Omega
+        # w = wavelength / (2 * np.pi)
+        # rvec = np.array([x_cen - x_mid, y_cen - y_mid])/r
+
+        # x_c = x_mid + rvec[0] * w
+        # y_c = y_mid + rvec[1] * w
+
+        # radius = np.sqrt((x_c - x_mid)**2 + (y_c - y_mid)**2)
 
         # try:
         #     x_c, y_c, radius = RF.calculate_radius_of_curvature(
@@ -3533,6 +3589,7 @@ class Meander:
         functions = [
             self.calculate_lambda,
             self.calculate_l,
+            self.calculate_wavelength,
             self.calculate_sinuosity,
             self.calculate_radius,
             self.add_s_inf,

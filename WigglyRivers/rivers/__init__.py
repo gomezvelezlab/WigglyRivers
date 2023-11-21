@@ -6,8 +6,8 @@
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 
-from .RiversNetwork import Rivers
-from .RiversNetwork import River
+from .RiversNetwork import RiverDatasets
+from .RiversNetwork import RiverTransect
 from .RiversNetwork import Meander
 from .ReachExtraction import CompleteReachExtraction
 from . import RiverFunctions

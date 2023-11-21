@@ -3,7 +3,7 @@
 # _____________________________________________________________________________
 #
 #                       Coded by Daniel Gonzalez Duque
-#                           Last revised 2021-04-18
+#                           Last revised 2023-11-19
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 
@@ -11,7 +11,7 @@
 ______________________________________________________________________________
 
  DESCRIPTION:
-   Scripts related to meander creation and fitting.
+   Functions related to meander creation and fitting.
 ______________________________________________________________________________
 """
 # -----------
@@ -27,6 +27,7 @@ from scipy.signal import find_peaks
 from collections import Counter
 from scipy.spatial import Delaunay
 from scipy.spatial.distance import euclidean
+from circle_fit import taubinSVD
 
 # Package packages
 from ..utilities import general_functions as GF
@@ -92,7 +93,7 @@ def line_intersection(line1, line2):
     return x, y
 
 
-def kinoshita_curve(theta_0: float, lambda_value: float, j_s: float,
+def kinoshita_curve_abad(theta_0: float, lambda_value: float, j_s: float,
                     j_f: float, n: int, m_points: int=1000,
                     ds: Union[None, float]=None):
     """
@@ -101,7 +102,24 @@ def kinoshita_curve(theta_0: float, lambda_value: float, j_s: float,
 
         Generate a Kinoshita Curve with the information related
         to the reach generated.
-    ________________________________________________________________
+
+        The Kinoshita curve is based on (Kinoshita, 1961). The 
+        equations presented in this function are based on the
+        equations presented in (Abad and Garcia, 2009).
+
+        References:
+        ------------
+        Abad, J. D., & Garcia, M. H. (2009). Experiments in a
+        high-amplitude Kinoshita meandering channel: 1. Implications
+        of bend orientation on mean and turbulent flow structure:
+        KINOSHITA CHANNEL, 1. Water Resources Research, 45(2).
+        https://doi.org/10.1029/2008WR007016
+
+        Kinoshita, R. (1961). Investigation of channel
+        deformation in Ishikari River. Report of Bureau of
+        Resources, 174. Retrieved from
+        https://cir.nii.ac.jp/crid/1571417124444824064
+    ____________________________________________________________________________
 
     Args:
     ------------
@@ -172,7 +190,7 @@ def kinoshita_curve(theta_0: float, lambda_value: float, j_s: float,
     return x, y, data
 
 
-def kinoshita_curve_zolezzi(theta_1: float, lambda_value: float, theta_s: float,
+def kinoshita_curve_zolezzi(theta_0: float, lambda_value: float, theta_s: float,
                     theta_f: float, n: int, m_points: int=1000,
                     ds: Union[None, float]=None):
     """
@@ -181,7 +199,24 @@ def kinoshita_curve_zolezzi(theta_1: float, lambda_value: float, theta_s: float,
 
         Generate a Kinoshita Curve with the information related
         to the reach generated.
-    ________________________________________________________________
+
+        The Kinoshita curve is based on (Kinoshita, 1961). The 
+        equations presented in this function are based on the
+        equations presented in (Zolezzi and Güneralp, 2016).
+
+        References:
+        ------------
+        Kinoshita, R. (1961). Investigation of channel
+        deformation in Ishikari River. Report of Bureau of
+        Resources, 174. Retrieved from
+        https://cir.nii.ac.jp/crid/1571417124444824064
+
+        Zolezzi, G., & Güneralp, I. (2016). Continuous wavelet
+        characterization of the wavelengths and regularity of
+        meandering rivers. Geomorphology, 252, 98–111.
+        https://doi.org/10.1016/j.geomorph.2015.07.029
+
+    ____________________________________________________________________________
 
     Args:
     ------------
@@ -191,12 +226,12 @@ def kinoshita_curve_zolezzi(theta_1: float, lambda_value: float, theta_s: float,
     :param lambda_value: float,
         Arc wavelength.
     :type lambda_value: float
-    :param j_s: float,
-        Skewness.
-    :type j_s: float
-    :param j_f: float,
-        Flatness.
-    :type j_f: float
+    :param theta_s: float,
+        coefficient for Skewness in radians.
+    :type theta_s: float
+    :param theta_f: float,
+        coefficient for Fatness in radians.
+    :type theta_f: float
     :param n: int,
         Number of loops.
     :type n: int
@@ -225,9 +260,9 @@ def kinoshita_curve_zolezzi(theta_1: float, lambda_value: float, theta_s: float,
 
     k = 2*np.pi / lambda_value
 
-    theta_rad = theta_1 * np.cos(k*s) + theta_s*np.sin(3*k*s) + theta_f*np.cos(3*k*s)
+    theta_rad = theta_0 * np.cos(k*s) + theta_s*np.sin(3*k*s) + theta_f*np.cos(3*k*s)
 
-    curve = k*(theta_1*np.sin(k*s) - 3*theta_s*np.cos(3*k*s) + 3*theta_f*np.sin(3*k*s))
+    curve = k*(theta_0*np.sin(k*s) - 3*theta_s*np.cos(3*k*s) + 3*theta_f*np.sin(3*k*s))
 
     theta = theta_rad*180/np.pi
 
@@ -286,14 +321,20 @@ def calculate_curvature(ss, xs, ys, derivatives=None):
     Description:
     ------------
 
-        Calculate curvature from the coordinates and the length of
-        the meander.
+        Calculate curvature and the direction angle from the coordinates and
+        the arc-length of the river transect.
 
-        It is based on Equation (2) in Vermeulen et al. (2016).
+        The equation for curvature and direction angle are based on the
+        equations presented in (Güneralp and Rhoads, 2008).
 
-        Vermeulen, B., Hoitink, A. J. F., Zolezzi, G., Abad, J. D., & Aalto, R.
-        (2016). Multiscale structure of meanders. Geophysical Research Letters,
-        2016GL068238. https://doi.org/10.1002/2016GL068238
+        If the derivatives are not provided, the function will calculate them
+        using the np.gradient function.
+
+        References:
+        ------------
+        Güneralp, İ., & Rhoads, B. L. (2008). Continuous Characterization of the
+        Planform Geometry and Curvature of Meandering Rivers. Geographical
+        Analysis, 40(1), 1–25. https://doi.org/10.1111/j.0016-7363.2007.00711.x
     ________________________________________________________________
 
     Args:
@@ -308,9 +349,9 @@ def calculate_curvature(ss, xs, ys, derivatives=None):
         Y coordinates.
     :type ys: np.ndarray
     :return:
-        r: np.ndarray, Radius of curvature.
-        c: np.ndarray, Curvature.
-        s: np.ndarray, Streamwise coordinates.
+        - r: np.ndarray, Radius of curvature.
+        - c: np.ndarray, Curvature.
+        - theta: np.ndarray, direction angle
     """
     if derivatives is None:
         dx = np.gradient(xs, ss)
@@ -326,10 +367,20 @@ def calculate_curvature(ss, xs, ys, derivatives=None):
     c_r = copy.deepcopy(c)
     c_r[c_r == 0] = np.nan
     r = -1/c_r
-    return r, c, ss
+
+    # --------------------------------
+    # Calculate direction angle
+    # --------------------------------
+    segm_length = np.diff(ss)
+    theta = np.zeros_like(ss)
+    # Start with known point
+    theta[0] = np.arctan(dy/dx)[0]
+    theta[1:] = c[1:] * segm_length
+    theta = np.cumsum(theta)
+    return r, c, theta
 
 
-def get_inflection_points(c, s_curve):
+def get_inflection_points(s, c):
     """
 
     Description:
@@ -360,8 +411,8 @@ def get_inflection_points(c, s_curve):
     ind_l = positions[1:] - 1
     ind_r = positions[1:]
     
-    x_l = s_curve[ind_l]
-    x_r = s_curve[ind_r]
+    x_l = s[ind_l]
+    x_r = s[ind_r]
     y_l = c[ind_l]
     y_r = c[ind_r]
 
@@ -375,7 +426,12 @@ def calculate_direction_angle(ss, xs, ys, derivatives=None):
     """
     Description:
     ------------
-        Calculates the direction angle along the planimetry coordinates.
+        Calculates the direction angle using the coordinates. Keep in mind that
+        this calculation would not work if the river direction is in the second
+        and third cartesian quadrants from the start of the river.
+
+        To have a better estimate of the direction angle use the function
+        RiverFunctions.calculate_curvature(...).
     ____________________________________________________________________________
 
     Args:
@@ -395,19 +451,78 @@ def calculate_direction_angle(ss, xs, ys, derivatives=None):
     else:
         dxds = derivatives['dxds']
         dyds = derivatives['dyds']
-    # Theta 
-    theta = np.arctan(dyds/dxds)
+    
+    # -------------------------------------------------------------------------
+    # These computations have complications when the river is rotated. Making
+    #   the angle jump between positive and negative angles once we complete
+    #   a loop.
+
+    # Direction-angle
+    alpha = np.arctan(dyds/dxds)
+    # alpha = np.arctan(dxds/-dyds)
+    # Condition 1
+    theta = copy.deepcopy(alpha)
     # Condition 2
     cond = (dyds > 0) & (dxds < 0)
-    theta[cond] = np.pi + theta[cond]
+    theta[cond] = np.pi + alpha[cond]
     # Condition 4
     cond = (dyds < 0) & (dxds < 0)
-    theta[cond] = - np.pi + theta[cond]
+    theta[cond] = -np.pi + alpha[cond]
 
-    # Condition 3
-    # cond = (dyds < 0) & (dxds > 0)
-    # print(theta[cond][0])
-    # theta[cond] = 2*np.pi + theta[cond]
+    return theta
+
+
+def calculate_direction_azimuth(ss, xs, ys, derivatives=None):
+    """
+    Description:
+    ------------
+        Calculates the direction azimuth using the coordinates. Keep in mind
+        that this calculation would not work if the river direction is in the
+        second and third cartesian plane quadrants from the start of the river.
+
+        To have a better estimate of the direction angle use the function
+        RiverFunctions.calculate_curvature(...) and convert the angles to
+        azimuth.
+    ____________________________________________________________________________
+
+    Args:
+    ------------
+    :param dxds: np.ndarray,
+        Derivative of x with respect to s.
+    :type dxds: np.ndarray
+    :param dyds: np.ndarray,
+        Derivative of y with respect to s.
+    :type dyds: np.ndarray
+    :return:
+        theta: np.ndarray, Direction angle.
+    """
+    if derivatives is None:
+        dxds = np.gradient(xs, ss)
+        dyds = np.gradient(ys, ss)
+    else:
+        dxds = derivatives['dxds']
+        dyds = derivatives['dyds']
+    
+    # -------------------------------------------------------------------------
+    # These computations have complications when the river is rotated. Making
+    #   the angle jump between positive and negative angles once we complete
+    #   a loop.
+    # Azimuth
+    # For cuadrant 1
+    alpha = np.arctan(dyds/dxds)
+    theta = np.pi/2 - alpha
+
+    # For cuadrant 2
+    cond = (dyds >= 0) & (dxds < 0)
+    theta[cond] = 3*np.pi/2 - alpha[cond]
+
+    # For cuadrant 3
+    cond = (dyds < 0) & (dxds > 0)
+    theta[cond] = np.pi/2 - alpha[cond]
+
+    # For cuadrant 4
+    cond = (dyds < 0) & (dxds < 0)
+    theta[cond] = 3*np.pi/2 - alpha[cond]
     return theta
 
 
@@ -417,8 +532,7 @@ def translate(p, p1):
     ------------
 
         Translate points.
-
-    ________________________________________________________________
+    ____________________________________________________________________________
 
     Args:
     ------------
@@ -441,8 +555,7 @@ def rotate(p, p1, p2, theta=None):
     ------------
 
         Rotate points.
-
-    ________________________________________________________________
+    ____________________________________________________________________________
 
     Args:
     ------------
@@ -490,8 +603,7 @@ def translate_rotate(points, index_initial, index_final, theta=None):
     ------------
 
         Translate and rotate points.
-
-    ________________________________________________________________
+    ____________________________________________________________________________
 
     Args:
     ------------
@@ -526,8 +638,8 @@ def get_reach_distances(x_coord):
     Description:
     ------------
 
-        This function calculates the distance from the starting point
-        to the end points.
+        This function calculates the cummulative streamwise distance of the
+        river transect using the coordinates.
     ____________________________________________________________________________
 
     Args:
@@ -597,13 +709,40 @@ def fit_splines(s, x, y, method='geometric_mean', ds=0, k=3,
         diff_s = ds
 
     s_poly = np.arange(s[0], s[-1] + diff_s/2, diff_s)
-    # ------------------
-    # Generate Splines
-    # -----------------
+    # # -------------------------
+    # # Equally spaced values
+    # # -------------------------
+    # # Use approximation from Guneralp et al. (2008)
+    # # Create vector with indices
+    # tau = np.arange(0, len(s))
+    # # Create splines for x and y with the indices
+    # x_spl_tau = UnivariateSpline(tau, x, k=k, s=0, ext=ext)
+    # y_spl_tau = UnivariateSpline(tau, y, k=k, s=0, ext=ext)
+    # # Recalculate the position of the indices scaled to the actual distance
+    # #  of each initial point
+    # tau_new = s/s[-1] * tau[-1]
+
+    # # Evaluate the splines in the new indices
+    # x_new = x_spl_tau(tau_new)
+    # y_new = y_spl_tau(tau_new)
+
+    # # Create spline at the new scaled points and evaluate it on equally sampled
+    # # points
+    # s_scaled = np.linspace(np.min(tau_new), np.max(tau_new), len(s_poly))
+    # x_spl_tau_new = UnivariateSpline(tau_new, x_new, k=k, s=0, ext=ext)
+    # y_spl_tau_new = UnivariateSpline(tau_new, y_new, k=k, s=0, ext=ext)
+    # x_reg = x_spl_tau_new(s_scaled)
+    # y_reg = y_spl_tau_new(s_scaled)
+    # # ------------------
+    # # Generate Splines
+    # # -----------------
+    # x_spl = UnivariateSpline(s_poly, x_reg, k=k, s=smooth, ext=ext)
+    # y_spl = UnivariateSpline(s_poly, y_reg, k=k, s=smooth, ext=ext)
     x_spl = UnivariateSpline(s, x, k=k, s=smooth, ext=ext)
     y_spl = UnivariateSpline(s, y, k=k, s=smooth, ext=ext)
     x_poly = x_spl(s_poly)
     y_poly = y_spl(s_poly)
+    # s_poly_2 = get_reach_distances(np.vstack((x_poly, y_poly)).T)
     splines = {'x_spl': x_spl, 'y_spl': y_spl}
 
     if return_derivatives:
@@ -784,7 +923,7 @@ def calculate_lambda(x, y):
     """
     Description:
     ------------
-        Calculate arc length of the transect.
+        Calculate wavelength of the transect.
     ____________________________________________________________________________
 
     Args:
@@ -805,7 +944,7 @@ def calculate_l(x, y):
     """
     Description:
     ------------
-        Calculate the length of the transect.
+        Calculate the valley length of the transect.
     ____________________________________________________________________________
 
     Args:
@@ -845,24 +984,41 @@ def calculate_sinuosity(l, lambda_value):
     return sinuosity
 
 
-def calculate_radius_of_curvature(x_st, y_st, x_end, y_end, x_mid, y_mid):
+def calculate_radius_of_curvature(x, y, wavelength):
     """
     Description:
     ------------
-        Calculate the radius of curvature of the transect.
+        Calculate the radius of curvature of the meander by fitting a circle
+        to the half-meander section and using the wavelength as the arc length.
     ____________________________________________________________________________
 
     Args:
     ------------
+    :param x: np.ndarray,
+        x coordinates.
+    :param y: np.ndarray,
+        y coordinates.
+    :param wavelength: float,
+        Wavelength of the meander.
+    :return:
+        - x_c: float, x coordinate of the center of the circle.
+        - y_c: float, y coordinate of the center of the circle.
+        - radius: float, radius of the circle.
     """
+    # Fit Circle
+    coordinates = np.vstack((x, y)).T
+    x_mid = x[len(x)//2]
+    y_mid = y[len(y)//2]
+    x_cen, y_cen, r, sigma = taubinSVD(coordinates)
 
-    triangle = np.array([[x_st, y_st], [x_mid, y_mid], [x_end, y_end],
-                         [x_st, y_st]]) 
-    tri = Delaunay(triangle)
-    cc = WTFunc.circumcenter(tri)
-    x_c = cc[0]
-    y_c = cc[1]
-    radius = euclidean([x_mid, y_mid], [x_c, y_c])
+    # Calculate Omega
+    w = wavelength / (2 * np.pi)
+    rvec = np.array([x_cen - x_mid, y_cen - y_mid])/r
+
+    x_c = x_mid + rvec[0] * w
+    y_c = y_mid + rvec[1] * w
+
+    radius = np.sqrt((x_c - x_mid)**2 + (y_c - y_mid)**2)
     return x_c, y_c, radius
 
 
@@ -877,6 +1033,13 @@ def calculate_assymetry(x, y, c):
         left, and if the value is higher than zero the meander has an
         assymetry to the right. For most NHDPlus information cases
         left is upstream and right is downstream.
+
+        References:
+        ------------
+        Howard, A. D., & Hemberger, A. T. (1991). Multivariate characterization
+        of meandering. Geomorphology, 4(3–4), 161–186.
+        https://doi.org/10.1016/0169-555X(91)90002-R
+
     ____________________________________________________________________________
 
     Args:
@@ -920,6 +1083,8 @@ def extend_node_bound(node, c):
         node: anytree node, node with idx_planimetry_extended_start
               and idx_planimetry_extended_end.
     """
+    # TODO: Change this function according to the maximum and minimum of the
+    #  curvature of the adjacent meanders.
     # ------------------------------
     # Extract Information
     # ------------------------------
@@ -1014,391 +1179,6 @@ def extend_node_bound(node, c):
 
     return node
 
-@DeprecationWarning
-def extend_bounds(bounds, c, x, y, meander_id=None, extend=0, sk=None, fl=None):
-    """
-    Description:
-    ------------
-        Extend the bounds of the meanders.
-    ____________________________________________________________________________
-
-    Args:
-    ------------
-    :param bounds: np.ndarray,
-        Bounds of the meanders.
-    :param c: np.ndarray,
-        Curvature of the transect.
-    :param meander_id: np.ndarray,
-        Meander id of the bounds.
-    :param extend: int,
-        Number of points to extend the bounds after maximum points on each side.
-    :param sk: np.ndarray,
-        Skewness of the transect meanders.
-    :param fl: np.ndarray,
-        Flatness of the transect meanders.
-    :return:
-        new_bounds: np.ndarray, Extended bounds of the meanders.
-        ind_curvature: np.ndarray, Indicator if up or down in curvature.
-    """
-
-    # Set new bounds based on peaks in the curvature
-    new_bounds = np.zeros((bounds.shape[0], 2), dtype=int)
-    # Indicator if up or down in curvature
-    ind_curvature = np.zeros(bounds.shape[0])
-    for id_m in range(0, len(bounds)):
-        start_meander = bounds[id_m, 0]
-        end_meander = bounds[id_m, 1]
-        c_meander = c[start_meander:end_meander + 1]
-        x_m = x[start_meander:end_meander + 1]
-        y_m = y[start_meander:end_meander + 1]
-        # --------------------
-        # Extend meander
-        # --------------------
-        # Find peaks in the curvature of the bounds
-        dif = np.abs(end_meander - start_meander)//2
-        # Set minimum value of points to look for peaks
-        # if dif < 4:
-        #     dif = 4
-        # --------------------
-        # Find Peaks
-        # --------------------
-        max_peak = np.max(c_meander)
-        min_peak = np.abs(np.min(c_meander))
-        # if np.mean(c_meander) > 0:
-        # if np.median(c_meander) > 0:
-        # if np.sum(c_meander > 0)/len(c_meander) >= 0.51:
-        if max_peak > min_peak:
-            mult = -1
-        else:
-            mult = 1
-
-        # Correct depending on skewness and sinuosity
-        mult_right = copy.deepcopy(mult)
-        mult_left = copy.deepcopy(mult)
-        dif_right = copy.deepcopy(dif)
-        dif_left = copy.deepcopy(dif)
-        l_value = calculate_l(x_m, y_m)
-        lambda_value = calculate_lambda(x_m, y_m)
-        sn = lambda_value / l_value
-
-        # if sk is not None:
-        #     if np.abs(sk[id_m]) > 1e-3 and sn > 1.5:
-        #         if sk[id_m] > 0:
-        #             mult_right = -1 * mult
-        #             # dif_right += dif
-        #         if sk[id_m] < 0:
-        #             mult_left = -1 * mult
-        #             # dif_left += dif
-
-        # Look for peaks in curvature
-        peak_left = []
-        peak_right = []
-        dif_update = copy.deepcopy(dif)
-        iter = 0
-        while len(peak_left) == 0 or len(peak_right) == 0:
-            ind_left = (start_meander - dif_left - extend)
-            if ind_left < 0:
-                ind_left = 0
-            val_range = np.arange(ind_left, start_meander + 2, 1).astype(int)
-            peak_left = find_peaks(mult_left * c[val_range])[0]
-
-            ind_right = (end_meander + dif_right + extend)
-            if ind_right >= len(c):
-                ind_right = len(c) - 1
-            val_range = np.arange(end_meander - 2, ind_right + 1, 1).astype(int)
-            peak_right = find_peaks(mult_right * c[val_range])[0]
-            if len(peak_left) == 0 or len(peak_right) == 0:
-                dif_update += dif
-                dif_right += dif
-                dif_left += dif
-            if iter > 5:
-                if len(peak_left) == 0:
-                    peak_left = np.array([start_meander])
-                if len(peak_right) == 0:
-                    peak_right = np.array([end_meander])
-                break
-            iter += 1
-
-        ind_left = peak_left + start_meander - dif_left - extend
-        peak_left = peak_left[ind_left >= extend]
-        ind_left = ind_left[ind_left >= extend]
-        if np.all(peak_left == start_meander) or len(ind_left) == 0:
-            new_start = start_meander
-        else:
-            c_p_left = c[ind_left]
-            ind_left = np.argmax(np.abs(c_p_left))
-            new_start = peak_left[ind_left] + start_meander - dif_left -\
-                        extend
-
-        ind_right = peak_right + end_meander + extend
-        if np.any(ind_right >= len(c)):
-            cond = ind_right >= len(c)
-            ind_right[cond] = [len(c) - 1 for _ in range(np.sum(cond))]
-        if np.all(peak_right == end_meander):
-            new_end = end_meander
-        else:
-            c_p_right = c[ind_right]
-            ind_right = np.argmax(np.abs(c_p_right))
-            new_end = peak_right[ind_right] + end_meander + extend
-
-        # Store Information
-        new_bounds[id_m, :] = [new_start, new_end]
-        ind_curvature[id_m] = mult
-
-    # Clean bounds
-    if sk is None:
-        sk = np.array([np.nan for _ in range(len(new_bounds))])
-    if fl is None:
-        fl = np.array([np.nan for _ in range(len(new_bounds))])
-
-    pos_values = np.where(ind_curvature == 1)[0]
-    bounds_pos = new_bounds[pos_values, :]
-    ind_pos = ind_curvature[pos_values]
-    meander_id_pos = meander_id[pos_values]
-    sk_pos = sk[pos_values]
-    fl_pos = fl[pos_values]
-
-    new_bounds_pos, new_ind_pos, new_meander_id_pos, new_sk_pos, new_fl_pos =\
-        remove_duplicates(bounds_pos, ind_pos, meander_id_pos, sk_pos, fl_pos)
-
-    neg_values = np.where(ind_curvature == -1)[0]
-    bounds_neg = new_bounds[neg_values, :]
-    ind_neg = ind_curvature[neg_values]
-    meander_id_neg = meander_id[neg_values]
-    sk_neg = sk[neg_values]
-    fl_neg = fl[neg_values]
-
-    new_bounds_neg, new_ind_neg, new_meander_id_neg, new_sk_neg, new_fl_neg =\
-        remove_duplicates(bounds_neg, ind_neg, meander_id_neg, sk_neg, fl_neg)
-
-    if len(new_bounds_pos) == 0:
-        new_bounds_corr = new_bounds_neg
-    elif len(new_bounds_neg) == 0:
-        new_bounds_corr = new_bounds_pos
-    else:
-        new_bounds_corr = np.vstack((new_bounds_pos, new_bounds_neg))
-
-    ind_curvature_corr = np.hstack((new_ind_pos, new_ind_neg))
-    meander_id_corr = np.hstack((new_meander_id_pos, new_meander_id_neg))
-    new_sk_corr = np.hstack((new_sk_pos, new_sk_neg))
-    new_fl_corr = np.hstack((new_fl_pos, new_fl_neg))
-
-    return new_bounds_corr, ind_curvature_corr, meander_id_corr, new_sk_corr, \
-        new_fl_corr
-
-
-def remove_duplicates(bounds, ind_curvature, meander_id, sk, fl):
-    """
-    Description:
-    ------------
-        Remove duplicate bounds.
-    ____________________________________________________________________________
-
-    Args:
-    ------------
-    :param bounds: np.ndarray,
-        Bounds of the meanders.
-    :param ind_curvature: np.ndarray,
-        Indicator if up or down in curvature.
-    :param meander_id: np.ndarray,
-        Meander id.
-    :param sk: np.ndarray,
-        Skewness.
-    :param fl: np.ndarray,
-        Flatness.
-    :return:
-        bounds: np.ndarray, Bounds of the meanders.
-        ind_curvature: np.ndarray, Indicator if up or down in curvature.
-    """
-
-    # Remove duplicates
-    new_bounds = []
-    ind_curvature_new = []
-    new_meander_id = []
-    new_sk = []
-    new_fl = []
-    # Remove Start
-    starts = bounds[:, 0]
-    ends = bounds[:, 1]
-    duplicate_values_start = np.where(np.diff(starts) == 0)[0]
-    duplicate_values_end = np.where(np.diff(ends) == 0)[0]
-    remove = []
-
-    for i_b, bound in enumerate(bounds):
-        if i_b in duplicate_values_start:
-            bound_d = bounds[i_b: i_b + 2, :]
-            new_end = np.max(bound_d[:, 1])
-            bound = [bound_d[0, 0], new_end]
-        elif i_b in duplicate_values_start + 1:
-            continue
-
-        if i_b in duplicate_values_end:
-            bound_d = bounds[i_b: i_b + 2, :]
-            bound = [bound_d[0, 0], bound_d[1, 1]]
-        elif i_b in duplicate_values_end + 1:
-            continue
-
-        new_bounds.append(bound)
-        ind_curvature_new.append(ind_curvature[i_b])
-        new_meander_id.append(meander_id[i_b])
-        new_sk.append(sk[i_b])
-        new_fl.append(fl[i_b])
-
-    # Clean Database of redundant meanders
-    new_bounds = np.array(new_bounds)
-    new_bounds_2 = []
-    ind_curvature_new_2 = []
-    new_meander_id_2 = []
-    new_sk_2 = []
-    new_fl_2 = []
-    for i_b, bound in enumerate(new_bounds):
-        bound = new_bounds[i_b, :]
-        array = np.arange(bound[0], bound[1] + 1)
-        intercept_start = np.intersect1d(array, new_bounds[:, 0])
-        intercept_end = np.intersect1d(array, new_bounds[:, 1])
-        if len(intercept_start) > 1:
-            ind_start = []
-            for intercept_start_i in intercept_start:
-                ind_1 = np.where(new_bounds[:, 0] == intercept_start_i)[0]
-                for i in ind_1:
-                    ind_start.append(int(i))
-            ind_start = np.array(ind_start)
-            ind_start = ind_start[ind_start != i_b]
-            if type(ind_start) in (int, np.int64, np.int32, float):
-                ind_start = [ind_start]
-        else:
-            ind_start = []
-        
-        if len(intercept_end) > 1:
-            ind_end = []
-            for intercept_end_i in intercept_end:
-                ind_1 = np.where(new_bounds[:, 1] == intercept_end_i)[0]
-                for i in ind_1:
-                    ind_end.append(i)
-            ind_end = np.array(ind_end)
-            ind_end = ind_end[ind_end != i_b]
-            if isinstance(ind_end, int):
-                ind_end = [ind_end]
-        else:
-            ind_end = []
-        
-        if len(ind_start) > 0 and len(ind_end) > 0:
-            for i_s in ind_start:
-                for i_e in ind_end:
-                    if i_s == i_e:
-                        remove.append(i_s)
-        
-        if i_b in remove:
-            continue
-
-        new_bounds_2.append(bound)
-        ind_curvature_new_2.append(ind_curvature_new[i_b])
-        new_meander_id_2.append(new_meander_id[i_b])
-        new_sk_2.append(new_sk[i_b])
-        new_fl_2.append(new_fl[i_b])
-
-    new_bounds = np.array(new_bounds_2)
-    ind_curvature_new = np.array(ind_curvature_new_2)
-    new_meander_id = np.array(new_meander_id_2)
-    new_sk = np.array(new_sk_2)
-    new_fl = np.array(new_fl_2)
-
-    return new_bounds, ind_curvature_new, new_meander_id, new_sk, new_fl
-
-
-@DeprecationWarning
-def aggregate_bounds(bounds, x, y, ind_curvature, value_mult=1,
-                     sinuosity_threshold=1.05):
-    """
-    Description:
-    ------------
-        Aggregate bounds based on the length of meanders and curvature
-    ____________________________________________________________________________
-
-    Args:
-    ------------
-    :param bounds: np.ndarray,
-        Bounds of the meanders.
-    :param x: np.ndarray,
-        River x coordinates.
-    :param y: np.ndarray,
-        River y coordinates.
-    :param ind_curvature: np.ndarray,
-        Indicator if up or down in curvature.
-    :param value_mult: int,
-        Indicator if up or down in curvature. up=1, down=-1.
-    :param sinuosity_threshold: float,
-        Threshold for the sinuosity.
-    :return:
-        bounds: np.ndarray, Aggregated bounds of the meanders.
-    """
-
-    # Get the bounds on one side of the curvature
-    one_side_curvature = np.where(ind_curvature == value_mult)[0]
-    bounds_one_side = bounds[one_side_curvature, :]
-    aggr_bounds = []
-    sinuosity_all = []
-    # Loop through one side of the curvature
-    i = 0
-    while i < len(one_side_curvature):
-        # index = one_side_curvature[i]
-        start = copy.deepcopy(bounds_one_side[i, 0])
-        end = copy.deepcopy(bounds_one_side[i, 1])
-        initial_x_m = x[start: end]
-        initial_y_m = y[start: end]
-
-        # Calculate horizontal length
-        l_value = [calculate_l(initial_x_m, initial_y_m)]
-
-        # Calculate reach length
-        lamba_value = [calculate_lambda(initial_x_m, initial_y_m)]
-
-        # Calculate sinuosity
-        sinuosity = [calculate_sinuosity(l_value[-1], lamba_value[-1])]
-
-        if i >= len(one_side_curvature):
-            break
-        for j in range(1, 6):
-            if i + j >= len(one_side_curvature):
-                break
-            new_end = bounds_one_side[i + j, 1]
-            x_m = x[start: new_end]
-            y_m = y[start: new_end]
-            # Calculate horizontal length
-            l_value.append(calculate_l(x_m, y_m))
-            # Calculate reach length
-            lamba_value.append(calculate_lambda(x_m, y_m))
-            # Calculate sinuosity
-            sinuosity.append(calculate_sinuosity(l_value[-1], lamba_value[-1]))
-
-        # Extract meander with the highest sinuosity
-        # Check for minimum horizontal distance
-        if len(l_value) == 1:
-            j_index = 0
-        else:
-            min_arg_l_1 = np.argmin(l_value)
-            min_arg_l_2 = np.argmin(l_value[1:]) + 1
-            if min_arg_l_2 - min_arg_l_1 == 1:
-                j_index = min_arg_l_1
-            else:
-                j_index = min_arg_l_2
-
-        # Check for sinuosity
-        if sinuosity[j_index] < sinuosity_threshold:
-            i += 1
-            continue
-
-        # Store Information
-        new_end = bounds_one_side[i + j_index, 1]
-        sinuosity_all.append(sinuosity[j_index])
-        aggr_bounds.append([start, new_end])
-        if j_index == 0:
-            i += 1
-        else:
-            i += j_index + 1
-
-    return np.array(aggr_bounds)
-
 
 def calculate_coordinates_from_curvature(s_curvature, c, x, y):
     initial_coords = np.array([x[0], y[0]])
@@ -1442,6 +1222,8 @@ def calculate_channel_width(da):
 
     This function uses equation (15) presented in Wilkerson et al. (2014).
     
+    References:
+    ------------
     Wilkerson, G. V., Kandel, D. R., Perg, L. A., Dietrich, W. E., Wilcock,
     P. R., & Whiles, M. R. (2014). Continental-scale relationship between
     bankfull width and drainage area for single-thread alluvial channels.
@@ -1479,7 +1261,20 @@ def calculate_channel_width(da):
 
 def calculate_spectrum_cuts(s, c):
     """
-    
+    Description:
+    -------------
+        Calculate the spectrum cuts of the curvature.
+    ____________________________________________________________________________
+
+    Args:
+    ------------
+    :param s: np.ndarray,
+        Streamwise distance vector.
+    :param c: np.ndarray,
+        Curvature.
+    :return:
+        - peaks_min: np.ndarray, Indices of the minima of the curvature.
+        - min_s: np.ndarray, Streamwise distance of the minima of the curvature.
     """
     # wave = np.abs(wave**2)
     # wave_sum = np.sum(wave, axis=0)
@@ -1508,117 +1303,4 @@ def calculate_spectrum_cuts(s, c):
     wave_sum = np.sum(wave, axis=0)
     peaks_min, _ = find_peaks(-wave_sum, prominence=np.std(wave_sum))
     min_s = s[peaks_min]
-
-
     return peaks_min, min_s
-
-
-def get_reach_from_network(hw, reach_generator,
-                           min_distance, method, calculate_poly,
-                           linking_network, comid_network,
-                           loading_from_file, comid_network_file,
-                           coords_file=None):
-    """
-    """
-    # --------------------------
-    # keys
-    # --------------------------
-    keys = ['s', 'x', 'y', 'z', 'comid', 'so',
-            'da_sqkm', 'w_m']
-    keys_lab = {i: i for i in keys}
-    # Loading from file
-    time1 = time.time()
-    if loading_from_file:
-        comid_network = FM.load_data(
-            comid_network_file, keys=[str(hw)])
-    comid_list = list(comid_network[str(hw)])
-    # print('Loading Network')
-    # utl.toc(time1)
-
-    # --------------------------
-    # Verify reach length
-    # --------------------------
-    lengthkm = reach_generator.data_info.loc[
-        comid_list, 'lengthkm'].values
-    total_length = np.sum(lengthkm)
-    remove = 0
-    i_rep = 0
-    cut = 10
-    while total_length*1000 < min_distance:
-        additional_comid = linking_network.loc[comid_list[-1],
-                                                'linking_comid']
-        # print(i_rep, additional_comid)
-        if additional_comid == 0 or i_rep >= cut or (
-            additional_comid in comid_list):
-            remove = 1
-            break
-        comid_list.append(additional_comid)
-        lengthkm = reach_generator.data_info.loc[
-            comid_list, 'lengthkm'].values
-        total_length = np.sum(lengthkm)
-        i_rep += 1
-    # print('Extending reach')
-    # utl.toc(time1)
-
-    # --------------------------
-    # Extract original coordinates
-    # --------------------------
-    time1 = time.time()
-    data_pd = reach_generator.map_coordinates(
-        comid_list, file_coords=coords_file)
-    # print('Extracting original coordinates')
-    # utl.toc(time1)
-    # Calculate Distance
-    distance = data_pd['s'].values[-1]
-    # print(data_pd['s'].shape)
-    delta_time_extract = time.time() - time1 
-    # Remove that reach
-    if remove == 1 or len(data_pd['x'].values) <= 3:
-        remove = 0
-        return {str(hw): {'start_comid': -1}}
-            
-    time1 = time.time()
-    if calculate_poly:
-        try:
-            data = reach_generator.fit_splines(
-                data_pd, method=method)
-            keys_lab.update({i: f'{i}_poly' for i in keys})
-        except:
-            print(f'Error in reach {hw}')
-            return {str(hw): {'start_comid': -1}}
-        comid = data[keys_lab['comid']]
-    else:
-        comid = np.array(data_pd.index)
-        data = {}
-        for key in list(data_pd):
-            data[key] = data_pd[key].values
-    
-    # print('Calculating Polynomial')
-    # utl.toc(time1)
-    delta_time_poly = time.time() - time1
-
-    huc_n = linking_network.loc[hw, 'huc_n']
-
-    # Save data into dict
-    time1 = time.time()
-    data = {str(hw): {
-        key: data[keys_lab[key]] for key in keys}}
-    # data[str(hw)]['huc04'] = self.huc04
-    data[str(hw)]['huc_n'] = huc_n
-    data[str(hw)]['start_comid'] = hw
-    data[str(hw)]['time_extract'] = delta_time_extract
-    data[str(hw)]['time_poly'] = delta_time_poly
-    data[str(hw)]['time_poly'] = delta_time_poly
-    # print('Storing Information')
-    # utl.toc(time1)
-    
-    # data_to_save[str(hw)].update({
-    #     key: data[keys_lab[key]] for key in keys})
-    # data_to_save[str(hw)]['huc04'] = self.huc04
-    # data_to_save[str(hw)]['huc_n'] = huc_n
-    # data_to_save[str(hw)]['start_comid'] = hw
-    # data_to_save[str(hw)]['uid'] = hw
-
-    return data
-
-

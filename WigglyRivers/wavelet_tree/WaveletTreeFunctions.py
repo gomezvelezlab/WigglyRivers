@@ -21,7 +21,7 @@ These functions are based on Vermeulen et al. (2016) Meander tree generation
 import time
 import copy
 import numpy as np
-from .waveletFunctions import wavelet
+from . import waveletFunctions as cwt_func
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
 from scipy.spatial import Delaunay
@@ -43,7 +43,13 @@ def calculate_cwt(curvature, ds, pad=1, dj=5e-2, s0=-1, j1=-1,
     ------------
         This function uses package created by Predybaylo (2014), modified by
         von Papen (2018), and is based on the MATLAB package created by Torrence
-        and Compo (1995).
+        and Compo (1998).
+
+        References:
+        ------------
+        Torrence, C., & Compo, G. P. (1998). A Practical Guide to Wavelet
+        Analysis. Bulletin of the American Meteorological Society, 79(1), 61–78.
+        https://doi.org/10.1175/1520-0477(1998)079<0061:APGTWA>2.0.CO;2
     ____________________________________________________________________________
 
     Args:
@@ -61,7 +67,7 @@ def calculate_cwt(curvature, ds, pad=1, dj=5e-2, s0=-1, j1=-1,
     :param j1: float,
         number of scales minus one, 7/4 or 3/2.
     :param mother: str,
-        mother wavelet, 'DOG' or 'MORLET'.
+        mother wavelet function, can be 'DOG', 'MORLET', or 'PAUL'.
     :param m: int,
         order of the derivative of the Gaussian, 2 or 4.
     :return:
@@ -70,23 +76,87 @@ def calculate_cwt(curvature, ds, pad=1, dj=5e-2, s0=-1, j1=-1,
         scales: scales of the wavelet.
         coi: cone of influence.
     """
-    wave, period, scales, coi, parameters = wavelet(
+    wave, period, scales, coi, parameters = cwt_func.wavelet(
         curvature, ds, pad, dj, s0, j1, mother, m)
-    # calculate global wavelet spectrum
-    gws = np.mean(np.abs(wave)**2, axis=1)
-    # find peaks in the gws
-    peaks, _ = find_peaks(gws)
+    power = np.abs(wave)**2
+
+    # Calculate global wavelet spectrum
+    gws, peaks = cwt_func.calculate_global_wavelet_spectrum(wave)
     peak_periods = period[peaks]
 
     # Find SAWP (Spectral-Average Wave Period) using Zolezzi and Guneralp (2016)
     dj = parameters['dj']
     c_delta = parameters['C_delta']
-    power = np.abs(wave)**2
-    scales_r = scales.reshape((-1, 1))
-    scales_p = np.tile(scales, (power.shape[1], 1)).T
-    sawp = (dj*ds)/c_delta * np.sum(power/scales_p, axis=0)
-
+    sawp = cwt_func.calculate_scale_averaged_wavelet_power(wave, scales, ds, 
+                                                           dj, c_delta)
     return wave, period, scales, power, gws, peak_periods, sawp, coi, parameters
+
+
+def find_wave_significance(curvature, ds, scales, sigtest=0, lag1=0, siglvl=0.95,
+                           dof=None, mother='DOG', param=None, gws=None):
+    """
+    Description:
+    ----------------
+        Calculate wave significiance.
+
+        This function uses package created by Predybaylo (2014), modified by
+        von Papen (2018), and is based on the MATLAB package created by Torrence
+        and Compo (1998).
+
+        References:
+        ------------
+        Torrence, C., & Compo, G. P. (1998). A Practical Guide to Wavelet
+        Analysis. Bulletin of the American Meteorological Society, 79(1), 61–78.
+        https://doi.org/10.1175/1520-0477(1998)079<0061:APGTWA>2.0.CO;2
+    ____________________________________________________________________________
+
+    Args:
+    ------------
+    :param curvature: np.ndarray,
+        Curvature of the river.
+    :param ds: float,
+        Spatial resolution of the curvature.
+    :param scales: np.ndarray,
+        Scales of the wavelet.
+    :param sigtest: int,
+        perform significance test, 0, 1, or 2. Default is 0.
+            If 0 (default), then just do a regulat chi-square test,
+                i.e., Eqn (18) from Torrence and Compo (1998).
+            If 1, then do a "time-average" test, i.e., Eqn (23).
+                In this case, DOF should be set to np.nan, the number of
+                local wavelet spectra that were averaged together.
+                For the Global Wavelet Spectrum, this would be NA=N,
+                where N is the number of points in the time series.
+            If 2, then do a "scale-average" test, i.e., Eqn (25)-(28).
+                In this case, DOF should be set to a two-element vector
+                [S1,S2], which gives the scale range that were averaged
+                together. For example, if the average between scales
+                2 and 8 was taken, then DOF=[2,8].
+    :param lag1: int,
+        lag-1 autocorrelation, used for signif levels. Default is 0.
+    :param siglvl: float,
+        significance level to use. Default is 0.95.
+    :param dof: int,
+        degrees of freedom for significance test.
+            If sigtest=0, then (automatically) set to 2 (or 1 for mother='DOG').
+            If sigtest=1, then set to DOF=np.nan, the number if times averaged.
+            If sigtest=2, then set to DOF=[S1,S2], the range of scales averaged.
+    :param mother: str,
+        mother wavelet function, can be 'DOG', 'MORLET', or 'PAUL'.
+    :param param: float,
+        parameter for the mother wavelet.
+    :param gws: np.ndarray,
+        global wavelet spectrum.
+    :return:
+        - signif: significance levels as a function of scale.
+        - sig95: 95% significance level as a function of scale.
+    """
+    n = len(curvature)
+    signif = cwt_func.wave_signif(
+        curvature, ds, scales, sigtest=sigtest, lag1=lag1, siglvl=siglvl,
+        dof=dof, mother=mother, param=param, gws=gws)
+    sig95 = signif[:, np.newaxis].dot(np.ones(n)[np.newaxis, :])
+    return signif, sig95
 
 
 def find_zc_lines(cwt_matrix):
