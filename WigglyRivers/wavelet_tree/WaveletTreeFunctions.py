@@ -155,6 +155,7 @@ def find_wave_significance(curvature, ds, scales, sigtest=0, lag1=0, siglvl=0.95
     signif = cwt_func.wave_signif(
         curvature, ds, scales, sigtest=sigtest, lag1=lag1, siglvl=siglvl,
         dof=dof, mother=mother, param=param, gws=gws)
+    # Expand signif --> (J+1)x(N) array
     sig95 = signif[:, np.newaxis].dot(np.ones(n)[np.newaxis, :])
     return signif, sig95
 

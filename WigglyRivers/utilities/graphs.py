@@ -736,3 +736,138 @@ def plot_meander_matplotlib(x_river, y_river, x_meander, y_meander):
               np.max(y_meander) + distance_meander*2])
     return f
 
+
+def plot_river_spectrum_compiled(river, only_significant=True):
+    # Extract Information
+    x = river.x
+    y = river.y
+    s = river.s
+    angle = river.angle
+    c = river.c
+    wavelen_c = river.cwt_wavelength_c
+    wavelen_angle = river.cwt_wavelength_angle
+    power_c = copy.deepcopy(river.cwt_power_c)
+    coi_c = river.cwt_coi_c
+    power_angle = copy.deepcopy(river.cwt_power_angle)
+    coi_angle = river.cwt_coi_angle
+    gws_c = river.cwt_gws_c
+    gws_angle = river.cwt_gws_angle
+    sawp_c = river.cwt_sawp_c
+    sawp_angle = river.cwt_sawp_angle
+
+    if only_significant:
+        power_c = river.cwt_power_c_sig
+        gws_c = river.cwt_gws_c_sig
+        sawp_c = river.cwt_sawp_c_sig
+        power_angle = river.cwt_power_angle_sig
+        gws_angle = river.cwt_gws_angle_sig
+        sawp_angle = river.cwt_sawp_angle_sig
+
+    fig, ax = plt.subplots(7, 1, figsize=(8, 10))
+    ax = ax.ravel()
+    # Planimetry Coordinate
+    i_d = 0
+    ax[i_d].plot(x, y, 'k', linewidth=1.5)
+    ax[i_d].set_aspect('equal')
+    # Extend y axis
+    ax[i_d].set_ylim([np.min(y)-np.std(y), np.max(y)+np.std(y)])
+    ax[i_d].set_xticks([])
+    ax[i_d].set_yticks([])
+    # Remove axis lines
+    ax[i_d].spines['top'].set_visible(False)
+    ax[i_d].spines['right'].set_visible(False)
+    ax[i_d].spines['bottom'].set_visible(False)
+    ax[i_d].spines['left'].set_visible(False)
+    ax[i_d].set_title('River Planimetry')
+
+    # Curvature
+    i_d = 1
+    ax[i_d].plot(s, c, 'k', linewidth=0.5)
+    ax[i_d].set_xlim([np.min(s), np.max(s)])
+    ax[i_d].set_ylabel(r'$c$')
+    ax[i_d].set_title('Curvature')
+
+    # Power Curvature
+    i_d = 2
+    im_c = ax[i_d].pcolormesh(s, wavelen_c, power_c, shading='auto',
+                              cmap='Blues')
+    # Plot COI
+    ax[i_d].fill_between(s, coi_c*0+wavelen_c[-1], coi_c, facecolor='none',
+                        edgecolor='#00000040', hatch='x')
+    ax[i_d].set_yscale('log')
+    ax[i_d].set_ylim([np.max(wavelen_c), np.min(wavelen_c)])
+    ax[i_d].set_xlim([np.min(s), np.max(s)])
+    ax[i_d].set_yticklabels([])
+    # for peak in gws_peak_wavelen_c:
+    #     ax[i_d].axhline(peak, color='r', linestyle='--')
+    # Move Figure
+
+    # SAWP
+    i_d = 3
+    ax[i_d].plot(s, sawp_c, 'k', linewidth=0.5)
+    ax[i_d].set_xlim([np.min(s), np.max(s)])
+    ax[i_d].set_xlabel('Distance (m)')
+    ax[i_d].set_ylabel('SAWP')
+
+    # Angle
+    i_d = 4
+    ax[i_d].plot(s, angle, 'k', linewidth=0.5)
+    ax[i_d].set_xlim([np.min(s), np.max(s)])
+    ax[i_d].set_ylabel(f'$\\theta$')
+    ax[i_d].set_title('Direction Angle')
+
+    # Power Curvature
+    i_d = 5
+    im_angle = ax[i_d].pcolormesh(s, wavelen_angle, power_angle, shading='auto',
+                                  cmap='Blues')
+    ax[i_d].fill_between(s, coi_angle*0+wavelen_angle[-1], coi_angle,
+                         facecolor='none', edgecolor='#00000040', hatch='x')
+    ax[i_d].set_yscale('log')
+    ax[i_d].set_ylim([np.max(wavelen_angle), np.min(wavelen_angle)])
+    ax[i_d].set_xlim([np.min(s), np.max(s)])
+    ax[i_d].set_yticklabels([])
+    # for peak in gws_peak_wavelen_angle:
+    #     ax[i_d].axhline(peak, color='r', linestyle='--')
+    # SAWP
+    i_d = 6
+    ax[i_d].plot(s, sawp_angle, 'k', linewidth=0.5)
+    ax[i_d].set_xlim([np.min(s), np.max(s)])
+    ax[i_d].set_ylabel('SAWP')
+    ax[i_d].set_xlabel('Distance (m)')
+
+    plt.tight_layout()
+    fig.subplots_adjust(left=0.25, right=0.90)
+    # Add Colorbars
+    pos = ax[2].get_position()
+    ax_c = fig.add_axes([0.91, pos.y0, 0.02, pos.height])
+    cbar_c = fig.colorbar(im_c, cax=ax_c)
+
+    pos = ax[5].get_position()
+    ax_angle = fig.add_axes([0.91, pos.y0, 0.02, pos.height])
+    cbar_angle = fig.colorbar(im_angle, cax=ax_angle)
+
+    # Add GWS c
+    pos = ax[2].get_position()
+    ax_gws_c = fig.add_axes([0.1, pos.y0, 0.135, pos.height])
+    ax_gws_c.plot(gws_c, wavelen_c, 'k', linewidth=0.5)
+    ax_gws_c.set_yscale('log')
+    ax_gws_c.set_ylim([np.max(wavelen_c), np.min(wavelen_c)])
+    ax_gws_c.set_ylabel(f'$\lambda$ (m)')
+    ax_gws_c.set_xlabel('Power (m$^2$)')
+    ax_gws_c.set_title('GWS')
+    # for peak in gws_peak_wavelen_c:
+    #     ax_gws_c.axhline(peak, color='r', linestyle='--')
+
+    pos = ax[5].get_position()
+    ax_gws_angle = fig.add_axes([0.1, pos.y0, 0.135, pos.height])
+    ax_gws_angle.plot(gws_angle, wavelen_angle, 'k', linewidth=0.5)
+    ax_gws_angle.set_yscale('log')
+    ax_gws_angle.set_ylim([np.max(wavelen_angle), np.min(wavelen_angle)])
+    ax_gws_angle.set_ylabel(f'$\lambda$ (m)')
+    ax_gws_angle.set_xlabel('Power (m$^2$)')
+    ax_gws_angle.set_title('GWS')
+    # for peak in gws_peak_wavelen_angle:
+    #     ax_gws_angle.axhline(peak, color='r', linestyle='--')
+    # plt.tight_layout()
+
+    return fig, ax

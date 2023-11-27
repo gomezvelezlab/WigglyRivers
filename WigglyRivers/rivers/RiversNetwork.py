@@ -1283,9 +1283,9 @@ class RiverTransect:
         coords = np.array([x, y]).T
         if s is None:
             s = RF.get_reach_distances(coords)
-        self.x_o = x
-        self.y_o = y
-        self.s_o = s
+        self.x_o = copy.deepcopy(x)
+        self.y_o = copy.deepcopy(y)
+        self.s_o = copy.deepcopy(s)
         self.scale = 1
         self.xy_start = [self.x_o[0], self.y_o[0]]
         self.x_start = self.x_o[0]
@@ -1333,13 +1333,13 @@ class RiverTransect:
         self.w_m_gm = 10** np.mean(np.log10(self.w_m_o))
         self.scale_by_width = scale_by_width
         self.scaled_data = False
-        if scale_by_width and not(np.isnan(self.w_m_gm)):
-            self.logger.info(' Scaling curvature by width')
-            self.x_o = self.x_o / self.w_m_gm
-            self.y_o = self.y_o / self.w_m_gm
-            self.z_o = self.z_o / self.w_m_gm
-            self.s_o = self.s_o / self.w_m_gm
-            self.scaled_data = True
+        # if scale_by_width and not(np.isnan(self.w_m_gm)):
+        #     self.logger.info(' Scaling curvature by width')
+        #     self.x_o /= self.w_m_gm
+        #     self.y_o /= self.w_m_gm
+        #     self.z_o /= self.w_m_gm
+        #     self.s_o /= self.w_m_gm
+        #     self.scaled_data = True
             # TODO: Include flag for exporting values to shapefiles, remember to unscale the data
 
         self.kwargs_resample_default = {
@@ -1374,6 +1374,14 @@ class RiverTransect:
             self.logger.info('Resample calculated with '
                              '`River.calculate_spline()`')
 
+        if scale_by_width and not(np.isnan(self.w_m_gm)):
+            self.logger.info(' Scaling curvature by width')
+            self.x /= self.w_m_gm
+            self.y /= self.w_m_gm
+            self.z /= self.w_m_gm
+            self.s /= self.w_m_gm
+            self.scaled_data = True
+
         # Calculate resample distance
         self.ds = np.mean(np.diff(self.s))
         # Check equal distance between s points
@@ -1381,6 +1389,13 @@ class RiverTransect:
         if not(np.all(np.isclose(dif, self.ds, rtol=1e-2))):
             self.logger.warning('Distance between points is not constant,' 
                                 ' please run `River.calculate_spline()`')
+
+        # plt.figure(figsize=(8, 10))
+        # plt.plot(x/self.w_m_gm, y/self.w_m_gm, '-k')
+        # plt.plot(self.x_o, self.y_o, '--r')
+        # plt.plot(self.x, self.y, '--r')
+        # plt.gca().set_aspect('equal')
+        # plt.show()
 
         # -------------------
         # Other attributes
@@ -1613,11 +1628,24 @@ class RiverTransect:
     
     def set_planimetry_derivatives(self, planimetry_derivatives):
         self.planimetry_derivatives = planimetry_derivatives
+        # if self.scale_by_width and not(np.isnan(self.w_m_gm)):
+        #     self.planimetry_derivatives['dxds'] /= self.w_m_gm
+        #     self.planimetry_derivatives['dyds'] /= self.w_m_gm
+        #     self.planimetry_derivatives['d2xds2'] /= self.w_m_gm
+        #     self.planimetry_derivatives['d2yds2'] /= self.w_m_gm
         return
     
     def set_splines(self, splines):
         self.splines = splines
         return
+    
+    def eval_splines(self, s_value):
+        # The splines where fitted to the original coordinates
+        x_spl = self.splines['x_spl']
+        y_spl = self.splines['y_spl']
+        if self.scale_by_width and not(np.isnan(self.w_m_gm)):
+            s_value *= self.w_m_gm
+
 
     # --------------------
     # Modify River
@@ -1756,9 +1784,9 @@ class RiverTransect:
         # Calculate the curvature
         r, c, angle = RF.calculate_curvature(s, x, y, self.planimetry_derivatives)
         # angle = RF.calculate_direction_angle(s, x, y, self.planimetry_derivatives)
-        # if self.scale_by_width and not(np.isnan(self.w_m_gm)):
-        #     self.logger.info(' Scaling curvature by width')
-        #     c *= self.w_m_gm
+        if self.scale_by_width and not(np.isnan(self.w_m_gm)):
+            self.logger.info(' Scaling curvature by width')
+            c *= self.w_m_gm
         self.r = r
         self.c = c
         # self.s = s_c
@@ -1858,7 +1886,7 @@ class RiverTransect:
             WTFunc.calculate_cwt(c, ds, pad, dj, s0, j1, mother, m)
         
         signif, sig95 = WTFunc.find_wave_significance(
-            c, ds, scales, sigtest=0, lag1=0.72, siglvl=0.95)
+            c, ds, scales, sigtest=0, lag1=0, siglvl=0.95)
         
         # Values of power where sig95 > 1 are significant
         sig95 = power/sig95
@@ -1866,6 +1894,11 @@ class RiverTransect:
         power_sig95[sig95 <= 1] = 0
         wave_sig95 = copy.deepcopy(wave)
         wave_sig95[sig95 <= 1] = 0
+
+        # Remove values within the cone of influence (COI)
+        for i in range(len(coi)):
+            cond = period > coi[i]
+            power_sig95[cond, i] = 0
 
         # Recalculate GWS and SAWP
         gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
@@ -1926,7 +1959,7 @@ class RiverTransect:
         :return:
         """
         # Get curvature information
-        angle = self.angle
+        angle = copy.deepcopy(self.angle)
         s_curvature = self.s
         # Calculate ds
         ds = np.diff(s_curvature)[0]
@@ -1935,10 +1968,7 @@ class RiverTransect:
             WTFunc.calculate_cwt(angle, ds, pad, dj, s0, j1, mother, m)
 
         signif, sig95 = WTFunc.find_wave_significance(
-            angle, ds, scales, sigtest=0, lag1=0.72, siglvl=0.95)
-
-        # Values of power where sig95 > 1 are significant
-        sig95 = power/sig95
+            angle, ds, scales, sigtest=0, lag1=0, siglvl=0.95)
 
         # Values of power where sig95 > 1 are significant
         sig95 = power/sig95
@@ -1946,6 +1976,10 @@ class RiverTransect:
         power_sig95[sig95 <= 1] = 0
         wave_sig95 = copy.deepcopy(wave)
         wave_sig95[sig95 <= 1] = 0
+        # Remove values within the cone of influence (COI)
+        for i in range(len(coi)):
+            cond = period > coi[i]
+            power_sig95[cond, i] = 0
 
         # Recalculate GWS and SAWP
         gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
@@ -2322,8 +2356,13 @@ class RiverTransect:
 
                     # Arrange values
                     s_inf = np.array([s_inf_left, s_inf_right])
-                    x_inf = x_spl(s_inf)
-                    y_inf = y_spl(s_inf)
+
+                    if self.scale_by_width and not(np.isnan(self.w_m_gm)):
+                        x_inf /= x_spl(s_inf)
+                        y_inf /= y_spl(s_inf)
+                    else:
+                        x_inf = x_spl(s_inf)
+                        y_inf = y_spl(s_inf)
                     node.s_inf = np.array([s_inf[0], s_inf[-1]])
                     node.x_inf = x_inf
                     node.y_inf = y_inf
