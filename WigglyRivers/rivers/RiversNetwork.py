@@ -89,13 +89,19 @@ class RiverDatasets:
     add_files             Add path to NHD files and HUC 04 of the network.
                           These files have to be created beforehand with the
                           pyDatAPros package.
-    get_random_reach      Get random reach from the the NHD dataset.
+    map_network           Map the complete network from a list of start comids.
+    load_linking_network  Load the linking network from a file.
+    load_extracted_in_comid_network Load the comid extracted in order to map
+                                    the complete network.
+    get_reaches_from_network Get reach coordinates from the comid network
+                             dictionary.
     get_reach             Extract coordinates of a complete reach from the NHD
                           dataset.
-    save_rivers           Save river information in a pickle file.
     get_metric_database   Extract the meander metrics.
-    save_database         Save meander metric database.
-    load_rivers           Load rivers dataset.
+    save_databases_meanders Save meander metric database.
+    save_rivers           Save river files.
+    load_rivers_network   Load rivers dataset.
+    plot_rivers           Plot river network.
     ===================== =====================================================
     """
 
@@ -297,7 +303,7 @@ class RiverDatasets:
 
         # Cheange headers to lower case
         self.data_info_df.columns = [i.lower() for i in
-                                        self.data_info_df.columns]
+                                     self.data_info_df.columns]
         # Clean dataset
         self._clean_nhd_data()
         # Create reach generator
@@ -334,14 +340,6 @@ class RiverDatasets:
                 (self.data_info_df['terminalfl'] == 1))]
         except KeyError:
             print('No startflag and terminalflag in the dataframe')
-        return
-
-    def get_random_reach(self, id_value, calculate_poly=True, huc=8):
-        # Get Headwaters
-        headwaters = self.data_info_df[self.data_info_df['StartFlag'] == 1]
-        i = np.random.randint(0, len(headwaters))
-        comid = headwaters.iloc[i, 0]
-        self.get_reach(id_value, comid, calculate_poly, huc)
         return
 
     def map_network(self,
@@ -433,7 +431,6 @@ class RiverDatasets:
         Description:
         -----------
             Load the linking network from a file.
-
         ________________________________________________________________________
 
         Args:
@@ -794,6 +791,12 @@ class RiverDatasets:
         return database
 
     def get_metric_databases(self):
+        """
+        Description:
+        ------------
+            Get metrics from the meander databases.
+        ________________________________________________________________________
+        """
         database = pd.DataFrame
         for i, id_value in enumerate(self.id_values):
             if i == 0:
@@ -804,6 +807,21 @@ class RiverDatasets:
         return database
 
     def save_databases_meanders(self, path_output, file_name):
+        """
+        Description:
+        ------------
+            Save meander database
+        ________________________________________________________________________
+
+        Args:
+        ------------
+        :param path_output: str,
+            Path to save the database
+        :type path_output: str
+        :param file_name: str,
+            Name of the file to save the database
+        :type file_name: str
+        """
         database = self.get_metric_databases()
         FM.save_data(database, path_output=path_output, file_name=file_name)
         return
@@ -812,6 +830,37 @@ class RiverDatasets:
                     fn_tree_scales='tree_scales.p',
                     fn_tree_scales_database='tree_scales_database.feather',
                     fn_meander_database='meander_database.csv'):
+        """
+        Description:
+        ------------
+            Save river files.
+        ________________________________________________________________________
+
+        Args:
+        ------------
+        :param path_output: str,
+            Path to save the database
+        :type path_output: str
+        :param file_name: str,
+            Name of the file to save the database
+        :type file_name: str
+        :param save_cwt_info: bool, default=False,
+            If True, the CWT information will be saved as a pickle file.
+        :type save_cwt_info: bool
+        :param fn_tree_scales: str, default='tree_scales.p',
+            Name of the file to save the tree scales, this file must be saved as
+            a pickle file.
+        :type fn_tree_scales: str
+        :param fn_tree_scales_database: str,
+            default='tree_scales_database.feather',
+            Name of the file to save the tree scales database, this file can be
+            saved as a feather or csv file.
+        :type fn_tree_scales_database: str
+        :param fn_meander_database: str, default='meander_database.csv',
+            Name of the file to save the meander database, this file can be
+            saved as a feather or csv file.
+        :type fn_meander_database: str
+        """
         extension = file_name.split('.')[-1]
         if extension in ('pickle', 'p'):
             data_save = self.rivers
@@ -913,7 +962,23 @@ class RiverDatasets:
         :param headwaters_comid: str, None, Default is None
             Name of the headwaters to extract. If None all the headwaters
             will be extracted.
-        :type headwaters_comid: str, None
+        :type headwaters_comid: str, Defualt is None
+        :param fn_tree_scales: str, Default is None
+            Name of the file with the tree scales.
+        :type fn_tree_scales: str
+        :param fn_tree_scales_database: str, Default is None
+            Name of the file with the tree scales database.
+        :type fn_tree_scales_database: str
+        :param fn_meanders_database: str, Default is None
+            Name of the file with the meanders database.
+        :type fn_meanders_database: str
+        :param kwargs_resample: dict, Default is None
+            Dictionary with the kwargs to resample the reach. If None, the
+            kwargs will be extracted from the file.
+        :type kwargs_resample: dict
+        :param kwargs: dict,
+            Additional kwargs to add to the river.
+        :type kwargs: dict
         """
         # Check headwaters
         if headwaters_comid is not None:
@@ -1086,28 +1151,17 @@ class RiverDatasets:
 
         return
 
-
-    def load_rivers(self, file_name):
-        extension = file_name.split('.')[-1]
-        if extension in ('pickle', 'p'):
-            self.rivers = FM.load_data(file_name)
-        else:
-            raise ValueError('Extension should be pickle ".p". '
-                             'If you want to load "hdf5" files, please use '
-                             'the method `load_river_network`')
-        return
-    
-    def plot_rivers(self, comids: Union[float, int, str, None]=None,
+    def plot_rivers(self, comids: Union[float, int, str, list, None]=None,
                     engine: str='matplotlib', data_source='resample', **kwargs):
         """
         Description:
         -----------
-            Plot a river from the river network.
+            Plot rivers from the river network.
         ________________________________________________________________________
 
         Args:
         -----
-        :param comid: float, int, str,
+        :param comid: float, int, str, list
             Comid of the river to plot
         :type comid: float, int, str
         """
@@ -1123,32 +1177,6 @@ class RiverDatasets:
         elif engine == 'plotly':
             fig = graphs.plot_rivers_plotly(self, comids, data_source, **kwargs)
         return fig
-    
-    @DeprecationWarning
-    def plot_network_from_coords(self,
-                                 comids: Union[list, float, int, None]=None,
-                                 ax: Union[plt.Axes, None]=None,
-                                 **kwargs):
-        """
-        """
-
-        if comids is None:
-            comids = self.reach_generator.data_info.index.values
-        elif isinstance(comids, float) or isinstance(comids, int):
-            comids = [comids]
-
-        for c in comids:
-            data = FM.load_data(self.coords_file, keys=[str(c)])
-            try:
-                x = data[c][0]
-                y = data[c][1]
-            except KeyError:
-                continue
-            if ax is None:
-                ax = plt.gca()
-            ax.plot(x, y, **kwargs)
-        
-        return
 
 
 class RiverTransect:
@@ -1202,12 +1230,12 @@ class RiverTransect:
                                 Default is 3.
                             'smooth': float, smoothing factor for the spline.
                                 The smoothing factor depends on the amount of
-                                points in the data, then the given number will be 
-                                multiplied by the length of the data. Please look at
-                                `scipy.interpolate.UnivariateSpline` for more
-                                information. We recommend testing values that
-                                vary over orders of magnitude with respect to
-                                the length of the data. Default is 0.0.
+                                points in the data, then the given number will
+                                be multiplied by the length of the data. Please
+                                look at `scipy.interpolate.UnivariateSpline` for
+                                more information. We recommend testing values
+                                that vary over orders of magnitude with respect
+                                to the length of the data. Default is 0.0.
                             'ext': int, controls the extrapolation mode for
                                 elements not in the interval defined by the
                                 knot sequence. Default is 0.
@@ -1226,26 +1254,29 @@ class RiverTransect:
     ====================== =====================================================
     Methods                Description
     ====================== =====================================================
-    set_gamma_width        Set value of gamma threshold for width
-    extract_data_to_save   Extract data to save in a file
+    set_gamma_width        Set value of gamma threshold for width for the CWT.
+    set_data_source        Set data source to extract data from
+    extract_data_to_save   Extract data to save in a file.
+    set_planimetry_derivatives Set planimetry derivatives.
+    set_splines            Set splines of the x and y coordinates of the river.
+    eval_splines           Evaluate splines of the x and y coordinates of the
+                           river.
     scale_coordinates      Scale coordinates by a given value
     translate_xy_start     Translate coordinates to xy start
     calculate_spline       Calculate spline of the river
     calculate_smooth       Smooth the planimetry of the river.
-    get_curvature          Get curvature of the river.
+    calculate_curvature    Calculate curvature of the river.
     extract_cwt_tree       Extract CWT and tree of the river 
     extract_meanders       Extract meanders from the river with CWT process.
-    get_cwt                Get continuous wavelet transform (cwt) of the river.
+    get_cwt_curvature      Get CWT of the curvature of the river.
+    get_cwt_angle          Get CWT of the angle of the river.
     extract_tree           Extract tree from the cwt of the river.
     find_peaks_in_poly     Find peaks in the polygons of the cwt.
-    detect_meander_from_   Detect meander from the cwt.
-        cwt 
-    get_Tree_center_points Get center points of the tree.
-        _in_planimtry
-    get_meander_bounds_    Get meander bounds from the cwt.
-        from_cwt
-    add_meanders_from_     Add meanders from captured bounds comming from cwt.
-        bounds
+    detect_meander_from_cwt Detect meander from the cwt.
+    get_tree_center_points_in_planimtry Get center points of the tree.
+    update_tree_scales     Update tree scales object
+    get_meander_bounds_from_cwt Get meander bounds from the cwt.
+    add_meanders_from_bounds Add meanders from captured bounds comming from cwt.
     plot_cwt               Plot cwt tree of the river.
     add_meander            Add meander to the river.
     report_meander_metrics Report meander Metrics.
@@ -1292,6 +1323,7 @@ class RiverTransect:
         self.y_start = self.y_o[0]
         self.translate = False
         self.planimetry_derivatives = None
+        self.splines = None
         # --------------------------------
         # Set optional variables to NaN
         # --------------------------------
@@ -1333,14 +1365,6 @@ class RiverTransect:
         self.w_m_gm = 10** np.mean(np.log10(self.w_m_o))
         self.scale_by_width = scale_by_width
         self.scaled_data = False
-        # if scale_by_width and not(np.isnan(self.w_m_gm)):
-        #     self.logger.info(' Scaling curvature by width')
-        #     self.x_o /= self.w_m_gm
-        #     self.y_o /= self.w_m_gm
-        #     self.z_o /= self.w_m_gm
-        #     self.s_o /= self.w_m_gm
-        #     self.scaled_data = True
-            # TODO: Include flag for exporting values to shapefiles, remember to unscale the data
 
         self.kwargs_resample_default = {
             'method': 'width_based',
@@ -1375,6 +1399,7 @@ class RiverTransect:
                              '`River.calculate_spline()`')
 
         if scale_by_width and not(np.isnan(self.w_m_gm)):
+            # TODO: Include flag for exporting values to shapefiles, remember to unscale the data
             self.logger.info(' Scaling curvature by width')
             self.x /= self.w_m_gm
             self.y /= self.w_m_gm
@@ -1389,13 +1414,6 @@ class RiverTransect:
         if not(np.all(np.isclose(dif, self.ds, rtol=1e-2))):
             self.logger.warning('Distance between points is not constant,' 
                                 ' please run `River.calculate_spline()`')
-
-        # plt.figure(figsize=(8, 10))
-        # plt.plot(x/self.w_m_gm, y/self.w_m_gm, '-k')
-        # plt.plot(self.x_o, self.y_o, '--r')
-        # plt.plot(self.x, self.y, '--r')
-        # plt.gca().set_aspect('equal')
-        # plt.show()
 
         # -------------------
         # Other attributes
@@ -1436,7 +1454,11 @@ class RiverTransect:
         self.cwt_gws_peak_wavelength_c = None
         self.cwt_swap_c = None
         self.cwt_signif_c = None
-        self.cwt_conn_c = None
+        self.cwt_sawp_c = None
+        self.cwt_sig95_c = None
+        self.cwt_power_c_sig = None
+        self.cwt_gws_c_sig = None
+        self.cwt_sawp_c_sig = None
         # Tree information
         self.cwt_conn = None
         self.cwt_regions = None
@@ -1452,6 +1474,7 @@ class RiverTransect:
         self.bound_to_poly = False
         self.tree_scales = None
         self.tree_scales_database = None
+        self.cwt_planimetry_coords = None
         # -----------------
         # Direction Angle
         # -----------------
@@ -1466,6 +1489,10 @@ class RiverTransect:
         self.cwt_sawp_angle = None
         self.cwt_signif_angle = None
         self.cwt_conn_angle = None
+        self.cwt_sig95_angle = None
+        self.cwt_power_angle_sig = None
+        self.cwt_gws_angle_sig = None
+        self.cwt_sawp_angle_sig = None
         # -------------------------
         # Meanders
         # -------------------------
@@ -1474,6 +1501,7 @@ class RiverTransect:
         self.meanders = {}
         self.id_meanders = []
         self.tree_scales_database_meanders = None
+        self.total_sinuosity = None
         # -------------------------
         # Report variables
         # -------------------------
@@ -1524,10 +1552,25 @@ class RiverTransect:
         return
     
     def set_data_source(self, data_source: str):
+        """
+        Description:
+        ------------
+            Set data source to extract data from.
+        ________________________________________________________________________
+
+        Args:
+        -----
+        :param data_source: str
+            Set data source to extract data from. Options are:
+                'original': Original data
+                'resample': Resampled data
+                'smooth': Smoothed data
+        :type data_source: float, int, None
+        """
         if data_source.lower() not in ('original', 'resample', 'smooth'):
             self.logger.warning('Data source not recognized, '
-                                'setting to spline')
-            self.data_source = 'spline'
+                                'setting to resample')
+            self.data_source = 'resample'
         else:
             self.data_source = data_source.lower()
         return
@@ -1584,12 +1627,6 @@ class RiverTransect:
     # --------------------
     # Core Methods
     # --------------------
-    def __check_variables(self):
-        if self.x is None:
-            raise ValueError('Splines have not been calculated, please run '
-                             '`calculate_spline` method first.')
-        return
-    
     def _extract_data_source(self, give_add_data=False):
         if self.data_source == 'original':
             x = self.x_o
@@ -1627,25 +1664,70 @@ class RiverTransect:
             return x, y, s
     
     def set_planimetry_derivatives(self, planimetry_derivatives):
+        """
+        Description:
+        ------------
+            Set planimetry derivatives
+        ________________________________________________________________________
+
+        Args:
+        -----
+        :param planimetry_derivatives: dict,
+            Dictionary with the planimetry derivatives, the keys are:
+                'dxds': derivative of x with respect to s
+                'dyds': derivative of y with respect to s
+                'd2xds2': second derivative of x with respect to s
+                'd2yds2': second derivative of y with respect to s
+        :type planimetry_derivatives: dict
+        """
         self.planimetry_derivatives = planimetry_derivatives
-        # if self.scale_by_width and not(np.isnan(self.w_m_gm)):
-        #     self.planimetry_derivatives['dxds'] /= self.w_m_gm
-        #     self.planimetry_derivatives['dyds'] /= self.w_m_gm
-        #     self.planimetry_derivatives['d2xds2'] /= self.w_m_gm
-        #     self.planimetry_derivatives['d2yds2'] /= self.w_m_gm
         return
     
     def set_splines(self, splines):
+        """
+        Description:
+        ------------
+            Set splines of the x and y coordinates of the planimetry
+        ________________________________________________________________________
+
+        Args:
+        -----
+        :param planimetry_derivatives: dict,
+            Dictionary with the planimetry derivatives, the keys are:
+                'dxds': derivative of x with respect to s
+                'dyds': derivative of y with respect to s
+                'd2xds2': second derivative of x with respect to s
+                'd2yds2': second derivative of y with respect to s
+        :type planimetry_derivatives: dict
+        """
         self.splines = splines
         return
     
     def eval_splines(self, s_value):
+        """
+        Description:
+        ------------
+            evaluate splines of the x and y coordinates of the planimetry.
+        ________________________________________________________________________
+
+        Args:
+        -----
+        :param s_value: float or array-like,
+            Value of s to evaluate the splines.
+        :type s_value: float or array-like
+        """
         # The splines where fitted to the original coordinates
+        # TODO: Finish implementing the scaling of the splines
         x_spl = self.splines['x_spl']
         y_spl = self.splines['y_spl']
         if self.scale_by_width and not(np.isnan(self.w_m_gm)):
             s_value *= self.w_m_gm
-
+        x = x_spl(s_value)
+        y = y_spl(s_value)
+        if self.scale_by_width and not(np.isnan(self.w_m_gm)):
+            x /= self.w_m_gm
+            y /= self.w_m_gm
+        return x, y
 
     # --------------------
     # Modify River
@@ -1789,7 +1871,6 @@ class RiverTransect:
             c *= self.w_m_gm
         self.r = r
         self.c = c
-        # self.s = s_c
         self.angle = angle
         return
 
@@ -1903,14 +1984,13 @@ class RiverTransect:
         # Recalculate GWS and SAWP
         gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
             wave_sig95)
-        peak_periods_sig95 = period[peaks]
+        # peak_periods_sig95 = period[peaks]
 
         # Find SAWP (Spectral-Average Wave Period) using Zolezzi and Guneralp (2016)
         dj = parameters['dj']
         c_delta = parameters['C_delta']
         sawp_sig95 = cwt_func.calculate_scale_averaged_wavelet_power(
             wave_sig95, scales, ds, dj, c_delta)
-
 
         # Store data
         self.cwt_parameters_c = parameters
@@ -1928,10 +2008,7 @@ class RiverTransect:
         self.cwt_power_c_sig = power_sig95
         self.cwt_gws_c_sig = gws_sig95
         self.cwt_sawp_c_sig = sawp_sig95
-
-
         return
-
 
     def get_cwt_angle(self, pad: float=1, dj: float=5e-2, s0: float=-1,
                       j1: float=-1, mother: str='MORLET', m: int=2):
@@ -1984,7 +2061,7 @@ class RiverTransect:
         # Recalculate GWS and SAWP
         gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
             wave_sig95)
-        peak_periods_sig95 = period[peaks]
+        # peak_periods_sig95 = period[peaks]
 
         # Find SAWP (Spectral-Average Wave Period) using Zolezzi and Guneralp (2016)
         dj = parameters['dj']
@@ -2108,19 +2185,14 @@ class RiverTransect:
             self.cwt_ml_tree = ml_tree
         return
 
-    def get_tree_center_points_in_planimetry(self, bound_to_poly: bool=False):
+    def get_tree_center_points_in_planimetry(self):
         """
         Description:
         ------------
             Get the center points of the meanders.
         ________________________________________________________________________
-
-        Args:
-        -----
-        :param bound_to_poly: bool,
-            Bound the center points to the polygon. Default True.
-        :return:
         """
+        bound_to_poly = False
         # Exctract coordinates from data source
         x, y, s = self._extract_data_source()
         self.bound_to_poly = bound_to_poly

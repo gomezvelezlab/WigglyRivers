@@ -3,7 +3,7 @@
 # _____________________________________________________________________________
 #
 #                       Coded by: Daniel Gonzalez-Duque
-#                               Last revised 2022-09-03
+#                               Last revised 2023-11-28
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 """
@@ -20,31 +20,22 @@ ______________________________________________________________________________
 import copy
 import logging
 import time
-from typing import Iterable
 from typing import Tuple
 from typing import Union
 # Data Management
 import numpy as np
-from scipy import optimize
-from scipy import integrate
-from scipy import signal
 from scipy import interpolate
-from scipy.interpolate import UnivariateSpline
 import pandas as pd
 # MeanderCONUS Packages
-from pyMeander.utilities import classExceptions as CE
-from pyMeander.utilities import filesManagement as FM
-from pyMeander.meander import MeanderFunctions as MF
-from pyMeander.utilities import utilities as utl
+from ..utilities import classExceptions as CE
+from ..utilities import filesManagement as FM
 from . import RiverFunctions as RF
-
 
 # ------------------
 # Logging
 # ------------------
 # Set logger
 logging.basicConfig(handlers=[logging.NullHandler()])
-
 
 # ------------------
 # Class
@@ -60,16 +51,9 @@ class CompleteReachExtraction:
     ===================== =====================================================
     Attribute             Description
     ===================== =====================================================
-    path_out              path to save the files.
-    save_format           save format of the information, the formats are:\n
-                          'p': pickle.\n
-                          'json': json type file.\n
-                          'mat': MATLAB type file.\n
-                          'csv': csv type file.\n
-                          'txt': txt type file.\n
-    nhd_tables            NHD tables to be loaded, by default it will load the
-                          'NHDPlusFlowlineVAA', 'NHDPlusEROMMA',
-                          'NHDPlusIncrPrecipMA', 'NHDPlusIncrTempMA'
+    data                  Pandas dataframe with the NHD information.
+    comid_id              String with the name of the comid column.
+    logger                Logger object.
     ===================== =====================================================
 
     The following are the methods of the class.
@@ -77,15 +61,17 @@ class CompleteReachExtraction:
     ===================== =====================================================
     Methods               Description
     ===================== =====================================================
-    read_mt_file          read in a MT file [ EDI | XML | j ]
+    load_coords           Load coordinates from file.
+    map_complete_network  Map comid network from the headwaters to the terminal
+                          nodes.
+    map_complete_network_down_up  Map the entire database. It will do
+                                  exploration from the terminal nodes to the
+                                  headwaters. Saving the information in each
+                                  reach.
+    map_complete_network  Map comid network from the headwaters to the terminal
+    map_complete_reach    Map individual comid network from starting comid to
+    map_coordinates       Extract coordinates from the comid list.
     ===================== =====================================================
-
-
-    Examples
-    -------------------
-    :Read from NHD GBD: ::
-
-        >>> import
     """
     def __init__(self, data, comid_id='nhdplusid', logger=None, **kwargs):
         """
@@ -151,13 +137,8 @@ class CompleteReachExtraction:
         return
 
     # --------------------------
-    # get functions
+    # Get functions
     # --------------------------
-    # @property
-    # def path_coordinates(self):
-    #     """ path for data saving"""
-    #     return self._path_coordinates
-
     @property
     def save_format(self):
         """save format of the files"""
@@ -168,7 +149,7 @@ class CompleteReachExtraction:
         """logger for debbuging"""
         return self._logging
     # --------------------------
-    # set functions
+    # Set functions
     # --------------------------
     @save_format.setter
     def save_format(self, save_format):
@@ -206,11 +187,10 @@ class CompleteReachExtraction:
                              huc_number: int=4,
                              max_num_comids: Union[int, None]=None,
                              cut_comid_number: int=3,
-                             do_not_overlap: bool=True,
-                             start_over: bool=True) -> None:
+                             do_not_overlap: bool=True) -> None:
         """
         DESCRIPTION:
-            Map the entire database.
+            Map comid network from the headwaters to the terminal nodes.
         _______________________________________________________________________
         INPUT:
             :param start_comids: list, np.ndarray, Default None
@@ -223,10 +203,6 @@ class CompleteReachExtraction:
                 Minimum number of comids contained in a reach to be extracted
             :param do_not_overlap: bool, Default False
                 If True, the comids will not overlap.
-        _______________________________________________________________________
-        OUTPUT:
-            :return reach: list,
-                List of comids for the values
         """
         if start_comids is None:
             # Extract headwaters
@@ -286,6 +262,8 @@ class CompleteReachExtraction:
             nodes to the headwaters. Saving the information in each reach.
         _______________________________________________________________________
             INPUT:
+            :param huc_number: int, Default 4
+                HUC number to be extracted.
             
         """
         # Extract headwaters
@@ -297,7 +275,6 @@ class CompleteReachExtraction:
 
         time1 = time.time()
         for tp in terminal_paths:
-
             # Extract comids that include the terminal path
             comid_table = self.data_info[
                 self.data_info['terminalpa'] == tp]
@@ -358,55 +335,24 @@ class CompleteReachExtraction:
         self.comid_network['comid_start'] = list(
             np.array(c).astype(float)[arg_sort_l])
         self.comid_network['length'] = list(np.array(lengths)[arg_sort_l])
-
-        # ---------------------------------------------------------------------
-        # Test
-
-        # i = 0
-        # i_c = 0
-        # comids_keys = self.comid_network['comid_start']
-        # c_e = comids_keys[i_c]
-        # comid_table = self.data_info[
-        #     self.data_info['terminalpa'] == terminal_paths[i]]
-        # so = self.data_info.loc[c_e, 'streamorde']
-        # print(so)
-
-        # x_up = self.data_info.loc[:, 'xup_deg'].values
-        # y_up = self.data_info.loc[:, 'yup_deg'].values
-        # x_down = self.data_info.loc[:, 'xdown_deg'].values
-        # y_down = self.data_info.loc[:, 'ydown_deg'].values
-
-        # x_up_net = self.data_info.loc[comid_network_2[str(c_e)], 'xup_deg'].values
-        # y_up_net = self.data_info.loc[comid_network_2[str(c_e)], 'yup_deg'].values
-        # x_down_net = self.data_info.loc[comid_network_2[str(c_e)], 'xdown_deg'].values
-        # y_down_net = self.data_info.loc[comid_network_2[str(c_e)], 'ydown_deg'].values
-
-        # import matplotlib.pyplot as plt
-        # plt.figure(figsize=(10, 10))
-        # plt.plot([x_up, x_down], [y_up, y_down], '-b')
-        # plt.plot([x_up_net, x_down_net], [y_up_net, y_down_net], '-r')
-        # plt.gca().set_aspect('equal', adjustable='box')
-        # plt.show()
-
-        # for i_c in range(1, len(arg_sort_l)):
-        #     i_c = 4
-        #     c_e = comids_keys[i_c]
-        #     x_up_net = self.data_info.loc[
-        #         comid_network_2[str(c_e)], 'xup_deg'].values
-        #     y_up_net = self.data_info.loc[
-        #         comid_network_2[str(c_e)], 'yup_deg'].values
-        #     x_down_net = self.data_info.loc[
-        #         comid_network_2[str(c_e)], 'xdown_deg'].values
-        #     y_down_net = self.data_info.loc[
-        #         comid_network_2[str(c_e)], 'ydown_deg'].values
-
-        #     plt.plot([x_up_net, x_down_net], [y_up_net, y_down_net], '-r')
-        # ---------------------------------------------------------------------
-
         return
 
     def _recursive_upstream_exploration(self, start_comid, comid_table,
                                         comid_network={}, huc_number=4):
+        """
+        DESCRIPTION:
+            Recursive exploration of the upstream comids.
+        _______________________________________________________________________
+        INPUT:
+            :param start_comids: list, np.ndarray, Default None
+                List of comids to be extracted.
+            :param comid_table: pd.DataFrame, 
+                Dataframe with the comid table.
+            :param comid_network: dict, Default None
+                directory to save the comid network (for recursive).
+            :param huc_number: int, Default 4
+                HUC number to be extracted.
+        """
 
         comid_network[start_comid] = [start_comid]
         c_comid_pos = start_comid
@@ -551,7 +497,16 @@ class CompleteReachExtraction:
 
     def map_coordinates(self, comid_list, file_coords):
         """
-        Map Coordinates and additional data to the comid_list
+        DESCRIPTION:
+            Map Coordinates and additional data to the comid_list
+        _______________________________________________________________________
+        INPUT:
+            :param comid_list: list,
+                List with comid values
+            :param file_coords: str, 
+                File name where the coordiantes will be saved.
+        _______________________________________________________________________
+        OUTPUT:
         """
         timeg = time.time()
         comid_list = np.array(comid_list).astype(float)
@@ -709,97 +664,3 @@ class CompleteReachExtraction:
         # print('Time general')
         # utl.toc(timeg)
         return data
-
-    @staticmethod
-    def fit_splines(data, method='min'):
-        """
-        Fit splines to the coordinates
-        """
-        # Extract data
-        comid = np.array(data.index)
-        so = data['so'].values
-        s = data['s'].values
-        x = data['x'].values
-        y = data['y'].values
-        z = data['z'].values
-        da = data['da_sqkm'].values
-        w = data['w_m'].values
-        # ---------------
-        # Get poly S
-        # ---------------
-        if method == 'min':
-            diff_s = np.min(np.diff(s))
-        elif method == 'geometric_mean':
-            diff_s = 10**np.mean(np.log10(np.diff(s)))
-        else:
-            raise ValueError(f"method '{method} not implemented."
-                             f"Please use 'min' or 'geometric_mean'")
-        s_poly = np.arange(s[0], s[-1] + diff_s, diff_s)
-        # ------------------
-        # Generate Splines
-        # -----------------
-        x_spl = UnivariateSpline(s, x, k=3, s=0, ext=0)
-        y_spl = UnivariateSpline(s, y, k=3, s=0, ext=0)
-        z_spl = UnivariateSpline(s, z, k=1, s=0, ext=0)
-        f_comid = interpolate.interp1d(s, comid,
-                                       fill_value=(comid[0], comid[-1]),
-                                       kind='previous', bounds_error=False)
-        f_so = interpolate.interp1d(s, so,
-                                       fill_value=(so[0], so[-1]),
-                                       kind='previous', bounds_error=False)
-        f_da = interpolate.interp1d(s, da,
-                                    fill_value=(da[0], da[-1]),
-                                    kind='previous', bounds_error=False)
-        f_w = interpolate.interp1d(s, w,
-                                   fill_value=(w[0], w[-1]),
-                                   kind='previous', bounds_error=False)
-        # ------------------
-        # Create points
-        # -----------------
-        x_poly = x_spl(s_poly)
-        y_poly = y_spl(s_poly)
-        z_poly = z_spl(s_poly)
-        comid_poly = f_comid(s_poly)
-        so_poly = f_so(s_poly)
-        da_poly = f_da(s_poly)
-        w_poly = f_w(s_poly)
-        # ------------------
-        # Create data
-        # -----------------
-        data_fitted = {
-            's_poly': s_poly ,'x_poly': x_poly, 'y_poly': y_poly,
-            'z_poly': z_poly, 'comid_poly': comid_poly,
-            'so_poly': so_poly, 'da_sqkm_poly': da_poly, 'w_m_poly': w_poly}
-
-        return data_fitted
-
-    def smooth_data(self, data, poly_order=2,
-                    savgol_window=1, gaussian_window=1):
-
-        # --------------------------
-        # Extract data
-        # --------------------------
-        try:
-            x = data['x_poly']
-            y = data['y_poly']
-            s = data['s_poly']
-        except KeyError:
-            raise KeyError('Data does not have the polynomial fit.'
-                           'Run fit_spline(data) first before smoothing')
-
-        # --------------------------
-        # Smooth Data
-        # --------------------------
-        x_smooth, y_smooth, s_smooth = RF.smooth_data(
-            x, y, s, poly_order=poly_order, savgol_window=savgol_window,
-            gaussian_window=gaussian_window)
-
-        # -----------------
-        # Save Data
-        # -----------------
-        data_smooth = {'x_smooth': x_smooth, 'y_smooth': y_smooth,
-                       's_smooth': s_smooth}
-        return data_smooth
-
-
-

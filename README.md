@@ -9,8 +9,8 @@ _WigglyRivers_ is a Python-based tool that allows the characterization of the mu
 This package has a few requirements. I encourage using a virtual environment of [Anaconda 3](https://www.anaconda.com/products/individual) with Python 3.6 or higher. The virtual environment creation can be seen [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html). Below, we list the process to create a virtual environment and install the requirements for the package.
 
 ```bash
-conda create -n pymeander_env python=3.10
-conda activate pymeander_env
+conda create -n wigglyrivers_env10 python=3.10
+conda activate wigglyrivers_env10
 conda install -c conda-forge geopandas
 conda install -c conda-forge h5py
 ```
