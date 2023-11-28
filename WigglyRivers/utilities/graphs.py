@@ -737,8 +737,9 @@ def plot_meander_matplotlib(x_river, y_river, x_meander, y_meander):
     return f
 
 
-def plot_river_spectrum_compiled(river, only_significant=True):
+def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     # Extract Information
+    cmap = 'YlGnBu'
     x = river.x
     y = river.y
     s = river.s
@@ -768,6 +769,8 @@ def plot_river_spectrum_compiled(river, only_significant=True):
     # Planimetry Coordinate
     i_d = 0
     ax[i_d].plot(x, y, 'k', linewidth=1.5)
+    if idx_data is not None:
+        ax[i_d].plot(x[idx_data], y[idx_data], 'ro')
     ax[i_d].set_aspect('equal')
     # Extend y axis
     ax[i_d].set_ylim([np.min(y)-np.std(y), np.max(y)+np.std(y)])
@@ -783,6 +786,9 @@ def plot_river_spectrum_compiled(river, only_significant=True):
     # Curvature
     i_d = 1
     ax[i_d].plot(s, c, 'k', linewidth=0.5)
+    if idx_data is not None:
+        for idx in idx_data:
+            ax[i_d].axvline(s[idx], color='r', linestyle='--')
     ax[i_d].set_xlim([np.min(s), np.max(s)])
     ax[i_d].set_ylabel(r'$c$')
     ax[i_d].set_title('Curvature')
@@ -790,7 +796,10 @@ def plot_river_spectrum_compiled(river, only_significant=True):
     # Power Curvature
     i_d = 2
     im_c = ax[i_d].pcolormesh(s, wavelen_c, power_c, shading='auto',
-                              cmap='Blues')
+                              cmap=cmap)
+    if idx_data is not None:
+        for idx in idx_data:
+            ax[i_d].axvline(s[idx], color='r', linestyle='--')
     # Plot COI
     ax[i_d].fill_between(s, coi_c*0+wavelen_c[-1], coi_c, facecolor='none',
                         edgecolor='#00000040', hatch='x')
@@ -812,14 +821,20 @@ def plot_river_spectrum_compiled(river, only_significant=True):
     # Angle
     i_d = 4
     ax[i_d].plot(s, angle, 'k', linewidth=0.5)
+    if idx_data is not None:
+        for idx in idx_data:
+            ax[i_d].axvline(s[idx], color='r', linestyle='--')
     ax[i_d].set_xlim([np.min(s), np.max(s)])
     ax[i_d].set_ylabel(f'$\\theta$')
     ax[i_d].set_title('Direction Angle')
 
-    # Power Curvature
+    # Power Angle
     i_d = 5
     im_angle = ax[i_d].pcolormesh(s, wavelen_angle, power_angle, shading='auto',
-                                  cmap='Blues')
+                                  cmap=cmap)
+    if idx_data is not None:
+        for idx in idx_data:
+            ax[i_d].axvline(s[idx], color='r', linestyle='--')
     ax[i_d].fill_between(s, coi_angle*0+wavelen_angle[-1], coi_angle,
                          facecolor='none', edgecolor='#00000040', hatch='x')
     ax[i_d].set_yscale('log')
