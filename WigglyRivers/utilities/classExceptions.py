@@ -27,6 +27,9 @@ class VariableNotFoundError(Exception):
 class HUCNotFoundError(Exception):
     pass
 
+class SmallMeanderError(Exception):
+    pass
+
 
 def deprecated(replacement=None):
     def decorator(func):

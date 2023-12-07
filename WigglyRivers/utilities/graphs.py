@@ -911,16 +911,16 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     # pos = ax[2].get_position()
     # ax_c = fig.add_axes([0.91, pos.y0, 0.02, pos.height])
     # cbar_c = fig.colorbar(im_c, cax=ax_c)
-    pos = ax[3].get_position()
-    ax_c = fig.add_axes([pos.x0, pos.y0-0.05, pos.width, 0.02])
-    cbar_c = fig.colorbar(im_c, cax=ax_c, orientation='horizontal')
+    # pos = ax[3].get_position()
+    # ax_c = fig.add_axes([pos.x0, pos.y0-0.05, pos.width, 0.02])
+    # cbar_c = fig.colorbar(im_c, cax=ax_c, orientation='horizontal')
 
     # pos = ax[5].get_position()
     # ax_angle = fig.add_axes([0.91, pos.y0, 0.02, pos.height])
     # cbar_angle = fig.colorbar(im_angle, cax=ax_angle)
-    pos = ax[6].get_position()
-    ax_angle = fig.add_axes([pos.x0, pos.y0-0.05, pos.width, 0.02])
-    cbar_angle = fig.colorbar(im_angle, cax=ax_angle, orientation='horizontal')
+    # pos = ax[6].get_position()
+    # ax_angle = fig.add_axes([pos.x0, pos.y0-0.05, pos.width, 0.02])
+    # cbar_angle = fig.colorbar(im_angle, cax=ax_angle, orientation='horizontal')
 
     # ========================
     # Add GWS

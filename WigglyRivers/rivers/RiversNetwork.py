@@ -1716,14 +1716,14 @@ class RiverTransect:
             Value of s to evaluate the splines.
         :type s_value: float or array-like
         """
+        s_v = copy.deepcopy(s_value)
         # The splines where fitted to the original coordinates
-        # TODO: Finish implementing the scaling of the splines
         x_spl = self.splines['x_spl']
         y_spl = self.splines['y_spl']
         if self.scale_by_width and not(np.isnan(self.w_m_gm)):
-            s_value *= self.w_m_gm
-        x = x_spl(s_value)
-        y = y_spl(s_value)
+            s_v *= self.w_m_gm
+        x = x_spl(s_v)
+        y = y_spl(s_v)
         if self.scale_by_width and not(np.isnan(self.w_m_gm)):
             x /= self.w_m_gm
             y /= self.w_m_gm
@@ -1865,6 +1865,8 @@ class RiverTransect:
         x, y, s, add_data = self._extract_data_source(give_add_data=True)
         # Calculate the curvature
         r, c, angle = RF.calculate_curvature(s, x, y, self.planimetry_derivatives)
+        # convert angle to degrees
+        angle = angle * 180 / np.pi
         # angle = RF.calculate_direction_angle(s, x, y, self.planimetry_derivatives)
         if self.scale_by_width and not(np.isnan(self.w_m_gm)):
             self.logger.info(' Scaling curvature by width')
@@ -1925,7 +1927,7 @@ class RiverTransect:
         self.logger.info('  Detecting meanders...')
         self.detect_meanders_from_cwt()
         self.logger.info('  Projecting tree in planimetry...')
-        self.get_tree_center_points_in_planimetry(bound_to_poly=bound_to_poly)
+        self.get_tree_center_points_in_planimetry()
         # =======================
         # update scale_tree
         # =======================
@@ -1980,6 +1982,7 @@ class RiverTransect:
         for i in range(len(coi)):
             cond = period > coi[i]
             power_sig95[cond, i] = 0
+            wave_sig95[cond, i] = 0
 
         # Recalculate GWS and SAWP
         gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
@@ -2057,6 +2060,7 @@ class RiverTransect:
         for i in range(len(coi)):
             cond = period > coi[i]
             power_sig95[cond, i] = 0
+            wave_sig95[cond, i] = 0
 
         # Recalculate GWS and SAWP
         gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
@@ -2231,8 +2235,6 @@ class RiverTransect:
         c = self.c
         ds = np.diff(s_curvature)[0]
         bound_to_poly = self.bound_to_poly
-        x_spl = self.splines['x_spl']
-        y_spl = self.splines['y_spl']
 
         if conn_source == 'conn':
             conn = self.cwt_conn
@@ -2425,16 +2427,14 @@ class RiverTransect:
                     s_inf_right = s_inf[0]
                     # Correct planimetry idx
                     node.idx_planimetry_end = idx_end + i_r - 1
+                    if node.idx_planimetry_end >= len(c):
+                        node.idx_planimetry_end = len(c) - 1
 
                     # Arrange values
                     s_inf = np.array([s_inf_left, s_inf_right])
 
-                    if self.scale_by_width and not(np.isnan(self.w_m_gm)):
-                        x_inf /= x_spl(s_inf)
-                        y_inf /= y_spl(s_inf)
-                    else:
-                        x_inf = x_spl(s_inf)
-                        y_inf = y_spl(s_inf)
+                    # Evaluate the splines in the inflection points
+                    x_inf, y_inf = self.eval_splines(s_inf)
                     node.s_inf = np.array([s_inf[0], s_inf[-1]])
                     node.x_inf = x_inf
                     node.y_inf = y_inf
@@ -2616,6 +2616,7 @@ class RiverTransect:
             meander_id = 0
         else:
             meander_id = np.max(self.id_meanders) + 1
+        meander_id_prev = copy.deepcopy(meander_id)
         # Loop through meanders
         for i in range(len(database_meanders)):
             ind_start = database_meanders[f'idx_planimetry{ext}_start'].iloc[i]
@@ -2628,7 +2629,7 @@ class RiverTransect:
             s_inf = database_meanders[f's_inf'].iloc[i]
             if inflection_flag:
                 if clip.lower() == 'downstream':
-                    if i > 0:
+                    if meander_id_prev != meander_id:
                         ind_start = np.min([ind_start, ind_end_prev])
                         if ind_start == ind_end_prev:
                             x_inf_1 = database_meanders[f'x_inf'].iloc[i - 1][1]
@@ -2637,6 +2638,7 @@ class RiverTransect:
                             x_inf = np.array([x_inf_1, x_inf[1]])
                             y_inf = np.array([y_inf_1, y_inf[1]])
                             s_inf = np.array([s_inf_1, s_inf[1]])
+                
                 elif clip.lower() == 'upstream':
                     if i < len(database_meanders) - 1:
                         ind_pos_start = database_meanders[
@@ -2663,12 +2665,19 @@ class RiverTransect:
                 self.logger.warning('Large system detected. Error in the tree'
                                     'construction. Removing...')
                 continue
-            self.add_meander(meander_id, ind_start, ind_end, 
-                             sk=sk, fl=fl, automatic_flag=1,
-                             inflection_flag=inflection_flag, tree_id=tree_id,
-                             x_inf=x_inf, y_inf=y_inf, s_inf=s_inf)
+            try:
+                self.add_meander(meander_id, ind_start, ind_end, 
+                                sk=sk, fl=fl, automatic_flag=1,
+                                inflection_flag=inflection_flag, tree_id=tree_id,
+                                x_inf=x_inf, y_inf=y_inf, s_inf=s_inf)
+            except SmallMeanderError:
+                self.logger.warning('Small Meander detected. Removing...')
+                continue
+            
+            meander_id_prev = copy.deepcopy(meander_id)
             meander_id += 1
             ind_end_prev = ind_end
+            
     
     def prune_tree_by_gamma_width(self, gamma):
         """
@@ -2795,7 +2804,6 @@ class RiverTransect:
         gws = self.cwt_gws_c
         peaks_gws = self.cwt_gws_peak_wavelength_c
         id_river = self.id_value
-        # TODO: Add this Peaks_min values as another function in River
         # peaks_min, min_s = RF.calculate_spectrum_cuts(s, self.cwt_wave)
         peaks_min, min_s = RF.calculate_spectrum_cuts(s, self.c)
         if include_width:
@@ -2821,6 +2829,7 @@ class RiverTransect:
         ________________________________________________________________________
 
         """
+        # TODO: Incorporate scaling by width in the Interactive Plot
         clicked_points = []
         meander_ids = copy.deepcopy(self.id_meanders)
         x, y, z = self._extract_data_source()
@@ -3019,6 +3028,7 @@ class RiverTransect:
             File name.
         ________________________________________________________________________
         """
+        # TODO: Incorporate scaling by width in the saving coordinates
         x, y, z, data = self._extract_data_source(give_add_data=True)
         s = data['s']
         id_river = self.id_value
@@ -3114,7 +3124,7 @@ class RiverTransect:
             x = np.hstack([x_inf, x])
             y = np.hstack([y_inf, y])
             s = np.hstack([s_inf, s])
-            z = np.hstack([so_data[ind_start - 1], so_data[ind_end], z])
+            z = np.hstack([z_data[ind_start - 1], z_data[ind_end], z])
             so= np.hstack([so_data[ind_start - 1], so_data[ind_end], z])
 
             s_sort = np.argsort(s)
@@ -3132,6 +3142,10 @@ class RiverTransect:
                 y = y[i_s_inf_st: i_s_inf_end + 1]
                 z = z[i_s_inf_st: i_s_inf_end + 1]
                 so = so[i_s_inf_st: i_s_inf_end + 1]
+                dif_idx = i_s_inf_end - i_s_inf_st
+                if dif_idx < 3:
+                    raise SmallMeanderError(
+                        'Meander too small for current resolution.')
 
         # ------------------------
         # Extract original data
@@ -3142,8 +3156,12 @@ class RiverTransect:
         y_end = y[-1]
         coords_st = np.array([x_st, y_st]).T
         coords_end = np.array([x_end, y_end]).T
-        x_o_all = self.x_o
-        y_o_all = self.y_o
+        if self.scale_by_width and self.w_m_o is not None:
+            x_o_all = self.x_o/self.w_m_o
+            y_o_all = self.y_o/self.w_m_o
+        else:
+            x_o_all = self.x_o
+            y_o_all = self.y_o
         coords_o_all = np.array([x_o_all, y_o_all]).T
         # Find closest point
         idx_start_o = np.argmin(np.linalg.norm(coords_o_all - coords_st,

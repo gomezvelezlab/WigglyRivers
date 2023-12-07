@@ -38,11 +38,9 @@ kwargs_resample = {
     '0':{'smooth': 1e2},
     '1':{'smooth': 1e2},
     '2':{'smooth': 1e2},
-    '3':{'smooth': 1e2},
     '0_noise':{'smooth': 1e2},
     '1_noise':{'smooth': 1e3},
     '2_noise':{'smooth': 1e3},
-    '3_noise':{'smooth': 1e3},
     }
 
 # ------------------------------
@@ -67,3 +65,6 @@ for river_id in river_ids:
     rivers.add_river(river_id, x_ch, y_ch, w_m=w_m, resample_flag=True,
                      kwargs_resample=kwargs_resample[river_id],
                      scale_by_width=True)
+    
+
+    
