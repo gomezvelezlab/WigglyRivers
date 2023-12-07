@@ -740,6 +740,7 @@ def plot_meander_matplotlib(x_river, y_river, x_meander, y_meander):
 def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     # Extract Information
     cmap = 'YlGnBu'
+    id_river = river.id_value
     x = river.x
     y = river.y
     s = river.s
@@ -755,6 +756,16 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     gws_angle = river.cwt_gws_angle
     sawp_c = river.cwt_sawp_c
     sawp_angle = river.cwt_sawp_angle
+    scale_by_width = river.scale_by_width
+
+    labels = [r'$C$ (m$^-1$)', r"$\lambda$ (m)", r"$\theta$", r"$s$ (m)",
+              r"$|\overline{W_{n,GWS}}|^2$ (m$^{-2}$)",
+              r"$|\overline{W_{n,SAWP}}|^2$ (m$^{-2}$)"]
+    if scale_by_width:
+        labels = [
+            r'$C^*$', r"$\lambda^*$", r"$\theta$", r"$s^*$",
+            r"$|\overline{W_{n,GWS}}|^2$", r"$|\overline{W_{n,SAWP}}|^2$"]
+
 
     if only_significant:
         power_c = river.cwt_power_c_sig
@@ -763,10 +774,13 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
         power_angle = river.cwt_power_angle_sig
         gws_angle = river.cwt_gws_angle_sig
         sawp_angle = river.cwt_sawp_angle_sig
-
+    
     fig, ax = plt.subplots(7, 1, figsize=(8, 10))
+
     ax = ax.ravel()
+    # ------------------------
     # Planimetry Coordinate
+    # ------------------------
     i_d = 0
     ax[i_d].plot(x, y, 'k', linewidth=1.5)
     if idx_data is not None:
@@ -783,17 +797,21 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax[i_d].spines['left'].set_visible(False)
     ax[i_d].set_title('River Planimetry')
 
+    # -------------
     # Curvature
+    # -------------
     i_d = 1
     ax[i_d].plot(s, c, 'k', linewidth=0.5)
     if idx_data is not None:
         for idx in idx_data:
             ax[i_d].axvline(s[idx], color='r', linestyle='--')
     ax[i_d].set_xlim([np.min(s), np.max(s)])
-    ax[i_d].set_ylabel(r'$c$')
+    ax[i_d].set_ylabel(labels[0])
     ax[i_d].set_title('Curvature')
 
+    # ------------------------
     # Power Curvature
+    # ------------------------
     i_d = 2
     im_c = ax[i_d].pcolormesh(s, wavelen_c, power_c, shading='auto',
                               cmap=cmap)
@@ -806,29 +824,37 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax[i_d].set_yscale('log')
     ax[i_d].set_ylim([np.max(wavelen_c), np.min(wavelen_c)])
     ax[i_d].set_xlim([np.min(s), np.max(s)])
-    ax[i_d].set_yticklabels([])
+    ax[i_d].set_ylabel(labels[1])
+    # ax[i_d].set_yticklabels([])
     # for peak in gws_peak_wavelen_c:
     #     ax[i_d].axhline(peak, color='r', linestyle='--')
-    # Move Figure
 
+    # ------------------------
     # SAWP
+    # ------------------------
     i_d = 3
     ax[i_d].plot(s, sawp_c, 'k', linewidth=0.5)
+    ax[i_d].text(0.46, 0.8, 'SAWP', transform=ax[i_d].transAxes,)
     ax[i_d].set_xlim([np.min(s), np.max(s)])
-    ax[i_d].set_xlabel('Distance (m)')
-    ax[i_d].set_ylabel('SAWP')
+    ax[i_d].set_ylim(top=np.max(sawp_c)*1.3)
+    ax[i_d].set_xlabel(labels[3])
+    ax[i_d].set_ylabel(labels[5])
 
+    # ------------------------
     # Angle
+    # ------------------------
     i_d = 4
     ax[i_d].plot(s, angle, 'k', linewidth=0.5)
     if idx_data is not None:
         for idx in idx_data:
             ax[i_d].axvline(s[idx], color='r', linestyle='--')
     ax[i_d].set_xlim([np.min(s), np.max(s)])
-    ax[i_d].set_ylabel(f'$\\theta$')
+    ax[i_d].set_ylabel(labels[2])
     ax[i_d].set_title('Direction Angle')
 
+    # ------------------------
     # Power Angle
+    # ------------------------
     i_d = 5
     im_angle = ax[i_d].pcolormesh(s, wavelen_angle, power_angle, shading='auto',
                                   cmap=cmap)
@@ -840,47 +866,89 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax[i_d].set_yscale('log')
     ax[i_d].set_ylim([np.max(wavelen_angle), np.min(wavelen_angle)])
     ax[i_d].set_xlim([np.min(s), np.max(s)])
-    ax[i_d].set_yticklabels([])
+    # ax[i_d].set_yticklabels([])
     # for peak in gws_peak_wavelen_angle:
     #     ax[i_d].axhline(peak, color='r', linestyle='--')
+
+    # ------------------------
     # SAWP
+    # ------------------------
     i_d = 6
     ax[i_d].plot(s, sawp_angle, 'k', linewidth=0.5)
+    ax[i_d].text(0.46, 0.8, 'SAWP', transform=ax[i_d].transAxes,)
     ax[i_d].set_xlim([np.min(s), np.max(s)])
-    ax[i_d].set_ylabel('SAWP')
-    ax[i_d].set_xlabel('Distance (m)')
+    ax[i_d].set_ylim(top=np.max(sawp_c)*1.3)
+    ax[i_d].set_ylabel(labels[5])
+    ax[i_d].set_xlabel(labels[3])
 
     plt.tight_layout()
-    fig.subplots_adjust(left=0.25, right=0.90)
-    # Add Colorbars
+    # fig.subplots_adjust(left=0.25, right=0.90)
+    fig.subplots_adjust(left=0.1, right=0.80)
+
+    # ========================
+    # Move figures
+    # ========================
+    # Curvature
+    ax[1].set_xticklabels([])
     pos = ax[2].get_position()
-    ax_c = fig.add_axes([0.91, pos.y0, 0.02, pos.height])
-    cbar_c = fig.colorbar(im_c, cax=ax_c)
+    ax[2].set_position([pos.x0, pos.y0-0.04, pos.width, pos.height+0.11])
+    ax[2].set_xticklabels([])
+    pos = ax[3].get_position()
+    ax[3].set_position([pos.x0, pos.y0+0.03, pos.width, pos.height])
 
+    # Direction Angle
+    ax[4].set_xticklabels([])
     pos = ax[5].get_position()
-    ax_angle = fig.add_axes([0.91, pos.y0, 0.02, pos.height])
-    cbar_angle = fig.colorbar(im_angle, cax=ax_angle)
+    ax[5].set_position([pos.x0, pos.y0-0.04, pos.width, pos.height+0.11])
+    ax[5].set_xticklabels([])
+    pos = ax[6].get_position()
+    ax[6].set_position([pos.x0, pos.y0+0.03, pos.width, pos.height])
 
+    # ========================
+    # Add colorbars
+    # ========================
+    # Add Colorbars
+    # pos = ax[2].get_position()
+    # ax_c = fig.add_axes([0.91, pos.y0, 0.02, pos.height])
+    # cbar_c = fig.colorbar(im_c, cax=ax_c)
+    pos = ax[3].get_position()
+    ax_c = fig.add_axes([pos.x0, pos.y0-0.05, pos.width, 0.02])
+    cbar_c = fig.colorbar(im_c, cax=ax_c, orientation='horizontal')
+
+    # pos = ax[5].get_position()
+    # ax_angle = fig.add_axes([0.91, pos.y0, 0.02, pos.height])
+    # cbar_angle = fig.colorbar(im_angle, cax=ax_angle)
+    pos = ax[6].get_position()
+    ax_angle = fig.add_axes([pos.x0, pos.y0-0.05, pos.width, 0.02])
+    cbar_angle = fig.colorbar(im_angle, cax=ax_angle, orientation='horizontal')
+
+    # ========================
+    # Add GWS
+    # ========================
     # Add GWS c
     pos = ax[2].get_position()
-    ax_gws_c = fig.add_axes([0.1, pos.y0, 0.135, pos.height])
+    # ax_gws_c = fig.add_axes([0.1, pos.y0, 0.135, pos.height])
+    ax_gws_c = fig.add_axes([0.815, pos.y0, 0.135, pos.height])
     ax_gws_c.plot(gws_c, wavelen_c, 'k', linewidth=0.5)
     ax_gws_c.set_yscale('log')
     ax_gws_c.set_ylim([np.max(wavelen_c), np.min(wavelen_c)])
-    ax_gws_c.set_ylabel(f'$\lambda$ (m)')
-    ax_gws_c.set_xlabel('Power (m$^2$)')
+    # ax_gws_c.set_ylabel(labels[1])
+    ax_gws_c.set_xlabel(labels[4])
+    ax_gws_c.set_yticklabels([])
     ax_gws_c.set_title('GWS')
     # for peak in gws_peak_wavelen_c:
     #     ax_gws_c.axhline(peak, color='r', linestyle='--')
 
     pos = ax[5].get_position()
-    ax_gws_angle = fig.add_axes([0.1, pos.y0, 0.135, pos.height])
+    # ax_gws_angle = fig.add_axes([0.1, pos.y0, 0.135, pos.height])
+    ax_gws_angle = fig.add_axes([0.815, pos.y0, 0.135, pos.height])
     ax_gws_angle.plot(gws_angle, wavelen_angle, 'k', linewidth=0.5)
     ax_gws_angle.set_yscale('log')
     ax_gws_angle.set_ylim([np.max(wavelen_angle), np.min(wavelen_angle)])
-    ax_gws_angle.set_ylabel(f'$\lambda$ (m)')
-    ax_gws_angle.set_xlabel('Power (m$^2$)')
+    # ax_gws_angle.set_ylabel(labels[1])
+    ax_gws_angle.set_xlabel(labels[4])
     ax_gws_angle.set_title('GWS')
+    ax_gws_angle.set_yticklabels([])
     # for peak in gws_peak_wavelen_angle:
     #     ax_gws_angle.axhline(peak, color='r', linestyle='--')
     # plt.tight_layout()
