@@ -1066,6 +1066,20 @@ def calculate_assymetry(x, y, c):
     return a_h, lambda_h, lambda_u, lambda_d
 
 
+def extend_meander_bound_database(meander_database):
+    """
+    Description:
+    ------------
+        Extend the bounds of the meanders in the database. The extension 
+        depends on the maximum points in the curvature of the previous
+        and next meanders.
+    ____________________________________________________________________________
+
+    """
+
+    return meander_database
+
+
 def extend_node_bound(node, c):
     """
     Description:

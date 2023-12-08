@@ -2273,10 +2273,24 @@ class RiverTransect:
                 nodes = [root_node] + list(root_node.descendants)
                 for node in nodes:
                     # ----------------------------------    
+                    # Find maximum point in curvature
+                    # ----------------------------------    
+                    idx_start = node.idx_planimetry_start
+                    idx_end = node.idx_planimetry_end
+                    c_m = c[idx_start:idx_end + 1]
+                    idx = np.argmax(np.abs(c_m))
+                    idx = idx_start + idx
+                    node.idx_c_max = idx_start
+                    # --------------------------------------
+                    # Update distance of the maximum point
+                    # --------------------------------------
+                    s_c = s_curvature[idx]
+                    node.s_c = s_c
+                    # ----------------------------------    
                     # Add distance of the middle point
                     # ----------------------------------    
-                    s_c = node.s_c
-                    idx = np.argmin(np.abs(s_curvature - s_c))
+                    # s_c = node.s_c
+                    # idx = np.argmin(np.abs(s_curvature - s_c))
                     # ----------------------------------    
                     # Add width of the middle point
                     # ----------------------------------    
@@ -2339,20 +2353,20 @@ class RiverTransect:
                     # ----------------------------------    
                     # Find extended bounds
                     # ----------------------------------    
-                    node = RF.extend_node_bound(node, c)
-                    # Calculate metrics
-                    idx_start = node.idx_planimetry_extended_start
-                    idx_end = node.idx_planimetry_extended_end
-                    x_m = x[idx_start:idx_end + 1]
-                    y_m = y[idx_start:idx_end + 1]
-                    lambda_extended = RF.calculate_lambda(x_m, y_m)
-                    l_extended = RF.calculate_l(x_m, y_m)
-                    sn_extended = RF.calculate_sinuosity(
-                        l_extended, lambda_extended)
-                    # Add values
-                    node.lambda_extended = lambda_extended
-                    node.l_extended = l_extended
-                    node.sn_extended = sn_extended
+                    # node = RF.extend_node_bound(node, c)
+                    # # Calculate metrics
+                    # idx_start = node.idx_planimetry_extended_start
+                    # idx_end = node.idx_planimetry_extended_end
+                    # x_m = x[idx_start:idx_end + 1]
+                    # y_m = y[idx_start:idx_end + 1]
+                    # lambda_extended = RF.calculate_lambda(x_m, y_m)
+                    # l_extended = RF.calculate_l(x_m, y_m)
+                    # sn_extended = RF.calculate_sinuosity(
+                    #     l_extended, lambda_extended)
+                    # # Add values
+                    # node.lambda_extended = lambda_extended
+                    # node.l_extended = l_extended
+                    # node.sn_extended = sn_extended
 
                     # ----------------------------------    
                     # Add s_reach
@@ -2443,19 +2457,19 @@ class RiverTransect:
                     # Add coordinates extended
                     # ----------------------------------    
                     # Extract current distances
-                    idx_start = node.idx_planimetry_extended_start
-                    idx_end = node.idx_planimetry_extended_end
-                    s_m = s[idx_start: idx_end + 1]
-                    # Spline or Smooth
-                    node.x_extended = x[idx_start:idx_end + 1]
-                    node.y_extended = y[idx_start:idx_end + 1]
-                    # Add original
-                    idx_start_o = np.argmin(np.abs(self.s_o - s_m[0]))
-                    idx_end_o = np.argmin(np.abs(self.s_o - s_m[-1]))
-                    node.idx_planimetry_extended_start_o = idx_start_o
-                    node.idx_planimetry_extended_end_o = idx_end_o
-                    node.x_extended_o = self.x_o[idx_start_o:idx_end_o + 1]
-                    node.y_extended_o = self.y_o[idx_start_o:idx_end_o + 1]
+                    # idx_start = node.idx_planimetry_extended_start
+                    # idx_end = node.idx_planimetry_extended_end
+                    # s_m = s[idx_start: idx_end + 1]
+                    # # Spline or Smooth
+                    # node.x_extended = x[idx_start:idx_end + 1]
+                    # node.y_extended = y[idx_start:idx_end + 1]
+                    # # Add original
+                    # idx_start_o = np.argmin(np.abs(self.s_o - s_m[0]))
+                    # idx_end_o = np.argmin(np.abs(self.s_o - s_m[-1]))
+                    # node.idx_planimetry_extended_start_o = idx_start_o
+                    # node.idx_planimetry_extended_end_o = idx_end_o
+                    # node.x_extended_o = self.x_o[idx_start_o:idx_end_o + 1]
+                    # node.y_extended_o = self.y_o[idx_start_o:idx_end_o + 1]
 
                     # ----------------------------------    
                     # Add within_waterbody
@@ -2535,6 +2549,8 @@ class RiverTransect:
         database_meanders = database_meanders.sort_values(by='s_c')
         # renumber meander_id
         database_meanders['meander_id'] = np.arange(len(database_meanders))
+        # TODO: Add extent of bounds here
+        database_meanders = RF.extend_meander_bound_database(database_meanders)
         # Add meander_id to tree_scales 
         self.tree_scales_database_meanders = database_meanders
         return 

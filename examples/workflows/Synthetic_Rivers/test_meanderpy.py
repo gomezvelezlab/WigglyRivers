@@ -65,6 +65,34 @@ for river_id in river_ids:
     rivers.add_river(river_id, x_ch, y_ch, w_m=w_m, resample_flag=True,
                      kwargs_resample=kwargs_resample[river_id],
                      scale_by_width=True)
+    # =================================
+    # Extract Meanders
+    # =================================
+    # --------------------
+    # Calculate Curvature
+    # --------------------
+    rivers[f'{river_id}'].calculate_curvature()
+    # --------------------
+    # Calculate CWT
+    # --------------------
+    rivers[f'{river_id}'].extract_cwt_tree()
+    # -----------------------------
+    # Prune by peak power
+    # -----------------------------
+    rivers[f'{river_id}'].prune_tree_by_peak_power()
+    # -----------------------------
+    # Prune by sinuosity
+    # -----------------------------
+    rivers[f'{river_id}'].prune_tree_by_sinuosity(1.05)
+    # -----------------------------
+    # Add meander to database
+    # -----------------------------
+    rivers[f'{river_id}'].add_meanders_from_tree_scales(
+        overwrite=True, clip='downstream')
+    # ---------------------------
+    # Calculate reach sinuosity
+    # ---------------------------
+    rivers[f'{river_id}'].calculate_reach_metrics()
     
 
     

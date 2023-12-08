@@ -8,7 +8,7 @@
             "name": "Python: Test MeanderPy",
             "type": "python",
             "request": "launch",
-            "program": "examples/workflows/kinoshita/test_meanderpy.py",
+            "program": "examples/workflows/Synthetic_Rivers/test_meanderpy.py",
             "console": "internalConsole",
             "justMyCode": true,
             "cwd": "${workspaceFolder}"
