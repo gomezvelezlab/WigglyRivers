@@ -1076,6 +1076,55 @@ def extend_meander_bound_database(meander_database):
     ____________________________________________________________________________
 
     """
+    import matplotlib.pyplot as plt
+
+    # Set index of meanders
+    meander_id = meander_database['meander_id'].values
+
+    x_ext = np.zeros_like(meander_database['x_c'])
+    y_ext = np.zeros_like(meander_database['y_c'])
+
+    # TODO: Finish implementation here, connect to previous and next meander
+    
+
+    # plt.figure(figsize=(10, 10))
+    fig, ax = plt.subplots(2, 1, figsize=(10, 10))
+    for i in meander_id[1:-1]:
+        # Ask if is the first of the last meander
+        x_c = subset['x_c'].values[0]
+        y_c = subset['y_c'].values[0]
+        if i == meander_id[0]:
+            prev_x_c = x_c
+
+
+        subset = meander_database[meander_database['meander_id'] == i]
+        x = subset['x'].values[0]
+        y = subset['y'].values[0]
+        x_c = subset['x_c'].values[0]
+        y_c = subset['y_c'].values[0]
+        x_inf = subset['x_inf'].values[0]
+        y_inf = subset['y_inf'].values[0]
+
+        c = subset['c'].values[0]
+        s = subset['s'].values[0]
+        s_c = subset['s_c'].values[0]
+        c_c = subset['c_c'].values[0]
+        s_inf = subset['s_inf'].values[0]
+        c_inf = subset['c_inf'].values[0]
+
+        ax[0].plot(x, y, 'k')
+        ax[0].plot(x_c, y_c, 'ro')
+        ax[0].plot(x_inf, y_inf, 'bo')
+
+        ax[1].plot(s, c, 'k')
+        ax[1].plot(s_c, c_c, 'ro')
+        ax[1].plot(s_inf, c_inf, 'bo')
+
+    ax[0].set_aspect('equal')
+    plt.show()
+
+
+    
 
     return meander_database
 

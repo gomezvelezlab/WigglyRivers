@@ -29,7 +29,8 @@ from WigglyRivers import iwavelet
 # Set seed for numpy
 np.random.seed(0)
 data = FM.load_data(
-    'examples/workflows/kinoshita/synthetic_rivers/synthetic_rivers_w_noise.hdf5')
+    ('examples/workflows/Synthetic_Rivers/synthetic_rivers/'
+     'synthetic_rivers_w_noise.hdf5'))
 river_ids = list(data.keys())
 # ------------------------------
 # Arguments for the noise data

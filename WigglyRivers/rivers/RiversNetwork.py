@@ -2278,6 +2278,9 @@ class RiverTransect:
                     idx_start = node.idx_planimetry_start
                     idx_end = node.idx_planimetry_end
                     c_m = c[idx_start:idx_end + 1]
+                    s_m = s_curvature[idx_start:idx_end + 1]
+                    node.c = c_m
+                    node.s = s_m
                     idx = np.argmax(np.abs(c_m))
                     idx = idx_start + idx
                     node.idx_c_max = idx_start
@@ -2328,8 +2331,13 @@ class RiverTransect:
                     # ----------------------------------    
                     # Find direction node to parent flag
                     # ----------------------------------    
-                    x_c = node.x_c
-                    y_c = node.y_c
+                    # Correct x_c and y_c
+                    # x_c = node.x_c
+                    # y_c = node.y_c
+                    x_c = x[idx]
+                    y_c = y[idx]
+                    node.x_c = x_c
+                    node.y_c = y_c
                     x_2 = node.x_2
                     y_2 = node.y_2
                     if node.parent is None:
@@ -2440,7 +2448,7 @@ class RiverTransect:
                             s_inf = np.array([s_inf[-1]])
                     s_inf_right = s_inf[0]
                     # Correct planimetry idx
-                    node.idx_planimetry_end = idx_end + i_r - 1
+                    node.idx_planimetry_end = idx_end + i_r
                     if node.idx_planimetry_end >= len(c):
                         node.idx_planimetry_end = len(c) - 1
 
@@ -2452,6 +2460,9 @@ class RiverTransect:
                     node.s_inf = np.array([s_inf[0], s_inf[-1]])
                     node.x_inf = x_inf
                     node.y_inf = y_inf
+                    # The inflection point should always be zero
+                    # from the function above
+                    node.c_inf = np.array([0, 0])
 
                     # ----------------------------------    
                     # Add coordinates extended
