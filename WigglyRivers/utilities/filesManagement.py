@@ -255,6 +255,9 @@ def recursively_save_dict_contents_to_group(h5file, path, dic):
                 for i in range(len(item)):
                     array[i, :lengths[i]] = item[i]
                 h5file[path + str(key)] = array 
+            except TypeError:
+                item2 = [str(i) for i in item]
+                h5file[path + str(key)] = item2
 
         elif isinstance(item, dict):
             recursively_save_dict_contents_to_group(
@@ -294,6 +297,9 @@ def recursively_load_dict_contents_from_group(h5file, path, key_c=None):
                     ans[key] = item[()]
             if isinstance(ans[key], bytes):
                 ans[key] = ans[key].decode('utf-8')
+            if isinstance(ans[key], np.ndarray):
+                if isinstance(ans[key][0], bytes):
+                    ans[key] = np.array([i.decode('utf-8') for i in ans[key]])
         elif isinstance(item, h5py._hl.group.Group):
             ans[key] = recursively_load_dict_contents_from_group(
                 h5file, path + key + '/')
@@ -337,7 +343,7 @@ def create_geopandas_dataframe(pandas_df, geometry_columns, shape_type='line',
 
     return gdf
 
-def read_gbd(file_data, layer):
+def read_gbd(file_data, layer, **kwargs):
     """
     DESCRIPTION:
         Loads data from a geodatabase (GDB).
@@ -348,5 +354,6 @@ def read_gbd(file_data, layer):
         :param layer: str,
             Layer that will be loaded from the GDB.
     """
-    shapefile = gpd.read_file(file_data, driver='FileGDB', layer=layer)
+    shapefile = gpd.read_file(
+        file_data, driver='FileGDB', layer=layer, **kwargs)
     return shapefile

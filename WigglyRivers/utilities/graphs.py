@@ -758,13 +758,18 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     sawp_angle = river.cwt_sawp_angle
     scale_by_width = river.scale_by_width
 
-    labels = [r'$C$ (m$^-1$)', r"$\lambda$ (m)", r"$\theta$", r"$s$ (m)",
+    labels = [r'$C$ (m$^{-1}$)', r"$\lambda$ (m)", r"$\theta$", r"$s$ (m)",
               r"$|\overline{W_{n,GWS}}|^2$ (m$^{-2}$)",
-              r"$|\overline{W_{n,SAWP}}|^2$ (m$^{-2}$)"]
+              f"$|\overline{{W_{{n,SAWP}}}}|^2$\n(m$^{{-2}}$)",
+              r"$|\overline{W_{n,GWS}}|^2$",
+              r"$|\overline{W_{n,SAWP}}|^2$",
+              ]
     if scale_by_width:
         labels = [
             r'$C^*$', r"$\lambda^*$", r"$\theta$", r"$s^*$",
-            r"$|\overline{W_{n,GWS}}|^2$", r"$|\overline{W_{n,SAWP}}|^2$"]
+            r"$|\overline{W_{n,GWS}}|^2$", r"$|\overline{W_{n,SAWP}}|^2$",
+            r"$|\overline{W_{n,GWS}}|^2$", r"$|\overline{W_{n,SAWP}}|^2$",
+            ]
 
 
     if only_significant:
@@ -797,9 +802,9 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax[i_d].spines['left'].set_visible(False)
     ax[i_d].set_title('River Planimetry')
 
-    # -------------
+    # =============
     # Curvature
-    # -------------
+    # =============
     i_d = 1
     ax[i_d].plot(s, c, 'k', linewidth=0.5)
     if idx_data is not None:
@@ -836,13 +841,13 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax[i_d].plot(s, sawp_c, 'k', linewidth=0.5)
     ax[i_d].text(0.46, 0.8, 'SAWP', transform=ax[i_d].transAxes,)
     ax[i_d].set_xlim([np.min(s), np.max(s)])
-    ax[i_d].set_ylim(top=np.max(sawp_c)*1.3)
+    ax[i_d].set_ylim(top=np.max(sawp_c)*1.5)
     ax[i_d].set_xlabel(labels[3])
     ax[i_d].set_ylabel(labels[5])
 
-    # ------------------------
+    # =============
     # Angle
-    # ------------------------
+    # =============
     i_d = 4
     ax[i_d].plot(s, angle, 'k', linewidth=0.5)
     if idx_data is not None:
@@ -866,6 +871,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax[i_d].set_yscale('log')
     ax[i_d].set_ylim([np.max(wavelen_angle), np.min(wavelen_angle)])
     ax[i_d].set_xlim([np.min(s), np.max(s)])
+    ax[i_d].set_ylabel(labels[1])
     # ax[i_d].set_yticklabels([])
     # for peak in gws_peak_wavelen_angle:
     #     ax[i_d].axhline(peak, color='r', linestyle='--')
@@ -877,8 +883,8 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax[i_d].plot(s, sawp_angle, 'k', linewidth=0.5)
     ax[i_d].text(0.46, 0.8, 'SAWP', transform=ax[i_d].transAxes,)
     ax[i_d].set_xlim([np.min(s), np.max(s)])
-    ax[i_d].set_ylim(top=np.max(sawp_c)*1.3)
-    ax[i_d].set_ylabel(labels[5])
+    ax[i_d].set_ylim(top=np.max(sawp_angle)*1.5)
+    ax[i_d].set_ylabel(labels[7])
     ax[i_d].set_xlabel(labels[3])
 
     plt.tight_layout()
@@ -946,7 +952,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax_gws_angle.set_yscale('log')
     ax_gws_angle.set_ylim([np.max(wavelen_angle), np.min(wavelen_angle)])
     # ax_gws_angle.set_ylabel(labels[1])
-    ax_gws_angle.set_xlabel(labels[4])
+    ax_gws_angle.set_xlabel(labels[6])
     ax_gws_angle.set_title('GWS')
     ax_gws_angle.set_yticklabels([])
     # for peak in gws_peak_wavelen_angle:

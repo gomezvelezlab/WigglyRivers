@@ -12,6 +12,15 @@
             "console": "internalConsole",
             "justMyCode": true,
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Test NHDPlus_HR Exraction",
+            "type": "python",
+            "request": "launch",
+            "program": "examples/workflows/NHDPlus_HR/test_nhdplus_extraction.py",
+            "console": "internalConsole",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

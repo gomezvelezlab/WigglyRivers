@@ -378,6 +378,8 @@ class ExtractNHDPlusHRData:
         # Load the flowlines
         self.logger.info(' Start: Load Shapefile')
         shapefile = FM.read_gbd(file_data, layer=flowlines)
+        shapefile[comid] = shapefile[comid].astype(int)
+        shapefile[comid] = shapefile[comid].astype(str)
         self.logger.info(' Done: Load Shapefile')
         if projection is not None:
             self.logger.info(f' Setting shapefile projection to {projection}')
@@ -428,6 +430,8 @@ class ExtractNHDPlusHRData:
         # -------------------------------
         # Extract NHDWaterbody
         shapefile_wb = FM.read_gbd(file_data, layer='NHDWaterbody')
+        shapefile_wb[comid] = shapefile_wb[comid].astype(int)
+        shapefile_wb[comid] = shapefile_wb[comid].astype(str)
         join_left_intersects_df = shapefile.sjoin(
             shapefile_wb, how="left", predicate = 'within')
         # Get records that are in the waterbody
@@ -490,6 +494,8 @@ class ExtractNHDPlusHRData:
             self.logger.info(f'  Merging {t}')
             try:
                 t_n = FM.read_gbd(file_data, layer=t)
+                t_n[comid] = t_n[comid].astype(int)
+                t_n[comid] = t_n[comid].astype(str)
             except KeyError:
                 self.logger.warning(f"  WARNING: Table {t} not in the GDB")
                 continue

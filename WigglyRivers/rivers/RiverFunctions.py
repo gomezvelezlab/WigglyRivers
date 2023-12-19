@@ -262,7 +262,7 @@ def kinoshita_curve_zolezzi(theta_0: float, lambda_value: float, theta_s: float,
 
     theta_rad = theta_0 * np.cos(k*s) + theta_s*np.sin(3*k*s) + theta_f*np.cos(3*k*s)
 
-    curve = k*(theta_0*np.sin(k*s) - 3*theta_s*np.cos(3*k*s) + 3*theta_f*np.sin(3*k*s))
+    curve = -k*(theta_0*np.sin(k*s) - 3*theta_s*np.cos(3*k*s) + 3*theta_f*np.sin(3*k*s))
 
     theta = theta_rad*180/np.pi
 
@@ -374,7 +374,20 @@ def calculate_curvature(ss, xs, ys, derivatives=None):
     segm_length = np.diff(ss)
     theta = np.zeros_like(ss)
     # Start with known point
-    theta[0] = np.arctan(dy/dx)[0]
+    # theta[0] = np.arctan(dy/dx)[0]
+    # Direction-angle
+    alpha = np.arctan(dy/dx)[0]
+    # Conditions
+    if dy[0] > 0 and dx[0] < 0:
+        # Condition 2
+        theta[0] = np.pi + alpha 
+    elif dy[0] < 0 and dx[0] < 0:
+        # Condition 4
+        theta[0] = 2*np.pi - np.pi/2 - alpha
+    else:
+        # Condition 1
+        theta[0] = copy.deepcopy(alpha)
+
     theta[1:] = c[1:] * segm_length
     theta = np.cumsum(theta)
     return r, c, theta
@@ -1065,70 +1078,6 @@ def calculate_assymetry(x, y, c):
     a_h = (lambda_u - lambda_d)/lambda_h
     return a_h, lambda_h, lambda_u, lambda_d
 
-
-def extend_meander_bound_database(meander_database):
-    """
-    Description:
-    ------------
-        Extend the bounds of the meanders in the database. The extension 
-        depends on the maximum points in the curvature of the previous
-        and next meanders.
-    ____________________________________________________________________________
-
-    """
-    import matplotlib.pyplot as plt
-
-    # Set index of meanders
-    meander_id = meander_database['meander_id'].values
-
-    x_ext = np.zeros_like(meander_database['x_c'])
-    y_ext = np.zeros_like(meander_database['y_c'])
-
-    # TODO: Finish implementation here, connect to previous and next meander
-    
-
-    # plt.figure(figsize=(10, 10))
-    fig, ax = plt.subplots(2, 1, figsize=(10, 10))
-    for i in meander_id[1:-1]:
-        # Ask if is the first of the last meander
-        x_c = subset['x_c'].values[0]
-        y_c = subset['y_c'].values[0]
-        if i == meander_id[0]:
-            prev_x_c = x_c
-
-
-        subset = meander_database[meander_database['meander_id'] == i]
-        x = subset['x'].values[0]
-        y = subset['y'].values[0]
-        x_c = subset['x_c'].values[0]
-        y_c = subset['y_c'].values[0]
-        x_inf = subset['x_inf'].values[0]
-        y_inf = subset['y_inf'].values[0]
-
-        c = subset['c'].values[0]
-        s = subset['s'].values[0]
-        s_c = subset['s_c'].values[0]
-        c_c = subset['c_c'].values[0]
-        s_inf = subset['s_inf'].values[0]
-        c_inf = subset['c_inf'].values[0]
-
-        ax[0].plot(x, y, 'k')
-        ax[0].plot(x_c, y_c, 'ro')
-        ax[0].plot(x_inf, y_inf, 'bo')
-
-        ax[1].plot(s, c, 'k')
-        ax[1].plot(s_c, c_c, 'ro')
-        ax[1].plot(s_inf, c_inf, 'bo')
-
-    ax[0].set_aspect('equal')
-    plt.show()
-
-
-    
-
-    return meander_database
-
-
 def extend_node_bound(node, c):
     """
     Description:
@@ -1146,7 +1095,6 @@ def extend_node_bound(node, c):
         node: anytree node, node with idx_planimetry_extended_start
               and idx_planimetry_extended_end.
     """
-    # TODO: Change this function according to the maximum and minimum of the
     #  curvature of the adjacent meanders.
     # ------------------------------
     # Extract Information

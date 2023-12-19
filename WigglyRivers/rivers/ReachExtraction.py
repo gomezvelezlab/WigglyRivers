@@ -20,6 +20,16 @@ ______________________________________________________________________________
 import copy
 import logging
 import time
+try:
+    shell = get_ipython().__class__.__name__
+    if shell == 'ZMQInteractiveShell':
+        from tqdm.notebook import tqdm  # Jupyter notebook or qtconsole
+    elif shell == 'TerminalInteractiveShell':
+        from tqdm import tqdm  # Terminal running IPython
+    else:
+        from tqdm import tqdm  # Other type (console, script, etc.)
+except NameError:
+    from tqdm import tqdm  # Probably standard Python interpreter
 from typing import Tuple
 from typing import Union
 # Data Management
@@ -30,6 +40,7 @@ import pandas as pd
 from ..utilities import classExceptions as CE
 from ..utilities import filesManagement as FM
 from . import RiverFunctions as RF
+# Determine if we're running in a Jupyter notebook
 
 # ------------------
 # Logging
@@ -123,11 +134,25 @@ class CompleteReachExtraction:
                 :, ['nhdplusid', 'startflag']]
         self.linking_network.set_index('nhdplusid', inplace=True)
         self.linking_network['extracted_comid'] = [0]*len(self.linking_network)
-        self.linking_network['linking_comid'] = [0]*len(self.linking_network)
+        self.linking_network['linking_comid'] = ['0']*len(self.linking_network)
+        self.linking_network['huc12'] = ['0']*len(self.linking_network)
+        self.linking_network['huc10'] = ['0']*len(self.linking_network)
+        self.linking_network['huc08'] = ['0']*len(self.linking_network)
+        self.linking_network['huc06'] = ['0']*len(self.linking_network)
+        self.linking_network['huc04'] = ['0']*len(self.linking_network)
+        self.linking_network['huc02'] = ['0']*len(self.linking_network)
         self.linking_network['huc_n'] = [0]*len(self.linking_network)
+        self.linking_network['n_tributaries'] = [0]*len(self.linking_network)
+        self.linking_network['xm_m'] = [0]*len(self.linking_network)
+        self.linking_network['ym_m'] = [0]*len(self.linking_network)
+        self.linking_network['xup_m'] = [0]*len(self.linking_network)
+        self.linking_network['yup_m'] = [0]*len(self.linking_network)
+        self.linking_network['xdown_m'] = [0]*len(self.linking_network)
+        self.linking_network['ydown_m'] = [0]*len(self.linking_network)
         data_hw = self.data_info[self.data_info['startflag'] == 1]
         start_comids = data_hw.index.values
-        self.comid_network = {str(st): [] for st in start_comids}
+        # self.comid_network = {str(st): [] for st in start_comids}
+        self.comid_network = {}
         self.extracted_comids = []
 
         # ------------
@@ -204,6 +229,7 @@ class CompleteReachExtraction:
             :param do_not_overlap: bool, Default False
                 If True, the comids will not overlap.
         """
+        # TODO: Include map newtwork as a function to huc level
         if start_comids is None:
             # Extract headwaters
             data_hw = self.data_info[self.data_info['startflag'] == 1]
@@ -273,68 +299,118 @@ class CompleteReachExtraction:
         # start_comids = np.array(data_term.index)
         # terminal_paths = data_term['terminalpa'].values
 
-        time1 = time.time()
-        for tp in terminal_paths:
-            # Extract comids that include the terminal path
-            comid_table = self.data_info[
-                self.data_info['terminalpa'] == tp]
-            # Sort by drinage area
-            comid_table = comid_table.sort_values(
-                by='totdasqkm', ascending=False)
-            # Remove where streamorde and streamcalc are different
-            comid_table = comid_table[
-                comid_table['streamorde'] == comid_table['streamcalc']]
-            # Extract comids that have not been extracted
-            linking_network = self.linking_network.loc[comid_table.index, :]
-            comid_table = comid_table[linking_network['extracted_comid'] == 0]
+        # Fill values of comid
+        comid_table = copy.deepcopy(self.data_info)
+        c_comid = self.data_info.index.values
+        self.linking_network.loc[c_comid, 'huc12'] = comid_table.loc[
+            c_comid, 'reachcode']
+        self.linking_network.loc[c_comid, 'huc10'] = comid_table.loc[
+            c_comid, 'huc10']
+        self.linking_network.loc[c_comid, 'huc08'] = comid_table.loc[
+            c_comid, 'huc08']
+        self.linking_network.loc[c_comid, 'huc06'] = comid_table.loc[
+            c_comid, 'huc06']
+        self.linking_network.loc[c_comid, 'huc04'] = comid_table.loc[
+            c_comid, 'huc04']
+        self.linking_network.loc[c_comid, 'huc02'] = comid_table.loc[
+            c_comid, 'huc02']
+        self.linking_network.loc[c_comid, 'xm_m'] = comid_table.loc[
+            c_comid, 'xm_m']
+        self.linking_network.loc[c_comid, 'ym_m'] = comid_table.loc[
+            c_comid, 'ym_m']
+        self.linking_network.loc[c_comid, 'xup_m'] = comid_table.loc[
+            c_comid, 'xup_m']
+        self.linking_network.loc[c_comid, 'yup_m'] = comid_table.loc[
+            c_comid, 'yup_m']
+        self.linking_network.loc[c_comid, 'xdown_m'] = comid_table.loc[
+            c_comid, 'xdown_m']
+        self.linking_network.loc[c_comid, 'ydown_m'] = comid_table.loc[
+            c_comid, 'ydown_m']
 
-            # Get starting comid
-            st = comid_table.index
-            if len(st) == 0:
-                continue
-            st = st[0]
-            # self.logger.info(f"Extracting comid {st}")
-            comid_table = self.data_info[
-                self.data_info['streamorde'] == self.data_info['streamcalc']]
-            comid_network = self._recursive_upstream_exploration(
-                st, comid_table, huc_number=huc_number)
-        
-        lengths = [len(i) for i in comid_network.values()]
-        total_length = np.sum(lengths)
-        while total_length < len(self.data_info):
-            linking_network = self.linking_network[
-                self.linking_network['extracted_comid'] == 0]
-            if len(linking_network) == 0:
-                break
-            comid_table = self.data_info.loc[linking_network.index, :]
-            # sort by drainage area
-            comid_table = comid_table.sort_values(
-                by='totdasqkm', ascending=False)
-            # Remove where streamorde and streamcalc are different
-            comid_table = comid_table[
-                comid_table['streamorde'] == comid_table['streamcalc']]
-            # Get starting comid
-            st = comid_table.index
-            if len(st) == 0:
-                break
-            st = st[0]
-            # self.logger.info(f"Extracting comid {st}")
-            comid_network = self._recursive_upstream_exploration(
-                st, comid_table, huc_number=huc_number)
+        huc_n_value = np.unique(self.linking_network[f'huc{huc_number:02d}'])
+        self.comid_network['huc_list'] = huc_n_value
+        self.comid_network.update({str(huc_n): [] for huc_n in huc_n_value})
+
+        time1 = time.time()
+        for huc_n in huc_n_value:
+            if huc_number == 12:
+                key_val = 'reachcode'
+            else:
+                key_val = f'huc{huc_number:02d}'
+            # Extract only values of the huc_n
+            subset = self.data_info[
+                self.data_info[key_val] == huc_n]
+            terminal_paths = np.unique(subset['terminalpa'])
+            pbar = tqdm(total=len(terminal_paths), desc=f'Ext. huc {huc_n}',
+                        )
+            for i_tp, tp in enumerate(terminal_paths):
+                # Extract comids that include the terminal path
+                comid_table = subset[
+                    subset['terminalpa'] == tp]
+                # Sort by drinage area
+                comid_table = comid_table.sort_values(
+                    by='totdasqkm', ascending=False)
+                # Remove where streamorde and streamcalc are different
+                comid_table = comid_table[
+                    comid_table['streamorde'] == comid_table['streamcalc']]
+                # Extract comids that have not been extracted
+                linking_network = self.linking_network.loc[comid_table.index, :]
+                comid_table = comid_table[linking_network['extracted_comid'] == 0]
+
+                # Get starting comid
+                st = comid_table.index
+                if len(st) == 0:
+                    continue
+                st = st[0]
+                # self.logger.info(f"Extracting comid {st}")
+                comid_table = subset[
+                    subset['streamorde'] == subset['streamcalc']]
+                comid_network = self._recursive_upstream_exploration(
+                    st, comid_table, huc_number=huc_number)
+                pbar.update(i_tp)
+            
+            pbar.close()
+            
             lengths = [len(i) for i in comid_network.values()]
             total_length = np.sum(lengths)
-
+            pbar = tqdm(total=len(subset), desc=' Ext. Extra Nodes')
+            while total_length < len(subset):
+                linking_network = self.linking_network.loc[subset.index, :]
+                linking_network = linking_network[
+                    self.linking_network['extracted_comid'] == 0]
+                if len(linking_network) == 0:
+                    break
+                comid_table = subset.loc[linking_network.index, :]
+                # sort by drainage area
+                comid_table = comid_table.sort_values(
+                    by='totdasqkm', ascending=False)
+                # Remove where streamorde and streamcalc are different
+                comid_table = comid_table[
+                    comid_table['streamorde'] == comid_table['streamcalc']]
+                # Get starting comid
+                st = comid_table.index
+                if len(st) == 0:
+                    break
+                st = st[0]
+                # self.logger.info(f"Extracting comid {st}")
+                comid_network = self._recursive_upstream_exploration(
+                    st, comid_table, huc_number=huc_number)
+                lengths = [len(i) for i in comid_network.values()]
+                total_length = np.sum(lengths)
+                pbar.update(total_length)
             
-        # Convert network from terminal to start
-        lengths = [len(i) for i in comid_network.values()]
-        arg_sort_l = np.argsort(lengths)[::-1]
-        comid_network_2 = {str(i[-1]): list(i[::-1])
-                         for i in comid_network.values()}
-        self.comid_network = comid_network_2
-        c = list(comid_network_2.keys())
-        self.comid_network['comid_start'] = list(
-            np.array(c).astype(float)[arg_sort_l])
-        self.comid_network['length'] = list(np.array(lengths)[arg_sort_l])
+            pbar.close()
+                
+            # Convert network from terminal to start
+            lengths = [len(i) for i in comid_network.values()]
+            arg_sort_l = np.argsort(lengths)[::-1]
+            comid_network_2 = {str(i[-1]): list(i[::-1])
+                            for i in comid_network.values()}
+            self.comid_network[huc_n] = comid_network_2
+            c = list(comid_network_2.keys())
+            self.comid_network[huc_n]['comid_start'] = list(
+                np.array(c).astype(str)[arg_sort_l])
+            self.comid_network[huc_n]['length'] = list(np.array(lengths)[arg_sort_l])
         return
 
     def _recursive_upstream_exploration(self, start_comid, comid_table,
@@ -357,6 +433,10 @@ class CompleteReachExtraction:
         comid_network[start_comid] = [start_comid]
         c_comid_pos = start_comid
         c_comid = start_comid
+        # if huc_number == 12:
+        #     ini_huc = comid_table.loc[c_comid, 'reachcode']
+        # else:
+        #     ini_huc = comid_table.loc[c_comid, f'huc{huc_number:02d}']
 
         i = 1
         while i < len(comid_table):
@@ -373,6 +453,9 @@ class CompleteReachExtraction:
             # --------------------------
             c_comid = comid_table.index[
                 comid_table['tonode'] == from_i].values
+            
+            self.linking_network.loc[c_comid, 'n_tributaries'] = len(c_comid)
+
             if len(c_comid) == 0:
                 break
             
@@ -509,7 +592,7 @@ class CompleteReachExtraction:
         OUTPUT:
         """
         timeg = time.time()
-        comid_list = np.array(comid_list).astype(float)
+        comid_list = np.array(comid_list)
         huc_04s = self.data_info.loc[comid_list, 'huc04'].values
         slope = self.data_info.loc[comid_list, 'slope'].values
         so_values = self.data_info.loc[comid_list, 'streamorde']
@@ -539,14 +622,14 @@ class CompleteReachExtraction:
             c_all = np.array([c_all[i] for i in sorted(indices_c)])
             if self.pre_loaded_coords:
                 coordinates = copy.deepcopy(self.coords_all)
-                keys = [str(i) for i in c_all]
-                coordinates = {float(i): coordinates[i] for i in keys}
+                keys = [i for i in c_all]
+                coordinates = {i: coordinates[i] for i in keys}
             else:
                 # Load File
                 if file_coords.split('.')[-1] == 'hdf5':
                     keys = [str(i) for i in c_all]
                     coordinates = FM.load_data(f'{file_coords}', keys=keys)
-                    coordinates = {float(i): coordinates[i] for i in keys}
+                    coordinates = {i: coordinates[i] for i in keys}
                 else:
                     coordinates = FM.load_data(f'{file_coords}')
             length_reach = np.array([
@@ -623,9 +706,9 @@ class CompleteReachExtraction:
             # Add variables
             time1 = time.time()
             comid_values = [
-                float(i) for i in c_all for item in coordinates[i][0]]
+                i for i in c_all for item in coordinates[i][0]]
             comid_values = np.array([comid_values[i] for i in sorted(indices)])
-            so = [so_values[float(i)] for i in c_all for item in
+            so = [so_values[i] for i in c_all for item in
                   coordinates[i][0]]
             so = np.array([so[i] for i in sorted(indices)])
             # print('adding variables')

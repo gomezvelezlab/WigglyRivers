@@ -407,7 +407,7 @@ class RiverDatasets:
                 max_num_comids=max_num_comids, do_not_overlap=True)
         elif method == 'upstream':
             self.logger.info('Mapping through upstream method')
-            self.reach_generator.map_complete_network_down_up()
+            self.reach_generator.map_complete_network_down_up(huc_number=huc)
         else:
             self.logger.error(f'Methods {method} not available. Please, use '
                               'either "upstream" or "downstream"')
@@ -459,8 +459,8 @@ class RiverDatasets:
         self.reach_generator.exteracted_comids = headwaters_comid
         return
 
-    def load_extracted_in_comid_network(
-            self, path_file: str, extract_all: bool=True) -> list:
+    def load_huc_list_in_comid_network(
+            self, path_file: str) -> list:
         """
         Description:
         -----------
@@ -481,28 +481,69 @@ class RiverDatasets:
             List of extracted comids
         :rtype: list
         """
+        comid_network = FM.load_data(path_file, keys=['huc_list'])
+        return comid_network['huc_list']
 
-        time1 = time.time()
-        if extract_all:
+    def load_extracted_in_comid_network(
+            self, path_file: str,
+            huc=None) -> list:
+        """
+        Description:
+        -----------
+            Load the comid extracted in order to map the complete network.
+        
+        ________________________________________________________________________
+
+        Args:
+        -----
+        :param path_file: str,
+            Path to the comid_network file.
+        :type path_file: str
+        :param extract_all: bool, default=True,
+            If True, the comid_network will be loaded and the complete
+            comid lists will be extracted. If False, only the headwaters comid
+            will be loaded.
+        :return extracted_comids: list,
+            List of extracted comids
+        :rtype: list
+        """
+        if huc is None:
             comid_network = FM.load_data(path_file)
-            self.reach_generator.comid_network = comid_network
-            headwaters_comid = comid_network['comid_start']
-        else:
-            headwaters_comid = FM.load_data(path_file, keys=['comid_start'])
-            headwaters_comid = headwaters_comid['comid_start']
+            huc = comid_network['huc_list']
+        elif isinstance(huc, str):
+            huc = [huc]
+            # Only extract a portion of the file
+            comid_network = FM.load_data(
+                path_file, keys=huc)
+            comid_network['huc_list'] = huc
+        headwaters_comid = {}
+        for hu in huc:
+            headwaters_comid[hu] = comid_network[hu]['comid_start']
+        self.reach_generator.comid_network = comid_network
+        # if extract_all:
+        #     comid_network = FM.load_data(path_file)
+        #     self.reach_generator.comid_network = comid_network
+        #     if huc is None:
+        #         huc = comid_network['huc_list']
+        #     elif isinstance(huc, str):
+        #         huc = [huc]
+        #     headwaters_comid = {}
+        #     for hu in huc:
+        #         headwaters_comid[hu] = comid_network[hu]['comid_start']
+        # else:
+        #     headwaters_comid = FM.load_data(path_file, keys=['comid_start'])
+        #     headwaters_comid = headwaters_comid['comid_start']
         # utl.toc(time1)
         return headwaters_comid
 
     def get_reaches_from_network(self,
+                                 huc: str,
                                  headwaters_comid: Union[list, np.ndarray]=None,
                                  linking_network_file: str=None,
                                  comid_network_file: str=None,
-                                 calculate_poly: bool=False,
-                                 method: str='geometric_mean',
                                  min_distance: float=1000.0,
                                  path_out: str=None,
-                                 joblib_n_jobs: int=1,
-                                 extract_all: bool=True) -> None:
+                                 joblib_n_jobs: int=1) -> None:
         """
         Description:
         -----------
@@ -554,20 +595,23 @@ class RiverDatasets:
         if linking_network is None:
             raise ValueError('The linking network has not been created yet'
                              'please run the method `map_network` first')
+        loading_from_file = False
         # Check comid network
-        if comid_network_file is not None:
-            loading_from_file = True
-            comid_network = None
-        else:
-            comid_network = self.reach_generator.comid_network
-            loading_from_file = False
+        comid_network = self.reach_generator.comid_network
+        try:
+            huc_list = comid_network['huc_list']
+        except KeyError:
+            raise ValueError(
+                'comid_network not loaded. Please'
+                ' run load_extracted_in_comid_network first')
+
+        try:
+            comid_network = copy.deepcopy(self.reach_generator.comid_network[huc])
+        except KeyError:
+            raise KeyError(f'HUC {huc} not found in the comid network.')
         # Check for headwaters comids
         if headwaters_comid is None:
-            if comid_network is None:
-                headwaters_comid = self.load_extracted_in_comid_network(
-                    comid_network_file, extract_all=extract_all)
-            else:
-                headwaters_comid = comid_network['start_comid']
+            headwaters_comid = comid_network['start_comid']
         # --------------------------
         # get reach coordinates
         # --------------------------
@@ -605,7 +649,7 @@ class RiverDatasets:
         # Save Informaton
         if path_out is not None:
             FM.save_data(data_to_save, path_out,
-                        file_name='river_network.hdf5')
+                        file_name=f'river_network_huc_{huc}.hdf5')
         else:
             return data_to_save
         return
@@ -1053,6 +1097,7 @@ class RiverDatasets:
                 except KeyError:
                     kw_resample = {}
 
+            print(kw_resample)
             # Add River Information
             self.add_river(
                 hw_r, data_river['x_o'], data_river['y_o'],
@@ -1338,7 +1383,7 @@ class RiverTransect:
             assert len(so) == len(x), 'so must have the same length as x'
             self.so_o = so
         if comid is None:
-            self.comid_o = np.array([np.nan for _ in self.x_o])
+            self.comid_o = np.array(['' for _ in self.x_o])
         else:
             assert len(comid) == len(x), 'comid must have the same length as x'
             self.comid_o = comid
@@ -1809,10 +1854,12 @@ class RiverTransect:
         self.z = data['z_poly']
         self.so = data['so_poly']
         self.comid = data['comid_poly']
+        self.comid = np.array([str(int(c)) for c in self.comid])
         self.da_sqkm = data['da_sqkm_poly']
         self.w_m = data['w_m_poly']
         self.within_waterbody = np.zeros(len(self.x))
-        if np.sum(np.isnan(comid_u)) == 0:
+        
+        if np.sum(comid_u == '') == 0:
             for c_u in comid_u:
                 self.within_waterbody[self.comid == c_u] = within_waterbody[c_u]
         # Include planimetry derivatives
@@ -2361,20 +2408,20 @@ class RiverTransect:
                     # ----------------------------------    
                     # Find extended bounds
                     # ----------------------------------    
-                    # node = RF.extend_node_bound(node, c)
-                    # # Calculate metrics
-                    # idx_start = node.idx_planimetry_extended_start
-                    # idx_end = node.idx_planimetry_extended_end
-                    # x_m = x[idx_start:idx_end + 1]
-                    # y_m = y[idx_start:idx_end + 1]
-                    # lambda_extended = RF.calculate_lambda(x_m, y_m)
-                    # l_extended = RF.calculate_l(x_m, y_m)
-                    # sn_extended = RF.calculate_sinuosity(
-                    #     l_extended, lambda_extended)
-                    # # Add values
-                    # node.lambda_extended = lambda_extended
-                    # node.l_extended = l_extended
-                    # node.sn_extended = sn_extended
+                    node = RF.extend_node_bound(node, c)
+                    # Calculate metrics
+                    idx_start = node.idx_planimetry_extended_start
+                    idx_end = node.idx_planimetry_extended_end
+                    x_m = x[idx_start:idx_end + 1]
+                    y_m = y[idx_start:idx_end + 1]
+                    lambda_extended = RF.calculate_lambda(x_m, y_m)
+                    l_extended = RF.calculate_l(x_m, y_m)
+                    sn_extended = RF.calculate_sinuosity(
+                        l_extended, lambda_extended)
+                    # Add values
+                    node.lambda_extended = lambda_extended
+                    node.l_extended = l_extended
+                    node.sn_extended = sn_extended
 
                     # ----------------------------------    
                     # Add s_reach
@@ -2468,19 +2515,19 @@ class RiverTransect:
                     # Add coordinates extended
                     # ----------------------------------    
                     # Extract current distances
-                    # idx_start = node.idx_planimetry_extended_start
-                    # idx_end = node.idx_planimetry_extended_end
-                    # s_m = s[idx_start: idx_end + 1]
-                    # # Spline or Smooth
-                    # node.x_extended = x[idx_start:idx_end + 1]
-                    # node.y_extended = y[idx_start:idx_end + 1]
-                    # # Add original
-                    # idx_start_o = np.argmin(np.abs(self.s_o - s_m[0]))
-                    # idx_end_o = np.argmin(np.abs(self.s_o - s_m[-1]))
-                    # node.idx_planimetry_extended_start_o = idx_start_o
-                    # node.idx_planimetry_extended_end_o = idx_end_o
-                    # node.x_extended_o = self.x_o[idx_start_o:idx_end_o + 1]
-                    # node.y_extended_o = self.y_o[idx_start_o:idx_end_o + 1]
+                    idx_start = node.idx_planimetry_extended_start
+                    idx_end = node.idx_planimetry_extended_end
+                    s_m = s[idx_start: idx_end + 1]
+                    # Spline or Smooth
+                    node.x_extended = x[idx_start:idx_end + 1]
+                    node.y_extended = y[idx_start:idx_end + 1]
+                    # Add original
+                    idx_start_o = np.argmin(np.abs(self.s_o - s_m[0]))
+                    idx_end_o = np.argmin(np.abs(self.s_o - s_m[-1]))
+                    node.idx_planimetry_extended_start_o = idx_start_o
+                    node.idx_planimetry_extended_end_o = idx_end_o
+                    node.x_extended_o = self.x_o[idx_start_o:idx_end_o + 1]
+                    node.y_extended_o = self.y_o[idx_start_o:idx_end_o + 1]
 
                     # ----------------------------------    
                     # Add within_waterbody
@@ -2560,8 +2607,6 @@ class RiverTransect:
         database_meanders = database_meanders.sort_values(by='s_c')
         # renumber meander_id
         database_meanders['meander_id'] = np.arange(len(database_meanders))
-        # TODO: Add extent of bounds here
-        database_meanders = RF.extend_meander_bound_database(database_meanders)
         # Add meander_id to tree_scales 
         self.tree_scales_database_meanders = database_meanders
         return 
