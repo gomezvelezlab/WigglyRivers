@@ -984,12 +984,18 @@ class RiverDatasets:
 
         return
 
+    def load_river_network_ids(self, path_file: str):
+        river_file = FM.load_data(path_file)
+        id_values = list(river_file)
+        return id_values 
+
     def load_river_network(self, path_file: str,
                            headwaters_comid: Union[str, None]=None,
                            fn_tree_scales: Union[str, None]=None,
                            fn_tree_scales_database: Union[str, None]=None,
                            fn_meanders_database: Union[str, None]=None,
                            kwargs_resample=None,
+                           scale_by_width=None,
                            **kwargs,
                            ) -> None:
         """
@@ -1020,6 +1026,9 @@ class RiverDatasets:
             Dictionary with the kwargs to resample the reach. If None, the
             kwargs will be extracted from the file.
         :type kwargs_resample: dict
+        :param scale_by_width: bool,
+            Have the rivers to be scaled by the minimum width.
+        :type scale_by_width: bool
         :param kwargs: dict,
             Additional kwargs to add to the river.
         :type kwargs: dict
@@ -1081,10 +1090,11 @@ class RiverDatasets:
             except:
                 start_comid = None
             
-            try:
-                scale_by_width = data_river['scale_by_width']
-            except KeyError:
-                scale_by_width = False
+            if scale_by_width is None:
+                try:
+                    scale_by_width = data_river['scale_by_width']
+                except KeyError:
+                    scale_by_width = False
             
             if kwargs_resample is None:
                 try:
@@ -1097,7 +1107,7 @@ class RiverDatasets:
                 except KeyError:
                     kw_resample = {}
 
-            print(kw_resample)
+            # print(kw_resample)
             # Add River Information
             self.add_river(
                 hw_r, data_river['x_o'], data_river['y_o'],
@@ -3252,6 +3262,7 @@ class RiverTransect:
             c = None
 
         # Find median in comid 
+        # TODO: Correct this function to account for string array.
         comid = np.median(comid_data[ind_start: ind_end + 1])
         # -------------------------
         # Add meander
@@ -3786,6 +3797,14 @@ class Meander:
         self.data['lambda_d'] = lambda_d
         return
 
+    def calculate_amplitude(self):
+        # TODO: Finish this function with rotation with respecrt to the inflectrion points
+        x_inf = self.x[self.ind_inf_st: self.ind_inf_end + 1]
+        y_inf = self.y[self.ind_inf_st: self.ind_inf_end + 1]
+
+        return
+
+
     def perform_calculations(self):
         functions = [
             self.calculate_lambda,
@@ -3799,6 +3818,7 @@ class Meander:
             self.add_skewness,
             self.add_curvature_side,
             self.calculate_assymetry,
+            self.calculate_amplitude
             # self.calculate_j_x,
         ]
 
@@ -3806,7 +3826,7 @@ class Meander:
             f()
 
         return
-
+    
     def get_metrics(self):
         return self.data
     
