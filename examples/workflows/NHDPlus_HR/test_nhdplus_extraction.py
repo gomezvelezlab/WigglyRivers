@@ -41,9 +41,9 @@ projection = 'esri:102003'
 # Start Logger
 # ------------------------------
 logger = Logger(console=True)
-# ------------------------------
+# ==============================
 # Extract NHD Information
-# ------------------------------
+# ==============================
 # nhd = NHD(path_output=path_output, logger=logger, save_format='feather')
 # nhd.get_data_from_nhd_gbd(f'{path_nhd}{file_name}', projection=projection)
 # ------------------------------
@@ -53,53 +53,123 @@ kwargs_resample = {
     '0':{'smooth': 1e2},
     }
 
-# ------------------------------
+# ==============================
 # Create Rivers and Add Files
-# ------------------------------
+# ==============================
+# Directories of the information
+# path_tables = f'{path_output}/tables/'
+# path_coords = f'{path_output}/coordinates/'
+
+# # Create Rivers object
+# # rivers = RiverDatasets(logger=logger)
+# rivers = RiverDatasets()
+# # Add  files
+# rivers.add_files(path_data=path_tables, huc04=huc_id, path_coords=path_coords,
+#                 comid_id='nhdplusid', load_coords=True)
+    
+# # Map the reach network
+# # logger.info('Mapping Network')
+# rivers.map_network(method='upstream', huc=4, path_out=path_river_routing)
+    
+# # Load coordinates
+# linking_network_file = f'{path_river_routing}/linking_network.feather'
+# comid_network_file = f'{path_river_routing}/comid_network.hdf5'
+# rivers.load_linking_network(linking_network_file)
+# huc_list = rivers.load_huc_list_in_comid_network(comid_network_file)
+# huc = huc_list[0]
+# headwaters = rivers.load_extracted_in_comid_network(
+#     comid_network_file, huc=huc)
+# headwaters_to_extract = headwaters[huc][:300]
+
+# # ---------------------------
+# # Get Reaches from Network
+# # ---------------------------
+# rivers.get_reaches_from_network(
+#     huc=huc,
+#     headwaters_comid=headwaters_to_extract,
+#     linking_network_file=linking_network_file,
+#     min_distance=100.0, path_out=path_river_routing)
+
+
+
+# # ---------------------------
+# # Load Network
+# # ---------------------------
+# river_network_file = f'{path_river_routing}/river_network_huc_{huc}.hdf5'
+# rivers.load_river_network(river_network_file)
+# starting_comids = rivers.id_values
+
+# fig = rivers.plot_rivers(engine='plotly')
+# fig.show()
+
+# ==============================
+# Detect Meanders Automatically
+# ==============================
+# -----------------------------
+# Load Rivers
+# -----------------------------
 # Directories of the information
 path_tables = f'{path_output}/tables/'
 path_coords = f'{path_output}/coordinates/'
 
 # Create Rivers object
-# rivers = RiverDatasets(logger=logger)
-rivers = RiverDatasets()
+rivers = RiverDatasets(logger=logger)
 # Add  files
 rivers.add_files(path_data=path_tables, huc04=huc_id, path_coords=path_coords,
                 comid_id='nhdplusid', load_coords=True)
-    
-# Map the reach network
-# logger.info('Mapping Network')
-rivers.map_network(method='upstream', huc=4, path_out=path_river_routing)
-    
-# Load coordinates
+# Load Linking Files
 linking_network_file = f'{path_river_routing}/linking_network.feather'
 comid_network_file = f'{path_river_routing}/comid_network.hdf5'
 rivers.load_linking_network(linking_network_file)
+
+# Load HUC files extracted
 huc_list = rivers.load_huc_list_in_comid_network(comid_network_file)
 huc = huc_list[0]
 headwaters = rivers.load_extracted_in_comid_network(
     comid_network_file, huc=huc)
-headwaters_to_extract = headwaters[huc][:300]
+headwaters = headwaters[huc]
 
-# ---------------------------
-# Get Reaches from Network
-# ---------------------------
-rivers.get_reaches_from_network(
-    huc=huc,
-    headwaters_comid=headwaters_to_extract,
-    linking_network_file=linking_network_file,
-    min_distance=100.0, path_out=path_river_routing)
-
-
-
-# ---------------------------
-# Load Network
-# ---------------------------
+# Load headwaters
 river_network_file = f'{path_river_routing}/river_network_huc_{huc}.hdf5'
-rivers.load_river_network(river_network_file)
-starting_comids = rivers.id_values
+# headwaters = rivers.load_river_network_ids(river_network_file)
 
-fig = rivers.plot_rivers(engine='plotly')
-fig.show()
+# kwargs resample
+kwargs_resample = {hw: {'smooth': 1e2} for hw in headwaters[:10]}
+
+rivers.load_river_network(river_network_file, headwaters_comid=headwaters[:10],
+                          kwargs_resample=kwargs_resample)
+id_rivers = rivers.id_values
+# print(id_rivers)
+
+# -----------------------------
+# Auotmatic Detection
+# -----------------------------
+# Select River
+id_river = id_rivers[-1]
+river = rivers[id_river]
+# -----------------------------
+# Calculate Curvature
+# -----------------------------
+rivers[id_river].calculate_curvature(data_source='resample') 
+# -----------------------------
+# Extract CWT tree
+# -----------------------------
+rivers[id_river].extract_cwt_tree()
+# -----------------------------
+# Prune by peak power
+# -----------------------------
+rivers[id_river].prune_tree_by_peak_power()
+# -----------------------------
+# Prune by sinuosity
+# -----------------------------
+rivers[id_river].prune_tree_by_sinuosity(1.05)
+# -----------------------------
+# Add meander to database
+# -----------------------------
+rivers[id_river].add_meanders_from_tree_scales()
+# ---------------------------
+# Calculate reach sinuosity
+# ---------------------------
+rivers[id_river].calculate_reach_metrics()
 
 print('Done!')
