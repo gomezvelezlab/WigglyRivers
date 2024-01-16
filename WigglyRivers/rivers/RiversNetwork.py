@@ -62,7 +62,7 @@ logging.basicConfig(handlers=[logging.NullHandler()])
 # -----------
 CALC_VARS = ['lambda', 'lambda_inf', 'l', 'l_inf', 'sinuosity', 'sinuosity_inf',
              'so', 'skewness', 'flatness', 'radius', 's_inf', 'curvature_side',
-             'a_h', 'lambda_h', 'lambda_u', 'lambda_d']
+             'a_h', 'lambda_h', 'lambda_u', 'lambda_d', 'amplitude']
 
 
 # -----------
@@ -1450,8 +1450,8 @@ class RiverTransect:
             # Calculate the spline
             self.calculate_spline(
                 function=RF.fit_splines_complete, **self.kwargs_resample)
-            self.logger.info('Resample calculated with '
-                             '`River.calculate_spline()`')
+            # self.logger.info('Resample calculated with '
+            #                  '`River.calculate_spline()`')
 
         if scale_by_width and not(np.isnan(self.w_m_gm)):
             # TODO: Include flag for exporting values to shapefiles, remember to unscale the data
@@ -3261,9 +3261,11 @@ class RiverTransect:
         else:
             c = None
 
-        # Find median in comid 
-        # TODO: Correct this function to account for string array.
-        comid = np.median(comid_data[ind_start: ind_end + 1])
+        # Find the most recurring comid
+        # comid = np.median(comid_data[ind_start: ind_end + 1])
+        comid_val, comid_counts = np.unique(
+            comid_data[ind_start: ind_end + 1], return_counts=True)
+        comid = comid_val[np.argmax(comid_counts)]
         # -------------------------
         # Add meander
         # -------------------------
@@ -3536,6 +3538,7 @@ class Meander:
         return
     
     def get_infection_points(self):
+        # TODO: Check inflection point function with new changes
         len_x_inf = 0
         i_iter = 0
         x = self.x
@@ -3686,6 +3689,10 @@ class Meander:
         return
     
     def calculate_wavelength(self):
+        """
+        This is an estimate of the wavelength that from data turns out to be
+        2 times the arc-length of the meander (lambda).
+        """
         self.data['wavelength'] = self.data['lambda'] * 2
         return
     
@@ -3696,54 +3703,6 @@ class Meander:
         x_c, y_c, radius = RF.calculate_radius_of_curvature(
             x, y, self.data['wavelength'])
 
-        # x_inf_st = self.x_inf_st
-        # y_inf_st = self.y_inf_st
-        # x_inf_end = self.x_inf_end
-        # y_inf_end = self.y_inf_end
-        # x_mid = x[len(x)//2]
-        # y_mid = y[len(y)//2]
-
-        # # plt.plot(self.x, self.y, 'k')
-        # # plt.plot(x, y, 'r')
-        # coordinates = np.vstack((x, y)).T
-        # x_cen, y_cen, r, sigma = taubinSVD(coordinates)
-
-        # # Calculate wavelength
-        # wavelength = self.data['wavelength']
-        # # Calculate Omega
-        # w = wavelength / (2 * np.pi)
-        # rvec = np.array([x_cen - x_mid, y_cen - y_mid])/r
-
-        # x_c = x_mid + rvec[0] * w
-        # y_c = y_mid + rvec[1] * w
-
-        # radius = np.sqrt((x_c - x_mid)**2 + (y_c - y_mid)**2)
-
-        # try:
-        #     x_c, y_c, radius = RF.calculate_radius_of_curvature(
-        #         x_inf_st, y_inf_st, x_inf_end, y_inf_end, x_mid, y_mid)
-        # except:
-        #     # Return inf points to start and ending points
-        #     self.ind_inf_st = 0
-        #     self.ind_inf_end = len(self.x) - 1
-        #     self.x_inf_st = self.x[0]
-        #     self.y_inf_st = self.y[0]
-        #     x = self.x[self.ind_inf_st: self.ind_inf_end + 1]
-        #     y = self.y[self.ind_inf_st: self.ind_inf_end + 1]
-        #     x_inf_st = self.x_inf_st
-        #     y_inf_st = self.y_inf_st
-        #     x_inf_end = self.x_inf_end
-        #     y_inf_end = self.y_inf_end
-        #     x_mid = x[len(x)//2]
-        #     y_mid = y[len(y)//2]
-        #     try:
-        #         x_c, y_c, radius = RF.calculate_radius_of_curvature(
-        #             x_inf_st, y_inf_st, x_inf_end, y_inf_end, x_mid, y_mid)
-        #     except:
-        #         x_c = np.nan
-        #         y_c = np.nan
-        #         radius = np.nan
-        
         self.x_c = x_c
         self.y_c = y_c
         self.radius = radius
@@ -3791,17 +3750,39 @@ class Meander:
     def calculate_assymetry(self):
         a_h, lambda_h, lambda_u, lambda_d = RF.calculate_assymetry(
             self.x, self.y, self.c)
+        # Store Assymetry value
         self.data['a_h'] = a_h
+        # Store lambda 
         self.data['lambda_h'] = lambda_h
         self.data['lambda_u'] = lambda_u
         self.data['lambda_d'] = lambda_d
         return
 
     def calculate_amplitude(self):
-        # TODO: Finish this function with rotation with respecrt to the inflectrion points
+        """
+        Calculate the amplitude of the meander by rotating the meander from
+        the inflection points and calculating the distance between the minimum 
+        and maximum y values.
+        """
+        # --------------------------
+        # Extract Inflection points
+        # --------------------------
         x_inf = self.x[self.ind_inf_st: self.ind_inf_end + 1]
         y_inf = self.y[self.ind_inf_st: self.ind_inf_end + 1]
-
+        # --------------------------
+        # Rotate Meanders
+        # --------------------------
+        coords = np.vstack((x_inf, y_inf)).T
+        index_initial = 0 
+        index_final = len(coords) - 1
+        rotated_points, _ = RF.translate_rotate(
+            coords, index_initial=index_initial, index_final=index_final)
+        # --------------------------
+        # Calculate amplitude
+        # --------------------------
+        y_rot = rotated_points[:, 1]
+        amplitude = np.max(y_rot) - np.min(y_rot)
+        self.data['amplitude'] = amplitude
         return
 
 
