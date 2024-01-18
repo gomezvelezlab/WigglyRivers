@@ -1393,7 +1393,7 @@ class RiverTransect:
             assert len(so) == len(x), 'so must have the same length as x'
             self.so_o = so
         if comid is None:
-            self.comid_o = np.array(['' for _ in self.x_o])
+            self.comid_o = np.array(['0' for _ in self.x_o])
         else:
             assert len(comid) == len(x), 'comid must have the same length as x'
             self.comid_o = comid
@@ -2389,12 +2389,12 @@ class RiverTransect:
                     # Find direction node to parent flag
                     # ----------------------------------    
                     # Correct x_c and y_c
-                    # x_c = node.x_c
-                    # y_c = node.y_c
-                    x_c = x[idx]
-                    y_c = y[idx]
-                    node.x_c = x_c
-                    node.y_c = y_c
+                    x_c = node.x_c
+                    y_c = node.y_c
+                    # x_c = x[idx]
+                    # y_c = y[idx]
+                    # node.x_c = x_c
+                    # node.y_c = y_c
                     x_2 = node.x_2
                     y_2 = node.y_2
                     if node.parent is None:
@@ -2879,7 +2879,7 @@ class RiverTransect:
         s_curvature = self.s
         scales = self.cwt_scales_c
         wavelength = self.cwt_wavelength_c
-        power = self.cwt_power_c
+        power = np.log2(self.cwt_power_c)
         # wave = np.log2(self.cwt_wave**2)
         coi = self.cwt_coi_c
         tree_scales = self.tree_scales
