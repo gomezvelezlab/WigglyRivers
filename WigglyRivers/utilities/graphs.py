@@ -570,7 +570,8 @@ def plot_rivers_matplotlib(rivers, comids, data_source='resample', **kwargs):
 
 def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
                            gws, peaks_gws, id_river, coi=None, tree_ids=None, 
-                           node_ids=None, min_s=None, **kwargs):
+                           node_ids=None, min_s=None, include_removed=False,
+                           **kwargs):
 
     """
     Description:
@@ -623,6 +624,9 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
         else:
             nodes = node_ids
         for node in nodes:
+            removed_meander = node.is_leaf and not(node.is_meander)
+            if include_removed == False and removed_meander:
+                continue
             # Plot in planimetry
             ax[0] = plot_node(ax[0], node, x_var='x_c', y_var='y_c', **kwargs)
             ax[1] = plot_node(ax[1], node, x_var='s_c',
@@ -696,11 +700,13 @@ def plot_node(ax, node, x_var, y_var, **kwargs):
 
     # Check type of the node
     if node.is_meander == 1:
-        ax.plot(x, y, 'o', color='b', **kwargs)
+        ax.plot(x, y, 'o', color='b', **kwargs, label='Meander')
+    elif node.is_leaf:
+        ax.plot(x, y, 'o', color='k', **kwargs, label='Removed Node')
     elif node.root_node == 1:
-        ax.plot(x, y, 'o', color='g', **kwargs)
+        ax.plot(x, y, 'o', color='g', **kwargs, label='Root Node')
     else:
-        ax.plot(x, y, 'o', color='r', **kwargs)
+        ax.plot(x, y, 'o', color='r', **kwargs, label='Parent Node')
 
     return ax
 
