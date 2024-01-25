@@ -1152,6 +1152,7 @@ class RiverDatasets:
                 self.rivers[hw_r].tree_scales_database = \
                     copy.deepcopy(tree_scales_d_river)
                 
+            self.rivers[hw_r].id_meanders = []
             if fn_meanders_database is not None:
                 database = meanders_database[
                     meanders_database['start_comid'] == hw_r]
@@ -1612,6 +1613,7 @@ class RiverTransect:
         self.gamma_w_m = self.gamma * self.w_m
         return
     
+    # TODO: Correct data_source this setter
     def set_data_source(self, data_source: str):
         """
         Description:
