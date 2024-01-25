@@ -60,10 +60,10 @@ logger = Logger(console=True)
 # Parameters
 # ------------------
 # Parameters
-path_projects = 'examples/workflows/NHDPlus_HR/meander_comparison/characterization/manual/'
+path_projects = 'examples/workflows/NHDPlus_HR/manual_automated_comparison/meander_comparison/characterization/manual/'
 projects = utl.get_folders(path_projects)
 path_projects_all = [f'{path_projects}{p}/' for p in projects]
-path_projects_c = 'examples/workflows/NHDPlus_HR/meander_comparison/characterization/manual_corrected/'
+path_projects_c = 'examples/workflows/NHDPlus_HR/manual_automated_comparison/meander_comparison/characterization/manual_resampled/'
 path_projects_out = [f'{path_projects_c}{p}/' for p in projects]
 
 print(projects)
@@ -147,8 +147,13 @@ for project in projects:
     # ------------------------
     # Save river
     # ------------------------
-    rivers.save_rivers(
+    rivers_c.save_rivers(
         path_output=f'{path_projects_c}{project}/',
         file_name='rivers_manual.hdf5',
         fn_meander_database='meander_database_manual.csv')
+    rivers_c.save_rivers(
+        path_output=f'{path_projects_c}{project}/',
+        file_name='rivers_manual.hdf5',
+        fn_meander_database='meander_database_manual.feather')
     
+print('Done')

@@ -17,7 +17,7 @@
             "name": "Python: Correct Manual Selection",
             "type": "python",
             "request": "launch",
-            "program": "examples/workflows/NHDPlus_HR/Correct_Manual_Selection.py",
+            "program": "examples/workflows/NHDPlus_HR/manual_automated_comparison/Correct_Manual_Identification.py",
             "console": "internalConsole",
             "justMyCode": true,
             "cwd": "${workspaceFolder}"

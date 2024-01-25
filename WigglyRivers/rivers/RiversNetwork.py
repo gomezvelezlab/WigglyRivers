@@ -20,6 +20,7 @@ ______________________________________________________________________________
 # System
 import time
 import copy
+import re
 from typing import Union, List, Tuple, Dict, Any, Optional
 import inspect
 import uuid
@@ -60,9 +61,13 @@ logging.basicConfig(handlers=[logging.NullHandler()])
 # -----------
 # parameters
 # -----------
-CALC_VARS = ['lambda', 'lambda_inf', 'l', 'l_inf', 'sinuosity', 'sinuosity_inf',
-             'so', 'skewness', 'flatness', 'radius', 's_inf', 'curvature_side',
-             'a_h', 'lambda_h', 'lambda_u', 'lambda_d', 'amplitude']
+CALC_VARS = ['x_inf', 'y_inf', 's_inf',
+             'lambda_fm', 'lambda_hm', 'L_fm', 'l_hm',
+             'sigma_fm', 'sigma_hm',
+             'so', 'skewness', 'flatness', 'R_hm', 'curvature_side',
+             'a_fm', 'lambda_fm,u', 'lambda_fm,d',
+             'a_hm', 'lambda_hm,u', 'lambda_hm,d',
+             'A_hm', 'lambda']
 
 
 # -----------
@@ -996,6 +1001,7 @@ class RiverDatasets:
                            fn_meanders_database: Union[str, None]=None,
                            kwargs_resample=None,
                            scale_by_width=None,
+                           recalculate_inflection_points=False,
                            **kwargs,
                            ) -> None:
         """
@@ -1177,13 +1183,47 @@ class RiverDatasets:
                         except KeyError:
                             inflection_flag = False
                         
-                        try:
-                            x_inf = database.loc[i, 'x_inf']
-                            y_inf = database.loc[i, 'y_inf']
-                        except KeyError:
+                        if recalculate_inflection_points:
                             x_inf = None
                             y_inf = None
-
+                            s_inf = None
+                        else:
+                            try:
+                                x_inf = database.loc[i, 'x_inf']
+                                y_inf = database.loc[i, 'y_inf']
+                                s_inf = database.loc[i, 's_inf']
+                            except KeyError:
+                                x_inf = None
+                                y_inf = None
+                                s_inf = None
+                            
+                            # Change values from string to lists
+                            if isinstance(x_inf, str):
+                                if x_inf == '' or x_inf == 'nan' or x_inf == 'None':
+                                    x_inf = None
+                                    y_inf = None
+                                    s_inf = None
+                                else:
+                                    x_inf = x_inf.replace('nan', 'np.nan')
+                                    y_inf = y_inf.replace('nan', 'np.nan')
+                                    s_inf = s_inf.replace('nan', 'np.nan')
+                                    # find is separation is by comma
+                                    if not(',' in x_inf):
+                                        x_inf = x_inf.replace(' ', ',')
+                                    if not(',' in y_inf):
+                                        y_inf = y_inf.replace(' ', ',')
+                                    if not(',' in s_inf):
+                                        s_inf = s_inf.replace(' ', ',')
+                                    x_inf = np.array(eval(x_inf))
+                                    y_inf = np.array(eval(y_inf))
+                                    s_inf = np.array(eval(s_inf))
+                            
+                            if x_inf is not None:
+                                if np.sum(np.isnan(x_inf)) >= 1:
+                                    x_inf = None
+                                    y_inf = None
+                                    s_inf = None
+                        
                         try:
                             tree_id = database.loc[i, 'tree_id']
                         except KeyError:
@@ -1192,7 +1232,8 @@ class RiverDatasets:
                             id_meander, idx_start, idx_end,
                             sk=sk, fl=fl, automatic_flag=automatic_flag,
                             inflection_flag=inflection_flag,
-                            tree_id=tree_id, x_inf=x_inf, y_inf=y_inf)
+                            tree_id=tree_id, x_inf=x_inf, y_inf=y_inf,
+                            s_inf=s_inf)
 
 
 
@@ -3282,7 +3323,8 @@ class RiverTransect:
         meander = Meander(s, x, y, z, ind_start, ind_end,
                           so=so, x_o=x_o, y_o=y_o,
                           ind_start_o=idx_start_o, ind_end_o=idx_end_o,
-                          c=c, metrics=metrics, sk=sk, fl=fl, comid=comid,
+                          x_inf=x_inf, y_inf=y_inf, s_inf=s_inf, c=c,
+                          metrics=metrics, sk=sk, fl=fl, comid=comid,
                           automatic_flag=automatic_flag,
                           inflection_flag=inflection_flag, tree_id=tree_id)
         if len(self._calc_vars) == 0:
@@ -3320,12 +3362,6 @@ class RiverTransect:
         database['y'] = [y]
         database['x_o'] = [x_o]
         database['y_o'] = [y_o]
-        # Include location of inflection points
-        if x_inf is None:
-            x_inf = [np.nan, np.nan]
-            y_inf = [np.nan, np.nan]
-        database['x_inf'] = [x_inf]
-        database['y_inf'] = [y_inf]
         database['automatic_flag'] = [automatic_flag]
         database['inflection_flag'] = [inflection_flag]
         database['tree_id'] = [tree_id]
@@ -3488,7 +3524,8 @@ class Meander:
     def __init__(self, s, x, y, z, ind_start, ind_end,
                  c=None, sk=np.nan, fl=np.nan, comid=np.nan, x_o=None,
                  y_o=None, ind_start_o=None, ind_end_o=None,
-                 so=None, x_inf=None, y_inf=None, metrics=None, calculations=True,
+                 so=None, x_inf=None, y_inf=None, s_inf=None, metrics=None,
+                 calculations=True,
                  automatic_flag=0, inflection_flag=False, tree_id=-1):
         # ----------------
         # Attributes
@@ -3543,6 +3580,7 @@ class Meander:
             self.y_inf_st = y_inf[0]
             self.x_inf_end = x_inf[-1]
             self.y_inf_end = y_inf[-1]
+            self.s_inf = s_inf
             # Extract Indices
             self.ind_inf_st = np.argmin(np.linalg.norm(
                 np.array([x, y]).T - np.array([self.x_inf_st, self.y_inf_st]),
@@ -3551,7 +3589,7 @@ class Meander:
                 np.array([x, y]).T - np.array([self.x_inf_end, self.y_inf_end]),
                 axis=1))
             # Include distance of the inflection points
-            self.s_inf = [s[self.ind_inf_st], s[self.ind_inf_end]]
+            # self.s_inf = [s[self.ind_inf_st], s[self.ind_inf_end]]
             # Add other variables
             self.c_smooth = copy.deepcopy(c)
             self.x_smooth = copy.deepcopy(x)
@@ -3578,6 +3616,10 @@ class Meander:
         self.sk = sk
         self.fl = fl
         self.data = {i: np.nan for i in self._calc_vars}
+        # Include location of inflection points
+        self.data['x_inf'] = [self.x_inf_st, self.x_inf_end]
+        self.data['y_inf'] = [self.y_inf_st, self.y_inf_end]
+        self.data['s_inf'] = [self.s_inf[0], self.s_inf[-1]]
         if metrics is None:
             if calculations:
                 self.perform_calculations()
@@ -3591,7 +3633,10 @@ class Meander:
         Description:
             Have an estimate of the inflection points of the meander. This
             function calculates the curvature of the meander and then smooths
-            the planimetry until it obtains the two inflection 
+            the planimetry until it obtains the two inflection.
+
+            This is an approximation. A better way to obtained these values is
+            to use the wavelet analysis in the automated detection.
         """
         len_x_inf = 0
         i_iter = 0
@@ -3680,6 +3725,7 @@ class Meander:
                     break
                 i_iter += 1
 
+        # Correct coordinates with new inflection points? -> the location of the points is different to the actual coordinates because of the smoothing
         self.c_smooth = c_smooth
         self.x_smooth = x_smooth
         self.y_smooth = y_smooth
@@ -3705,28 +3751,28 @@ class Meander:
     def calculate_lambda(self):
         coords = np.vstack((self.x, self.y)).T
         s_calc = RF.get_reach_distances(coords)
-        self.data['lambda'] = s_calc[-1]
+        self.data['lambda_fm'] = s_calc[-1]
         # Extract coords from inflection points
         coords = np.vstack((self.x[self.ind_inf_st:self.ind_inf_end+1],
                             self.y[self.ind_inf_st:self.ind_inf_end+1])).T
         s_calc = RF.get_reach_distances(coords)
-        self.data['lambda_inf'] = s_calc[-1]
+        self.data['lambda_hm'] = s_calc[-1]
         return
 
     def calculate_l(self):
-        self.data['l'] = np.sqrt(
+        self.data['L_fm'] = np.sqrt(
             (self.x[-1] - self.x[0])**2 + (self.y[-1] - self.y[0])**2)
         # Calculate l between inflection points
         x_inf = self.x[self.ind_inf_st:self.ind_inf_end+1]
         y_inf = self.y[self.ind_inf_st:self.ind_inf_end+1]
-        self.data['l_inf'] = np.sqrt(
+        self.data['L_hm'] = np.sqrt(
             (x_inf[-1] - x_inf[0])**2 + (y_inf[-1] - y_inf[0])**2)
         return
 
     def calculate_sinuosity(self):
-        self.data['sinuosity'] = self.data['lambda']/self.data['l']
+        self.data['sigma_fm'] = self.data['lambda_fm']/self.data['L_fm']
         # Calculate sinuosity between inflection points
-        self.data['sinuosity_inf'] = self.data['lambda_inf']/self.data['l_inf']
+        self.data['sigma_hm'] = self.data['lambda_hm']/self.data['L_hm']
         return
 
     def calculate_j_x(self):
@@ -3751,7 +3797,7 @@ class Meander:
         This is an estimate of the wavelength that from data turns out to be
         2 times the arc-length of the meander (lambda).
         """
-        self.data['wavelength'] = self.data['lambda'] * 2
+        self.data['lambda'] = self.data['lambda_hm'] * 2
         return
     
     def calculate_radius(self):
@@ -3759,12 +3805,12 @@ class Meander:
         y = self.y[self.ind_inf_st: self.ind_inf_end + 1]
 
         x_c, y_c, radius = RF.calculate_radius_of_curvature(
-            x, y, self.data['wavelength'])
+            x, y, self.data['lambda'])
 
         self.x_c = x_c
         self.y_c = y_c
         self.radius = radius
-        self.data['radius'] = radius
+        self.data['R_hm'] = radius
         return
     
     def plot_meander(self, add_triangle=True):
@@ -3809,11 +3855,20 @@ class Meander:
         a_h, lambda_h, lambda_u, lambda_d = RF.calculate_assymetry(
             self.x, self.y, self.c)
         # Store Assymetry value
-        self.data['a_h'] = a_h
-        # Store lambda 
-        self.data['lambda_h'] = lambda_h
-        self.data['lambda_u'] = lambda_u
-        self.data['lambda_d'] = lambda_d
+        self.data['a_fm'] = a_h
+        self.data['lambda_fm,u'] = lambda_u
+        self.data['lambda_fm,d'] = lambda_d
+
+        # Assymetry on half-meander
+        x_inf = self.x[self.ind_inf_st: self.ind_inf_end + 1]
+        y_inf = self.y[self.ind_inf_st: self.ind_inf_end + 1]
+        c_inf = self.c[self.ind_inf_st: self.ind_inf_end + 1]
+        a_h, lambda_h, lambda_u, lambda_d = RF.calculate_assymetry(
+            x_inf, y_inf, c_inf)
+        self.data['a_hm'] = a_h
+        self.data['lambda_hm,u'] = lambda_u
+        self.data['lambda_hm,d'] = lambda_d
+        
         return
 
     def calculate_amplitude(self):
@@ -3840,7 +3895,7 @@ class Meander:
         # --------------------------
         y_rot = rotated_points[:, 1]
         amplitude = np.max(y_rot) - np.min(y_rot)
-        self.data['amplitude'] = amplitude
+        self.data['A_hm'] = amplitude
         return
 
 
@@ -3851,7 +3906,7 @@ class Meander:
             self.calculate_wavelength,
             self.calculate_sinuosity,
             self.calculate_radius,
-            self.add_s_inf,
+            # self.add_s_inf,
             self.calculate_so,
             self.add_flatness,
             self.add_skewness,

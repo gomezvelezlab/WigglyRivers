@@ -311,14 +311,14 @@ def create_hover_template_meander(
     """
     hover_template = f'<b>Meander ID: {meander_id}</b>'
     if river_obj is not None:
-        lambda_value = river_obj.meanders[meander_id].data['lambda']
-        l_value = river_obj.meanders[meander_id].data['l']
-        sinuosity_value = river_obj.meanders[meander_id].data['sinuosity']
-        radius = river_obj.meanders[meander_id].data['radius']
-        hover_template += f'<br>Lambda: {lambda_value:.2f} m'
-        hover_template += f'<br>L: {l_value:.2f} m'
-        hover_template += f'<br>Sinuosity: {sinuosity_value:.2f}'
-        hover_template += f'<br>Radius: {radius:.2f}'
+        lambda_value = river_obj.meanders[meander_id].data['lambda_fm']
+        l_value = river_obj.meanders[meander_id].data['L_fm']
+        sinuosity_value = river_obj.meanders[meander_id].data['sigma_fm']
+        radius = river_obj.meanders[meander_id].data['R_hm']
+        hover_template += f'<br>Lambda_fm: {lambda_value:.2f} m'
+        hover_template += f'<br>L_fm: {l_value:.2f} m'
+        hover_template += f'<br>Sinuosity_fm: {sinuosity_value:.2f}'
+        hover_template += f'<br>Radius_hm: {radius:.2f}'
 
     return hover_template
 
