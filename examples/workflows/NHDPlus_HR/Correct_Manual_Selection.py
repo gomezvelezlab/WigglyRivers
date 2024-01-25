@@ -63,7 +63,7 @@ logger = Logger(console=True)
 path_projects = 'examples/workflows/NHDPlus_HR/meander_comparison/characterization/manual/'
 projects = utl.get_folders(path_projects)
 path_projects_all = [f'{path_projects}{p}/' for p in projects]
-path_projects_c = 'examples/workflows/NHDPlus_HR/projects/old_characterization/with_automatic/'
+path_projects_c = 'examples/workflows/NHDPlus_HR/meander_comparison/characterization/manual_corrected/'
 path_projects_out = [f'{path_projects_c}{p}/' for p in projects]
 
 print(projects)
@@ -77,6 +77,7 @@ projection = 'esri:102003'
 # bounds_array_str = 'inflection'
 # Select project to load
 for project in projects:
+    print(f'Processing project {project}')
     try:
         i_p = projects.index(project)
     except ValueError:
@@ -85,53 +86,69 @@ for project in projects:
     print('Set project to load: ' + project_to_load)
     rivers = RiverDatasets(logger=logger)
     river_network_file = f'{project_to_load}/rivers.hdf5'
+
+    # Create kwargs for resampling
+    kwargs_resample = {f'{project}_0': {'smooth': 1e2}}
+
+    # Load River Network with the smooth coordinates
     rivers.load_river_network(
         river_network_file,
         fn_meanders_database=f'{project_to_load}/meander_database.csv')
     id_rivers = rivers.id_values
 
+    # Create kwargs for resampling
+    kwargs_resample = {f'{id_rivers[0]}': {'smooth': 1e0}}
+    # Load River Network to use the resampled coordinates
+    rivers_c = RiverDatasets(logger=logger)
+    rivers_c.load_river_network(
+        river_network_file, kwargs_resample=kwargs_resample)
+
     # Select River
     id_river = id_rivers[0]
     river = rivers[id_river]
+    river_c = rivers_c[id_river]
 
-    river.meanders[10].plot_meander()
-
+    # Update data source
+    river_c.data_source = 'resample'
+    # Reclaclulate curvature
+    river_c.calculate_curvature()
     # Plot rivers
-    plt.figure()
-    plt.plot(river.x_o, river.y_o, 'k', label='Original')
-    plt.plot(river.x, river.y, 'b', label='Resampled')
-    plt.plot(river.x_smooth, river.y_smooth, 'r', label='Smoothed')
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.legend()
-    plt.show()
-    # -----------------------------
-    # Calculate Smooth Coordinates
-    # -----------------------------
-    rivers[id_river].calculate_smooth(poly_order=2, gaussian_window=1,)
-    # -----------------------------
-    # Calculate Curvature
-    # -----------------------------
-    rivers[id_river].calculate_curvature() 
-    # -----------------------------
-    # Extract CWT tree
-    # -----------------------------
-    rivers[id_river].extract_cwt_tree()
-    # -----------------------------
-    # Prune by peak power
-    # -----------------------------
-    rivers[id_river].prune_tree_by_peak_power()
-    # -----------------------------
-    # Add meander to database
-    # -----------------------------
-    rivers[id_river].add_meanders_from_tree_scales(
-        bounds_array_str=bounds_array_str)
-    # -----------------------------
-    # Save database
-    # -----------------------------
+    # plt.figure()
+    # plt.plot(river.x_o, river.y_o, 'k', label='Original')
+    # plt.plot(river_c.x, river_c.y, 'b', label='Resampled')
+    # plt.plot(river.x_smooth, river.y_smooth, 'r', label='Smoothed')
+    # plt.gca().set_aspect('equal', adjustable='box')
+    # plt.legend()
+    # plt.show()
+    # ------------------------
+    # Translate meanders
+    # ------------------------
+    # Get meander ids
+    meander_ids = river.id_meanders
+    # Go through the meanders and link them to the resample river coordinates
+    #  instead of the smooth ones.
+    x = river_c.x
+    y = river_c.y
+    for id_m in meander_ids:
+        meander = river.meanders[id_m]
+        x_m = meander.x
+        y_m = meander.y
+        # Find closest point to the starting and ending point of the meander
+        #  in the resampled river coordinates
+        dist = np.sqrt((x_m[0] - x)**2 + (y_m[0] - y)**2)
+        i_min = np.argmin(dist)
+        dist = np.sqrt((x_m[-1] - x)**2 + (y_m[-1] - y)**2)
+        i_max = np.argmin(dist)
+        # Add meander into the river_c class
+        river_c.add_meander(id_m, i_min, i_max)
+        # river_c.meanders[id_m].plot_meander()
+        # river.meanders[id_m].plot_meander()
+    
+    # ------------------------
+    # Save river
+    # ------------------------
     rivers.save_rivers(
-        path_out=f'{path_projects_c}{project}/',
-        file_name='rivers_automatic.hdf5',
-        file_name_meander_database=f'meander_database_{bounds_array_str}_all.csv')
-
-
-
+        path_output=f'{path_projects_c}{project}/',
+        file_name='rivers_manual.hdf5',
+        fn_meander_database='meander_database_manual.csv')
+    
