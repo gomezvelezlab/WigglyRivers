@@ -1163,7 +1163,6 @@ class RiverDatasets:
                 # Add meanders
                 self.rivers[hw_r].id_meanders = []
                 if len(database) > 0:
-                    # TODO: Correct adding meanders inflection points!
                     database.reset_index(drop=True, inplace=True)
                     for i in range(len(database)):
                         idx_start = int(database.loc[i, 'idx_start'])
@@ -1176,6 +1175,13 @@ class RiverDatasets:
                             inflection_flag = database.loc[i, 'inflection_flag']
                         except KeyError:
                             inflection_flag = False
+                        
+                        try:
+                            x_inf = database.loc[i, 'x_inf']
+                            y_inf = database.loc[i, 'y_inf']
+                        except KeyError:
+                            x_inf = None
+                            y_inf = None
 
                         try:
                             tree_id = database.loc[i, 'tree_id']
@@ -1185,7 +1191,7 @@ class RiverDatasets:
                             id_meander, idx_start, idx_end,
                             sk=sk, fl=fl, automatic_flag=automatic_flag,
                             inflection_flag=inflection_flag,
-                            tree_id=tree_id)
+                            tree_id=tree_id, x_inf=x_inf, y_inf=y_inf)
 
 
 
@@ -3200,8 +3206,9 @@ class RiverTransect:
         z = z_data[ind_start: ind_end + 1]
         so = so_data[ind_start: ind_end + 1]
 
-        # --------------------
-        # Include sinuosity
+        # ---------------------------
+        # Include inflection points
+        # ---------------------------
         if x_inf is not None:
             x = np.hstack([x_inf, x])
             y = np.hstack([y_inf, y])
@@ -3311,6 +3318,12 @@ class RiverTransect:
         database['y'] = [y]
         database['x_o'] = [x_o]
         database['y_o'] = [y_o]
+        # Include location of inflection points
+        if x_inf is None:
+            x_inf = [np.nan, np.nan]
+            y_inf = [np.nan, np.nan]
+        database['x_inf'] = [x_inf]
+        database['y_inf'] = [y_inf]
         database['automatic_flag'] = [automatic_flag]
         database['inflection_flag'] = [inflection_flag]
         database['tree_id'] = [tree_id]
@@ -3473,7 +3486,7 @@ class Meander:
     def __init__(self, s, x, y, z, ind_start, ind_end,
                  c=None, sk=np.nan, fl=np.nan, comid=np.nan, x_o=None,
                  y_o=None, ind_start_o=None, ind_end_o=None,
-                 so=None, metrics=None, calculations=True,
+                 so=None, x_inf=None, y_inf=None, metrics=None, calculations=True,
                  automatic_flag=0, inflection_flag=False, tree_id=-1):
         # ----------------
         # Attributes
@@ -3494,6 +3507,13 @@ class Meander:
         self.ind_start_o = ind_start_o
         self.ind_end_o = ind_end_o
 
+        # Test
+        # plt.figure()
+        # plt.plot(self.x, self.y, 'k')
+        # plt.gca().set_aspect('equal', adjustable='box')
+        # plt.show()
+        # aaa
+
         # Calculate curvature
         if c is None:
             r, c, theta = RF.calculate_curvature(s, x, y)
@@ -3501,13 +3521,40 @@ class Meander:
 
         # Do curvature side on the smooth data
         if inflection_flag:
-            self.s_inf = copy.deepcopy(s)
+            self.s_inf = [s[0], s[-1]]
             self.ind_inf_st = 0
             self.ind_inf_end = len(x) - 1
             self.x_inf_st = x[0]
             self.x_inf_end = x[-1]
             self.y_inf_st = y[0]
             self.y_inf_end = y[-1]
+            # Add other variables
+            self.c_smooth = copy.deepcopy(c)
+            self.x_smooth = copy.deepcopy(x)
+            self.y_smooth = copy.deepcopy(y)
+            self.s_smooth = copy.deepcopy(s)
+            curvature_side = np.sign(self.c[len(self.c)//2])
+            self.curvature_side = curvature_side
+        elif x_inf is not None:
+            # Find point closest to inflection point
+            self.x_inf_st = x_inf[0]
+            self.y_inf_st = y_inf[0]
+            self.x_inf_end = x_inf[-1]
+            self.y_inf_end = y_inf[-1]
+            # Extract Indices
+            self.ind_inf_st = np.argmin(np.linalg.norm(
+                np.array([x, y]).T - np.array([self.x_inf_st, self.y_inf_st]),
+                axis=1))
+            self.ind_inf_end = np.argmin(np.linalg.norm(
+                np.array([x, y]).T - np.array([self.x_inf_end, self.y_inf_end]),
+                axis=1))
+            # Include distance of the inflection points
+            self.s_inf = [s[self.ind_inf_st], s[self.ind_inf_end]]
+            # Add other variables
+            self.c_smooth = copy.deepcopy(c)
+            self.x_smooth = copy.deepcopy(x)
+            self.y_smooth = copy.deepcopy(y)
+            self.s_smooth = copy.deepcopy(s)
             curvature_side = np.sign(self.c[len(self.c)//2])
             self.curvature_side = curvature_side
         else:
@@ -3538,7 +3585,12 @@ class Meander:
         return
     
     def get_infection_points(self):
-        # TODO: Check inflection point function with new changes
+        """
+        Description:
+            Have an estimate of the inflection points of the meander. This
+            function calculates the curvature of the meander and then smooths
+            the planimetry until it obtains the two inflection 
+        """
         len_x_inf = 0
         i_iter = 0
         x = self.x
@@ -3563,9 +3615,10 @@ class Meander:
                 s_smooth, x_smooth, y_smooth = RF.smooth_data(
                     x, y, s, gaussian_window=gaussian_window)
                 s_smooth += s[0]
-                _, c_smooth, s_c_smooth = RF.calculate_curvature(
+                _, c_smooth, _ = RF.calculate_curvature(
                     s_smooth, x_smooth, y_smooth)
-                s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(s_c_smooth, c_smooth)
+                s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(
+                    s_smooth, c_smooth)
 
                 len_x_inf = len(s_inf)
                 idx_inf_st = 0
@@ -3602,6 +3655,9 @@ class Meander:
                 else:
                     gaussian_window *= 2
                 
+                # ----------------
+                # Test with plot
+                # ----------------
                 # f,ax = plt.subplots(2, 1)
                 # ax[0].plot(self.x, self.y, 'k')
                 # ax[0].plot(x_smooth, y_smooth, 'r--')

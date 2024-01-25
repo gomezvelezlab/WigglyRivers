@@ -14,6 +14,15 @@
             "cwd": "${workspaceFolder}"
         },
         {
+            "name": "Python: Correct Manual Selection",
+            "type": "python",
+            "request": "launch",
+            "program": "examples/workflows/NHDPlus_HR/Correct_Manual_Selection.py",
+            "console": "internalConsole",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "name": "Python: Test NHDPlus_HR Exraction",
             "type": "python",
             "request": "launch",
