@@ -80,6 +80,7 @@ projection = 'esri:102003'
 bounds_array_str = 'extended'
 # Select project to load
 for project in projects:
+    time_1 = time.time()
     try:
         i_p = projects.index(project)
     except ValueError:
@@ -116,10 +117,15 @@ for project in projects:
     # Extract CWT tree
     # -----------------------------
     rivers[id_river].extract_cwt_tree()
+    utl.toc(time_1)
     # -----------------------------
     # Prune by peak power
     # -----------------------------
     rivers[id_river].prune_tree_by_peak_power()
+    # -----------------------------
+    # Prune by sinuosity
+    # -----------------------------
+    rivers[id_river].prune_tree_by_sinuosity(1.1)
     # -----------------------------
     # Add meander to database
     # -----------------------------
@@ -136,6 +142,7 @@ for project in projects:
         path_output=f'{path_projects_c}{project}/',
         file_name='rivers_automatic.hdf5',
         fn_meander_database=f'meander_database_{bounds_array_str}.feather')
+    utl.toc(time_1)
 
 
 
