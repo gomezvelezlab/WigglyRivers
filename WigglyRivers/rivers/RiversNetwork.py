@@ -62,7 +62,7 @@ logging.basicConfig(handlers=[logging.NullHandler()])
 # parameters
 # -----------
 CALC_VARS = ['x_inf', 'y_inf', 's_inf',
-             'lambda_fm', 'lambda_hm', 'L_fm', 'l_hm',
+             'lambda_fm', 'lambda_hm', 'L_fm', 'L_hm',
              'sigma_fm', 'sigma_hm',
              'so', 'skewness', 'flatness', 'R_hm', 'curvature_side',
              'a_fm', 'lambda_fm,u', 'lambda_fm,d',
@@ -692,7 +692,7 @@ class RiverDatasets:
             additional_comid = linking_network.loc[comid_list[-1],
                                                    'linking_comid']
             # print(i_rep, additional_comid)
-            if additional_comid == 0 or i_rep >= cut or (
+            if additional_comid == 0 or additional_comid =='0' or i_rep >= cut or (
                 additional_comid in comid_list):
                 remove = 1
                 break
@@ -3446,10 +3446,10 @@ class RiverTransect:
             d = RF.calculate_l(x_st_end, y_st_end)
             self.metrics_reach['D'][i_t] = d
             # Calcualte l_i
-            l_i = subset_database['lambda'].values
+            l_i = subset_database['lambda_hm'].values
             self.metrics_reach['l_i'][i_t] = l_i 
             # Calcualte Y_k
-            y_k = subset_database['l'].values
+            y_k = subset_database['L_hm'].values
             self.metrics_reach['Y_k'][i_t] = y_k
             # Calculate X_j
             n = subset_database.shape[0]
