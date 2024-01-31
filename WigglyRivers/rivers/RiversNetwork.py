@@ -876,6 +876,7 @@ class RiverDatasets:
         return
 
     def save_rivers(self, path_output, file_name, save_cwt_info=False,
+                    rivers_ids= [],
                     fn_tree_scales='tree_scales.p',
                     fn_tree_scales_database='tree_scales_database.feather',
                     fn_meander_database='meander_database.csv'):
@@ -923,6 +924,9 @@ class RiverDatasets:
             tree_scales_database = {}
 
             for i_key, key in enumerate(self.rivers['id_values']):
+                if len(rivers_ids) > 0 and key not in rivers_ids:
+                    continue
+
                 self.logger.info(f'Saving {key}')
                 tree_scale = None
                 data_save[str(key)] = self.rivers[key].extract_data_to_save()
@@ -2592,7 +2596,7 @@ class RiverTransect:
                     # Add within_waterbody
                     # ----------------------------------    
                     within_waterbody = self.within_waterbody[
-                        idx_start_o:idx_end_o + 1]
+                        idx_start:idx_end + 1]
                     if np.sum(within_waterbody) > 0:
                         node.within_waterbody = 1
                     else:
@@ -2704,8 +2708,9 @@ class RiverTransect:
         Args:
         -----
         :param bounds_array_str: str, Default 'inflection'.
-            This parameter will add the meanders from the picked dataset,
-            can be 'extended' or 'inflection'. Default 'extended'.
+            This parameter serves as a flag to indicate if the user wants to
+            save the full-meander extent ('extended') or only the extent of the
+            inflection points ('inflection'). 
         :param overwrite: bool, Default False.
             If True, overwrite the current meanders. Default False.
         :param clip: str, Default 'no'.
@@ -3419,7 +3424,12 @@ class RiverTransect:
         d = RF.calculate_l(x, y)
         self.total_sinuosity = s[-1]/d
 
-        tree_ids = np.unique(database['tree_id'].values)
+        try:
+            tree_ids = np.unique(database['tree_id'].values)
+        except KeyError:
+            self.logger.warning('No tree_id in database. No metrics calculated.')
+            self.metrics_reach = None
+            return
         # ----------------------------
         # Metrics for indiviual trees
         # ----------------------------
@@ -3851,19 +3861,19 @@ class Meander:
         self.data['s_inf'] = self.s_inf
         return
     
-    def calculate_assymetry(self):
-        a_h, lambda_h, lambda_u, lambda_d = RF.calculate_assymetry(
+    def calculate_asymetry(self):
+        a_h, lambda_h, lambda_u, lambda_d = RF.calculate_asymetry(
             self.x, self.y, self.c)
-        # Store Assymetry value
+        # Store asymetry value
         self.data['a_fm'] = a_h
         self.data['lambda_fm,u'] = lambda_u
         self.data['lambda_fm,d'] = lambda_d
 
-        # Assymetry on half-meander
+        # asymetry on half-meander
         x_inf = self.x[self.ind_inf_st: self.ind_inf_end + 1]
         y_inf = self.y[self.ind_inf_st: self.ind_inf_end + 1]
         c_inf = self.c[self.ind_inf_st: self.ind_inf_end + 1]
-        a_h, lambda_h, lambda_u, lambda_d = RF.calculate_assymetry(
+        a_h, lambda_h, lambda_u, lambda_d = RF.calculate_asymetry(
             x_inf, y_inf, c_inf)
         self.data['a_hm'] = a_h
         self.data['lambda_hm,u'] = lambda_u
@@ -3911,7 +3921,7 @@ class Meander:
             self.add_flatness,
             self.add_skewness,
             self.add_curvature_side,
-            self.calculate_assymetry,
+            self.calculate_asymetry,
             self.calculate_amplitude
             # self.calculate_j_x,
         ]

@@ -1035,11 +1035,11 @@ def calculate_radius_of_curvature(x, y, wavelength):
     return x_c, y_c, radius
 
 
-def calculate_assymetry(x, y, c):
+def calculate_asymetry(x, y, c):
     """
     Description:
     ------------
-        Calculate the assymetry of the transect using Eq. 24 in Howard and
+        Calculate the asymetry of the transect using Eq. 24 in Howard and
         Hemberger (1991).
 
         If the value is lower than zero the meander has an assymetry to the
@@ -1064,7 +1064,7 @@ def calculate_assymetry(x, y, c):
     :param c: np.ndarray,
         Curvature.
     :return: assymetry: float,
-        Assymetry of the transect.
+        Asymetry of the transect.
     """
 
     # Detect maximum point of curvature
