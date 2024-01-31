@@ -1095,10 +1095,10 @@ class RiverDatasets:
                 within_waterbody = None
             huc04 = data_river['huc04']
             
-            try:
-                start_comid = float(hw)
-            except:
-                start_comid = None
+            # try:
+            #     start_comid = float(hw)
+            # except:
+            #     start_comid = None
             
             if scale_by_width is None:
                 try:
