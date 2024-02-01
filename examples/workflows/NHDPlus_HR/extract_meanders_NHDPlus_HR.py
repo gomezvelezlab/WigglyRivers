@@ -46,8 +46,6 @@ projection = 'esri:102003'
 # Start Logger
 # ------------------------------
 logger = Logger(console=False)
-
-
 # -----------------------------
 # Information
 # -----------------------------
@@ -85,18 +83,27 @@ step = 1000
 full_dataset = len(headwaters)
 initial_range = np.array([0, initial_step])
 range_values = np.arange(initial_range[-1], full_dataset, step)
-# range_values = np.append(initial_range, range_values[1:])
+range_values = np.append(initial_range, range_values[1:])
 if range_values[-1] < full_dataset:
     range_values = np.append(range_values, full_dataset)
 elif range_values[-1] > full_dataset:
     range_values[-1] = full_dataset
 
-print(len(range_values))
+print(f'Number of folders to save {len(range_values) - 1}') 
 # TODO: This is a good example of within waterbody!
 # range = [1007, 1008]
 for r_val, i in enumerate(range_values[:-1]):
     # Select range
     range = [range_values[r_val], range_values[r_val + 1]]
+
+    # Check if folder is already extracted
+    if range[1] - range[0] > 1:
+        path_output_meanders = f'{path_meander_info}/{range[0]}_{range[1]-1}/'
+    else:
+        path_output_meanders = f'{path_meander_info}/{range[0]}/'
+    if os.path.exists(path_output_meanders):
+        print(f'Folder {path_output_meanders} already exists')
+        continue
     # -----------------------------
     # Create Rivers object
     # -----------------------------
@@ -141,6 +148,7 @@ for r_val, i in enumerate(range_values[:-1]):
     for i_val, id_river in enumerate(id_rivers):
         if i_val % 500 == 0:
             print(f'Processing River {i_val} of {len(id_rivers)}')
+            utl.toc(time1)
         river = rivers[id_river]
         # -----------------------------
         # Calculate Curvature
@@ -149,7 +157,15 @@ for r_val, i in enumerate(range_values[:-1]):
         # -----------------------------
         # Extract CWT tree
         # -----------------------------
-        rivers[id_river].extract_cwt_tree()
+        try:
+            rivers[id_river].extract_cwt_tree()
+        except ValueError:
+            # Some areas are so small that the cwt tree cannot be extracted
+            continue
+
+        # Test if tree scales is not None
+        if rivers[id_river].tree_scales is None:
+            continue
         # -----------------------------
         # Prune by peak power
         # -----------------------------
@@ -171,13 +187,13 @@ for r_val, i in enumerate(range_values[:-1]):
 
     # Save rivers
     print('Saving Information')
-    if range[1] - range[0] > 1:
-        path_output_meanders = f'{path_meander_info}/{range[0]}_{range[1]-1}/'
-    else:
-        path_output_meanders = f'{path_meander_info}/{range[0]}/'
+    rivers.save_databases_meanders(
+        path_output_meanders, f'meander_database.feather')
     rivers.save_databases_meanders(
         path_output_meanders, f'meander_database.csv')
-    rivers.save_rivers(
-        path_output_meanders, file_name=f'rivers.hdf5',
-        fn_meander_database='meander_database.feather',
-        save_cwt_info=False, rivers_ids=id_rivers_extracted)
+    rivers.save_tree_scales(path_output_meanders)
+    # rivers.save_rivers(
+    #     path_output_meanders, file_name=f'rivers.hdf5',
+    #     fn_meander_database='meander_database.feather',
+    #     save_cwt_info=False, rivers_ids=id_rivers_extracted)
+    print('Information Saved')

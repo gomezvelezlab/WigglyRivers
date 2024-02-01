@@ -874,6 +874,56 @@ class RiverDatasets:
         database = self.get_metric_databases()
         FM.save_data(database, path_output=path_output, file_name=file_name)
         return
+    
+    def save_tree_scales(self, path_output, fn_tree_scales='tree_scales.p',
+                         fn_tree_scales_database='tree_scales_database.feather',
+                         rivers_ids=[]):
+        """
+        Description:
+        ------------
+            Save meander database
+        ________________________________________________________________________
+
+        Args:
+        ------------
+        :param path_output: str,
+            Path to save the database
+        :type path_output: str
+        :param file_name: str,
+            Name of the file to save the Tree scales object
+        :type file_name: str
+        """
+        tree_scales = {}
+        tree_scales_database = {}
+
+        for i_key, key in enumerate(self.rivers['id_values']):
+            if len(rivers_ids) > 0 and key not in rivers_ids:
+                continue
+
+            tree_scale = None
+            tree_scale = self.rivers[key].tree_scales
+
+            # Only save trees with information
+            if tree_scale is not None:
+                tree_scales[str(key)] = self.rivers[key].tree_scales.trees
+                tree_scales_database[key] = \
+                    self.rivers[key].tree_scales_database
+            else:
+                self.logger.info(f'{key} No tree scales extracted')
+                print('No tree scales extracted')
+                continue
+
+        # Save tree scales
+        if len(tree_scales) > 0:
+            FM.save_data(
+                tree_scales, path_output=path_output,
+                file_name=fn_tree_scales)
+            database = self._compile_database(tree_scales_database)
+            FM.save_data(
+                database, path_output=path_output,
+                file_name=fn_tree_scales_database)
+        return
+
 
     def save_rivers(self, path_output, file_name, save_cwt_info=False,
                     rivers_ids= [],
@@ -1095,11 +1145,10 @@ class RiverDatasets:
                 within_waterbody = None
             huc04 = data_river['huc04']
             
-            # try:
-            #     start_comid = float(hw)
-            # except:
-            #     start_comid = None
-            start_comid = hw
+            try:
+                start_comid = float(hw)
+            except:
+                start_comid = None
             
             if scale_by_width is None:
                 try:
@@ -2035,6 +2084,7 @@ class RiverTransect:
         # ===================
         self.logger.info('  Getting the scale tree...')
         self.extract_tree()
+
         # =======================
         # Detect meanders on CWT
         # =======================

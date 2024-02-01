@@ -727,6 +727,9 @@ def scale_space_tree(cwt_matrix):
     last_zc = -1
     nodes_in_per = np.zeros(zcr.shape[0])
 
+    if init_n_nodes == 0:
+        raise ValueError('No zero crossing lines found')
+
     # Initialize loop through every period
     for row, s_p in enumerate(singular_points_row):
         zercr_col = np.where(zcr[s_p, :] != 0)[0]
