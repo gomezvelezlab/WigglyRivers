@@ -67,7 +67,7 @@ CALC_VARS = ['x_inf', 'y_inf', 's_inf',
              'so', 'skewness', 'flatness', 'R_hm', 'curvature_side',
              'a_fm', 'lambda_fm,u', 'lambda_fm,d',
              'a_hm', 'lambda_hm,u', 'lambda_hm,d',
-             'A_hm', 'lambda', 'FF', 'L_l', 'L_n']
+             'A_hm', 'lambda', 'FF', 'L_l', 'L_n', 's_n', 's_l']
 
 
 # -----------
@@ -4028,11 +4028,14 @@ class Meander:
             results = RF.calculate_funneling_factor(
                 self.x, self.y, self.s, self.ind_inf_st, self.ind_inf_end)
         except ValueError:
-            results = {'FF': np.nan, 'L_l': np.nan, 'L_n': np.nan}
+            results = {'FF': np.nan, 'L_l': np.nan, 'L_n': np.nan,
+                       's_l': np.nan, 's_n': np.nan}
             print(f'No Funneling Factor found for {self.id_meander}')
         self.data['FF'] = results['FF']
-        self.data['L_l'] = results['L_l'][0]
-        self.data['L_n'] = results['L_n'][0]
+        self.data['L_l'] = results['L_l']
+        self.data['L_n'] = results['L_n']
+        self.data['s_l'] = results['s_l']
+        self.data['s_n'] = results['s_n']
         return
 
 
