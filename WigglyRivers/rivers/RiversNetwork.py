@@ -910,7 +910,7 @@ class RiverDatasets:
                     self.rivers[key].tree_scales_database
             else:
                 self.logger.info(f'{key} No tree scales extracted')
-                print('No tree scales extracted')
+                # print('No tree scales extracted')
                 continue
 
         # Save tree scales

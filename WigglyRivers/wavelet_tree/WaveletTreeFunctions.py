@@ -773,6 +773,9 @@ def scale_space_tree(cwt_matrix):
             if (z_new_col == cn).any() | (z_new_col == cn + 1).any():
                 nodes_in_per[s_p] = nodes_in_per[s_p] + 1
                 cc += 1
+                if cc > len(xtr_rwmin) - 1:
+                    raise ValueError('Number of nodes exceeds the expected.'
+                                     ' Space scale tree cannot be constructed')
                 xtr_rwmin[cc] = s_p
                 xtr_colmin[cc] = loc_x[s_p, z_c]
                 xtr_colmax[cc] = loc_x[s_p, zercr_col[cn + 1]]
