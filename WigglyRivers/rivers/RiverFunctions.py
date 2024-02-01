@@ -28,6 +28,7 @@ from collections import Counter
 from scipy.spatial import Delaunay
 from scipy.spatial.distance import euclidean
 from circle_fit import taubinSVD
+from scipy.interpolate import splprep, splev
 
 # Package packages
 from ..utilities import general_functions as GF
@@ -1058,7 +1059,7 @@ def calculate_asymetry(x, y, c):
         https://doi.org/10.1016/0169-555X(91)90002-R
 
     ____________________________________________________________________________
-
+/rotate
     Args:
     ------------
     :param x: np.ndarray,
@@ -1319,3 +1320,191 @@ def calculate_spectrum_cuts(s, c):
     peaks_min, _ = find_peaks(-wave_sum, prominence=np.std(wave_sum))
     min_s = s[peaks_min]
     return peaks_min, min_s
+
+def calculate_amplitude(x, y):
+    """
+    Description:
+    -------------
+        Calculate the amplitude of the curvature.
+    ____________________________________________________________________________
+
+    Args:
+    ------------
+    :param x: np.ndarray,
+        x coordinates.
+    :param y: np.ndarray,
+        y coordinates.
+    :return:
+        - amplitude: np.ndarray, Amplitude of the curvature.
+    """
+    # Calculate the distance
+    coords = np.vstack((x, y)).T
+    index_initial = 0 
+    index_final = len(coords) - 1
+    rotated_points, _ = translate_rotate(
+        coords, index_initial=index_initial, index_final=index_final)
+    # --------------------------
+    # Calculate amplitude
+    # --------------------------
+    y_rot = rotated_points[:, 1]
+    if y_rot[len(y_rot)//2] < 0:
+        y_rot = -y_rot
+    amplitude = np.max(y_rot) - np.min(y_rot)
+
+    return amplitude
+
+def calculate_funneling_factor(x, y, s, idx_st, idx_end):
+    """
+    Description:
+    -------------
+        Calculate the funneling factor of the full-meander.
+    ____________________________________________________________________________
+
+    Args:
+    ------------
+    :param x: np.ndarray,
+        x coordinates.
+    :param y: np.ndarray,
+        y coordinates.
+    :param x_inf: np.ndarray,
+        x coordinates of the inflection points [start, end].
+    :param y_inf: np.ndarray,
+        y coordinates of the inflection points [start, end].
+    :return:
+        - FF: float, Funneling factor of the curvature.
+        - FF: float, Funneling factor of the curvature.
+    """
+    gen_plots = False
+    if gen_plots:
+        import matplotlib.pyplot as plt
+    # --------------------------------------------------
+    # Rotate Values according to the inflection points
+    # --------------------------------------------------
+    coords = np.vstack((x, y)).T
+    rotated_points, _ = translate_rotate(
+        coords, index_initial=idx_st, index_final=idx_end)
+    x_values = rotated_points[:, 0]
+    y_values = rotated_points[:, 1]
+
+    # find middle point between the inflection points
+    idx_middle = (idx_st + idx_end) // 2
+    if y_values[idx_middle] < 0:
+        y_values = -y_values
+    if x_values[idx_end] < 0:
+        x_values = -x_values
+
+    # --------------------------------------------------
+    # Fit Spline
+    # --------------------------------------------------
+    tck, u = splprep([x_values, y_values], u=s, s=0, k=1)
+    s = np.linspace(s[0], s[-1], int(np.ceil(len(s)*1.5)))
+    new_points = splev(s, tck)
+    x_values = new_points[0]
+    y_values = new_points[1]
+
+    
+    # --------------------------
+    # Calculate neck distance
+    # --------------------------
+    y_turning = 0
+    dist_l_n_all = []
+    lim_y = np.linspace(y_turning, np.min(y_values), 200)
+    dist_l_n = 1e9
+    l_n = np.array([[np.nan, np.nan], [np.nan, np.nan]])
+    s_n = np.array([np.nan, np.nan])
+    for i_y_val, y_val in enumerate(lim_y[:-5]):
+        i_vals = (y_values >= y_val)
+        x_vals = x_values[i_vals]
+        y_vals = y_values[i_vals]
+        x_val_1 = x_vals[0]
+        x_val_2 = x_vals[-1]
+        y_val_1 = y_vals[0]
+        y_val_2 = y_vals[-1]
+        if gen_plots:
+            if i_y_val % 50 == 0:
+                plt.figure()
+                plt.plot(x_values, y_values)
+                # plt.plot(x_vals, y_vals)
+                plt.scatter([x_val_1], [y_val_1], color='b')
+                plt.scatter([x_val_2], [y_val_2], color='r')
+                plt.grid()
+                plt.plot([x_val_1, x_val_2], [y_val_1, y_val_2], color='r')
+                plt.gca().set_aspect('equal')
+                plt.show()
+                print((x_val_2 - x_val_1))
+                print(np.abs(y_val_2 - y_val_1))
+
+        # if (x_val_2 - x_val_1) < 0:
+        #     dist_l_n = np.nan
+        #     l_n = np.array([[np.nan, np.nan], [np.nan, np.nan]])
+        #     s_n = np.array([np.nan, np.nan])
+        #     break
+        # elif np.abs(y_val_2 - y_val_1) > 1:
+        #     break
+        dist_l_n_all.append(x_val_2 - x_val_1)
+        if dist_l_n > dist_l_n_all[-1]:
+            dist_l_n = dist_l_n_all[-1]
+            s_val_12 = s[i_vals][0]
+            s_val_22 = s[i_vals][-1]
+            x_val_12 = x_values[i_vals][0]
+            x_val_22 = x_values[i_vals][-1]
+            y_val_12 = y_values[i_vals][0]
+            y_val_22 = y_values[i_vals][-1]
+            l_n = np.array(
+                [[x_val_12, y_val_12], [x_val_22, y_val_22]])
+            s_n = np.array([s_val_12, s_val_22])
+        if x_val_1 == x_values[0] or x_val_2 == x_values[-1]:
+            break
+
+    if np.isnan(l_n[0, 0]):
+        dist_l_n = np.nan
+
+    l_l = np.array([[np.nan, np.nan], [np.nan, np.nan]])
+    s_l = np.array([np.nan, np.nan])
+    if np.isnan(dist_l_n):
+        raise ValueError('Meander wraps on itself. Check geometry')
+    else:
+        # ----------------------------------------
+        # Calculate distance inside the meander
+        # ----------------------------------------
+        dist_l_l_all = []
+        lim_y = np.linspace(y_turning, np.max(y_values), 200)
+        dist_l_l = 0
+        for i_y_val, y_val in enumerate(lim_y):
+            x_val_1 = x_values[y_values >= y_val][0]
+            x_val_2 = x_values[y_values >= y_val][-1]
+            y_val_1 = y_values[y_values >= y_val][0]
+            y_val_2 = y_values[y_values >= y_val][-1]
+            dist_l_l_all.append(x_val_2 - x_val_1)
+            if gen_plots:
+                if i_y_val % 30 == 0:
+                    plt.figure()
+                    plt.plot(x_values, y_values)
+                    # plt.plot(x_vals, y_vals)
+                    plt.scatter([x_val_1], [y_val_1], color='b')
+                    plt.scatter([x_val_2], [y_val_2], color='r')
+                    plt.plot([x_val_1, x_val_2], [y_val_1, y_val_2], color='r')
+                    plt.gca().set_aspect('equal')
+                    plt.show()
+            # elif np.abs(y_val_2 - y_val_1) > 1e-3:
+            #     break
+            if dist_l_l_all[-1] > dist_l_l:
+                dist_l_l = dist_l_l_all[-1]
+                s_val_1 = s[y_values >= y_val][0]
+                s_val_2 = s[y_values >= y_val][-1]
+                y_val_1 = y_values[y_values >= y_val][0]
+                y_val_2 = y_values[y_values >= y_val][-1]
+                l_l = np.array(
+                    [[x_val_1, y_val_1], [x_val_2, y_val_2]])
+                s_l = np.array([s_val_1, s_val_2])
+
+    f_c = dist_l_l/dist_l_n
+    if f_c < 1e-5:
+        raise ValueError('Funneling factor is too small. Check geometry')
+    results = {
+        'dist_l_l': dist_l_l, 'dist_l_n': dist_l_n,
+        'L_l': l_l, 'L_n': l_n, 'FF': f_c,
+        's_n': s_n, 's_l': s_l,
+    }
+    return results
+

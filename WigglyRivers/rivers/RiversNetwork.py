@@ -67,7 +67,7 @@ CALC_VARS = ['x_inf', 'y_inf', 's_inf',
              'so', 'skewness', 'flatness', 'R_hm', 'curvature_side',
              'a_fm', 'lambda_fm,u', 'lambda_fm,d',
              'a_hm', 'lambda_hm,u', 'lambda_hm,d',
-             'A_hm', 'lambda']
+             'A_hm', 'lambda', 'FF', 'L_l', 'L_n']
 
 
 # -----------
@@ -3343,11 +3343,26 @@ class RiverTransect:
         # Include inflection points
         # ---------------------------
         if x_inf is not None:
-            x = np.hstack([x_inf, x])
-            y = np.hstack([y_inf, y])
-            s = np.hstack([s_inf, s])
-            z = np.hstack([z_data[ind_start - 1], z_data[ind_end], z])
-            so= np.hstack([so_data[ind_start - 1], so_data[ind_end], z])
+            cond_1 = (x[0] != x_inf[0] and y[0] != y_inf[0])
+            cond_2 = (x[-1] != x_inf[-1] and y[-1] != y_inf[-1])
+            if cond_1 and cond_2:
+                x = np.hstack([x_inf, x])
+                y = np.hstack([y_inf, y])
+                s = np.hstack([s_inf, s])
+                z = np.hstack([z_data[ind_start - 1], z_data[ind_end], z])
+                so= np.hstack([so_data[ind_start - 1], so_data[ind_end], z])
+            elif cond_1:
+                x = np.hstack([x_inf[0], x])
+                y = np.hstack([y_inf[0], y])
+                s = np.hstack([s_inf[0], s])
+                z = np.hstack([z_data[ind_start - 1], z])
+                so= np.hstack([so_data[ind_start - 1], z])
+            elif cond_2:
+                x = np.hstack([x, x_inf[-1]])
+                y = np.hstack([y, y_inf[-1]])
+                s = np.hstack([s, s_inf[-1]])
+                z = np.hstack([z, z_data[ind_end]])
+                so= np.hstack([so, so_data[ind_end]])
 
             s_sort = np.argsort(s)
             s = s[s_sort]
@@ -3410,7 +3425,7 @@ class RiverTransect:
         # Add meander
         # -------------------------
         self.id_meanders.append(id_meander)
-        meander = Meander(s, x, y, z, ind_start, ind_end,
+        meander = Meander(id_meander, s, x, y, z, ind_start, ind_end,
                           so=so, x_o=x_o, y_o=y_o,
                           ind_start_o=idx_start_o, ind_end_o=idx_end_o,
                           x_inf=x_inf, y_inf=y_inf, s_inf=s_inf, c=c,
@@ -3617,7 +3632,7 @@ class Meander:
     get_metrics           get metric dict.
     ===================== =====================================================
     """
-    def __init__(self, s, x, y, z, ind_start, ind_end,
+    def __init__(self, id_meander, s, x, y, z, ind_start, ind_end,
                  c=None, sk=np.nan, fl=np.nan, comid=np.nan, x_o=None,
                  y_o=None, ind_start_o=None, ind_end_o=None,
                  so=None, x_inf=None, y_inf=None, s_inf=None,
@@ -3628,6 +3643,7 @@ class Meander:
         # Attributes
         # ----------------
         self._calc_vars = CALC_VARS
+        self.id_meander = id_meander
         self.s = s
         self.x = x
         self.y = y
@@ -3986,17 +4002,37 @@ class Meander:
         # --------------------------
         # Rotate Meanders
         # --------------------------
-        coords = np.vstack((x_inf, y_inf)).T
-        index_initial = 0 
-        index_final = len(coords) - 1
-        rotated_points, _ = RF.translate_rotate(
-            coords, index_initial=index_initial, index_final=index_final)
+        # coords = np.vstack((x_inf, y_inf)).T
+        # index_initial = 0 
+        # index_final = len(coords) - 1
+        # rotated_points, _ = RF.translate_rotate(
+        #     coords, index_initial=index_initial, index_final=index_final)
+        # # --------------------------
+        # # Calculate amplitude
+        # # --------------------------
+        # y_rot = rotated_points[:, 1]
+        # amplitude = np.max(y_rot) - np.min(y_rot)
+
         # --------------------------
         # Calculate amplitude
         # --------------------------
-        y_rot = rotated_points[:, 1]
-        amplitude = np.max(y_rot) - np.min(y_rot)
+        amplitude = RF.calculate_amplitude(x_inf, y_inf)
         self.data['A_hm'] = amplitude
+        return
+    
+    def calculate_funneling_factor(self):
+        """
+        Calculate Funneling factor of the meander
+        """
+        try:
+            results = RF.calculate_funneling_factor(
+                self.x, self.y, self.s, self.ind_inf_st, self.ind_inf_end)
+        except ValueError:
+            results = {'FF': np.nan, 'L_l': np.nan, 'L_n': np.nan}
+            print(f'No Funneling Factor found for {self.id_meander}')
+        self.data['FF'] = results['FF']
+        self.data['L_l'] = results['L_l']
+        self.data['L_n'] = results['L_n']
         return
 
 
@@ -4013,7 +4049,8 @@ class Meander:
             self.add_skewness,
             self.add_curvature_side,
             self.calculate_asymetry,
-            self.calculate_amplitude
+            self.calculate_amplitude,
+            self.calculate_funneling_factor
             # self.calculate_j_x,
         ]
 

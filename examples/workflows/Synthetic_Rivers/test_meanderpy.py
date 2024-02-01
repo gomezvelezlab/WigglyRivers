@@ -89,7 +89,7 @@ for river_id in river_ids:
     # Add meander to database
     # -----------------------------
     rivers[f'{river_id}'].add_meanders_from_tree_scales(
-        overwrite=True, clip='downstream')
+        overwrite=True, clip='no', bounds_array_str='extended')
     # ---------------------------
     # Calculate reach sinuosity
     # ---------------------------
