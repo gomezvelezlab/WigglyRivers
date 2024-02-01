@@ -92,6 +92,7 @@ elif range_values[-1] > full_dataset:
 print(f'Number of folders to save {len(range_values) - 1}') 
 # TODO: This is a good example of within waterbody!
 # range = [1007, 1008]
+time_all = time.time()
 for r_val, i in enumerate(range_values[:-1]):
     # Select range
     range = [range_values[r_val], range_values[r_val + 1]]
@@ -197,3 +198,4 @@ for r_val, i in enumerate(range_values[:-1]):
     #     fn_meander_database='meander_database.feather',
     #     save_cwt_info=False, rivers_ids=id_rivers_extracted)
     print('Information Saved')
+utl.toc(time_all)
