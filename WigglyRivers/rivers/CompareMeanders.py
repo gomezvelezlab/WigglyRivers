@@ -39,7 +39,8 @@ from . import RiverFunctions as RF
 # -----------
 # Functions
 # -----------
-def extract_closet_meanders(database_1, database_2, link_x='x_o', link_y='y_o'):
+def extract_closet_meanders(database_1, database_2, link_x='x_o', link_y='y_o',
+                            threshold=0.8):
     """
     Description:
     ------------ 
@@ -69,46 +70,66 @@ def extract_closet_meanders(database_1, database_2, link_x='x_o', link_y='y_o'):
     # Loop through all meanders
     for i_m in range(len(database_1)):
         try:
-            x_o = RF.convert_str_float_list_vector(database_1['x_o'].values[i_m])
+            x_o = RF.convert_str_float_list_vector(database_1[link_x].values[i_m])
         except AttributeError:
-            x_o = database_1['x_o'].values[i_m]
+            x_o = database_1[link_x].values[i_m]
 
         try:
-            y_o = RF.convert_str_float_list_vector(database_1['y_o'].values[i_m])
+            y_o = RF.convert_str_float_list_vector(database_1[link_y].values[i_m])
         except AttributeError:
-            y_o = database_1['y_o'].values[i_m]
+            y_o = database_1[link_y].values[i_m]
         # Save data
         for i in database_1.columns:
             data_to_save[f'{i}_1'] = [database_1[i].values[i_m]]
 
         # Extractr variables
-        comid_o = database_1['comid'].values[i_m]
+        comid_o = database_1['start_comid'].values[i_m]
         curvature_side = database_1['curvature_side'].values[i_m]
         # Extract coordinates from auto that have the same comid
-        sub_df = database_2[database_2['comid'] == comid_o]
+        sub_df = database_2[database_2['start_comid'] == comid_o]
         # Extract same curvature side
-        sub_df = sub_df[sub_df['curvature_side'] == curvature_side]
-        if len(sub_df) == 0:
-            sub_df = database_2[database_2['comid'] == comid_o]
-            if len(sub_df) == 0:
-                sub_df = copy.deepcopy(database_2)
+        # sub_df = sub_df[sub_df['curvature_side'] == curvature_side]
+        # if len(sub_df) == 0:
+        #     sub_df = database_2[database_2['comid'] == comid_o]
+        #     if len(sub_df) == 0:
+        #         sub_df = copy.deepcopy(database_2)
 
-        
         # Extract coordinates from auto
+        # Find starting and ending points close to the manual meander
+        points_st_o = np.array([x_o[0], y_o[0]])
+        points_end_o = np.array([x_o[-1], y_o[-1]])
+        points_st_a = np.array([
+            sub_df['x_start'].values, sub_df['y_start'].values]).T
+        points_end_a = np.array([
+            sub_df['x_end'].values, sub_df['y_end'].values]).T
+        # Calculate distance
+        dist_st = np.linalg.norm(points_st_a - points_st_o, axis=1)
+        dist_end = np.linalg.norm(points_end_a - points_end_o, axis=1)
+
+        i_sort_st = np.argsort(dist_st)
+        i_sort_end = np.argsort(dist_end)
+        # TODO: Check this calculation taking into account the inflection points
+
+        # pick the first meanders to compare
+        pick = 2
+        i_compare = pd.unique(np.concatenate(
+            [i_sort_st[:pick], i_sort_end[:pick]]))
+        sub_df = sub_df.iloc[i_compare]
+        # Find the meanders that intersect the most
         len_largest = 0
         selected_m = 0
         for i_sub in range(len(sub_df)):
             try:
                 x_a = RF.convert_str_float_list_vector(
-                    sub_df['x_o'].values[i_sub])
+                    sub_df[link_x].values[i_sub])
             except AttributeError:
-                x_a = sub_df['x_o'].values[i_sub]
+                x_a = sub_df[link_x].values[i_sub]
                 
             try:
                 y_a = RF.convert_str_float_list_vector(
-                    sub_df['y_o'].values[i_sub])
+                    sub_df[link_y].values[i_sub])
             except AttributeError:
-                y_a = sub_df['y_o'].values[i_sub]
+                y_a = sub_df[link_y].values[i_sub]
 
             idx_int_x = np.intersect1d(x_o, x_a)
             idx_int_y = np.intersect1d(y_o, y_a)
@@ -120,14 +141,15 @@ def extract_closet_meanders(database_1, database_2, link_x='x_o', link_y='y_o'):
 
         try:
             x_s = RF.convert_str_float_list_vector(
-                sub_df['x_o'].values[selected_m])
+                sub_df[link_x].values[selected_m])
         except AttributeError:
-            x_s = sub_df['x_o'].values[selected_m]
+            x_s = sub_df[link_x].values[selected_m]
         # Save the selected meander
         for i in sub_df.columns:
             data_to_save[f'{i}_2'] = [sub_df[i].values[selected_m]]
         # Perform classification
-        class_value, f_oa, f_om = classify_meanders(x_o, x_s)
+        class_value, f_oa, f_om = classify_meanders(
+            x_o, x_s, threshold=threshold)
         data_to_save['Zone'] = [class_value]
         data_to_save['f_oa'] = [f_oa]
         data_to_save['f_om'] = [f_om]
@@ -141,7 +163,7 @@ def extract_closet_meanders(database_1, database_2, link_x='x_o', link_y='y_o'):
     return database
 
 
-def classify_meanders(manual_indices, auto_indices):
+def classify_meanders(manual_indices, auto_indices, threshold=0.8):
     """
     Description:
     ------------
@@ -173,18 +195,18 @@ def classify_meanders(manual_indices, auto_indices):
     f_om = len(fst) / len(manual_indices)
 
     # Classification
-    if f_oa >= 0.8:
-        if f_om >= 0.8:
+    if f_oa >= threshold:
+        if f_om >= threshold:
             # Inside (I)
             classification_value = 1
-        elif f_om < 0.8:
+        elif f_om < threshold:
             # Underestimated (II)
             classification_value = 2
     else:
-        if f_om >= 0.8:
+        if f_om >= threshold:
             # Overestimated (III)
             classification_value = 3
-        elif f_om < 0.8:
+        elif f_om < threshold:
             # Outside (IV)
             classification_value = 4
     return classification_value, f_oa, f_om

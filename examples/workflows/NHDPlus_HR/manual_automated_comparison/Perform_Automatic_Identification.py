@@ -63,11 +63,11 @@ logger = Logger(console=True)
 # ------------------
 # Parameters
 # ------------------
-path_projects = f'{os.getcwd()}/examples/workflows/NHDPlus_HR/manual_automated_comparison/meander_comparison/characterization/manual_corrected/'
+path_projects = f'examples/workflows/NHDPlus_HR/manual_automated_comparison/meander_comparison/characterization/manual_corrected/'
 projects = utl.get_folders(path_projects)
 projects = list(np.sort(projects))
 path_projects_all = [f'{path_projects}{p}/' for p in projects]
-path_projects_c = f'{os.getcwd()}/examples/workflows/NHDPlus_HR/manual_automated_comparison/meander_comparison/characterization/manual_with_automatic/'
+path_projects_c = f'examples/workflows/NHDPlus_HR/manual_automated_comparison/meander_comparison/characterization/manual_with_automatic/'
 path_projects_out = [f'{path_projects_c}{p}/' for p in projects]
 print(projects)
 # Current projection of information
@@ -125,7 +125,7 @@ for project in projects:
     # -----------------------------
     # Prune by sinuosity
     # -----------------------------
-    rivers[id_river].prune_tree_by_sinuosity(1.1)
+    # rivers[id_river].prune_tree_by_sinuosity(1.05)
     # -----------------------------
     # Add meander to database
     # -----------------------------

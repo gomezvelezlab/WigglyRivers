@@ -97,7 +97,8 @@ for project in projects:
     id_rivers = rivers.id_values
 
     # Create kwargs for resampling
-    kwargs_resample = {f'{id_rivers[0]}': {'smooth': 1e0}}
+    kwargs_resample = {f'{id_rivers[0]}':
+                       {'smooth': 1e0, 'method': 'geometric_mean_width'}}
     # Load River Network to use the resampled coordinates
     rivers_c = RiverDatasets(logger=logger)
     rivers_c.load_river_network(

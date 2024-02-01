@@ -791,7 +791,8 @@ def fit_splines_complete(data, method='geometric_mean', ds=0,
         'so': stream order
     :param method: str,
         Method to calculate the distance between points.
-        Options: 'min', 'geometric_mean', 'mean', and 'width_based'
+        Options: 'min', 'geometric_mean', 'mean', 'geometric_mean_width',
+        and 'min_width'
     :return:
         data: dict,
             Dictionary with the data. The dictionary must include the following
@@ -818,12 +819,15 @@ def fit_splines_complete(data, method='geometric_mean', ds=0,
     # ----------------------------------------
     # Calculate geometric meand of the width
     # ----------------------------------------
-    # w_gm = 10 ** np.mean(np.log10(w))
+    w_gm = 10 ** np.mean(np.log10(w))
     w_value = np.nanmin(w)
-    if method == 'width_based' and not(np.isnan(w_value)):
+    if method == 'min_width' and not(np.isnan(w_value)):
         method = 'geometric_mean'
         ds = w_value
-    elif method == 'width_based' and np.isnan(w_value):
+    elif method == 'geometric_mean_width' and not(np.isnan(w_gm)):
+        method = 'geometric_mean'
+        ds = w_gm
+    elif method in ['min_width', 'geometric_mean_width'] and np.isnan(w_value):
         raise ValueError('The width value is NaN')
     # -------------------
     # Get coordinate poly

@@ -1099,6 +1099,7 @@ class RiverDatasets:
             #     start_comid = float(hw)
             # except:
             #     start_comid = None
+            start_comid = hw
             
             if scale_by_width is None:
                 try:
@@ -1327,11 +1328,16 @@ class RiverTransect:
                             'method': str, method to calculate the distance
                                 between points. Options include:
                                 'min', 'mean', 'geometric_mean',
-                                'gemoetric_mean_width'.
-                                Default is 'geometric_mean'.
+                                'geometric_mean_width', 'min_width'.
+                                The shorter the distance the heavier the file
+                                will be.
+                                Default is 'min_width'.
                             'ds': Set distance to perorm the resampling.
                                 If this value is None the distance will be
-                                calculated using the method provided.
+                                calculated using the method provided. This
+                                distance will overide the method provided.
+                                The shorter the distance the heavier the file
+                                will be.
                                 Default is None.
                             'k': int, polynomial order of the spline.
                                 Default is 3.
@@ -1474,7 +1480,7 @@ class RiverTransect:
         self.scaled_data = False
 
         self.kwargs_resample_default = {
-            'method': 'width_based',
+            'method': 'min_width',
             'ds': 0,
             'k': 3,
             'smooth': 0.0,
@@ -2763,6 +2769,7 @@ class RiverTransect:
             x_inf = database_meanders[f'x_inf'].iloc[i]
             y_inf = database_meanders[f'y_inf'].iloc[i]
             s_inf = database_meanders[f's_inf'].iloc[i]
+            wavelength = database_meanders['wavelength_c'].iloc[i]
             if inflection_flag:
                 if clip.lower() == 'downstream':
                     if meander_id_prev != meander_id:
@@ -2805,7 +2812,8 @@ class RiverTransect:
                 self.add_meander(meander_id, ind_start, ind_end, 
                                 sk=sk, fl=fl, automatic_flag=1,
                                 inflection_flag=inflection_flag, tree_id=tree_id,
-                                x_inf=x_inf, y_inf=y_inf, s_inf=s_inf)
+                                x_inf=x_inf, y_inf=y_inf, s_inf=s_inf,
+                                wavelength=wavelength)
             except SmallMeanderError:
                 self.logger.warning('Small Meander detected. Removing...')
                 continue
@@ -2813,6 +2821,33 @@ class RiverTransect:
             meander_id_prev = copy.deepcopy(meander_id)
             meander_id += 1
             ind_end_prev = ind_end
+            # Test the relationship between lambda and lambda_hm
+            # TODO: Remove these lines
+            # x_m = database_meanders['x'].iloc[i]
+            # y_m = database_meanders['y'].iloc[i]
+            # x = self.meanders[meander_id - 1].x_inf
+            # y = self.meanders[meander_id - 1].y_inf
+            # x_inf = x[self.meanders[meander_id - 1].ind_inf_st:self.meanders[meander_id - 1].ind_inf_end + 1]
+            # y_inf = y[self.meanders[meander_id - 1].ind_inf_st:self.meanders[meander_id - 1].ind_inf_end + 1]
+            # plt.figure()
+            # plt.plot(x, y, 'b', label='Extended')
+            # plt.plot(x_m, y_m, 'k', label='Original')
+            # plt.plot(x_inf, y_inf, '--r', label='Extracted')
+            # plt.legend()
+            # plt.show()
+
+            # c_m = database_meanders['c'].iloc[i]
+            # s_m = database_meanders['s'].iloc[i]
+            # c = self.meanders[meander_id - 1].c
+            # s = self.meanders[meander_id - 1].s
+            # plt.figure()
+            # plt.plot(s[1:-1], c, 'b', label='Extended')
+            # plt.plot(s_m, c_m, 'k', label='Original')
+            # plt.axhline(0, color='k', linestyle='--')
+            # plt.legend()
+            # plt.show()
+
+
             
     
     def prune_tree_by_gamma_width(self, gamma):
@@ -3203,7 +3238,7 @@ class RiverTransect:
     def add_meander(self, id_meander, ind_start, ind_end,
                     metrics=None, sk=np.nan, fl=np.nan, automatic_flag=0,
                     inflection_flag=False, tree_id=-1, x_inf=None, y_inf=None,
-                    s_inf=None):
+                    s_inf=None, wavelength=None):
         """
         Description:
         ------------
@@ -3329,6 +3364,7 @@ class RiverTransect:
                           so=so, x_o=x_o, y_o=y_o,
                           ind_start_o=idx_start_o, ind_end_o=idx_end_o,
                           x_inf=x_inf, y_inf=y_inf, s_inf=s_inf, c=c,
+                          wavelength=wavelength,
                           metrics=metrics, sk=sk, fl=fl, comid=comid,
                           automatic_flag=automatic_flag,
                           inflection_flag=inflection_flag, tree_id=tree_id)
@@ -3534,7 +3570,8 @@ class Meander:
     def __init__(self, s, x, y, z, ind_start, ind_end,
                  c=None, sk=np.nan, fl=np.nan, comid=np.nan, x_o=None,
                  y_o=None, ind_start_o=None, ind_end_o=None,
-                 so=None, x_inf=None, y_inf=None, s_inf=None, metrics=None,
+                 so=None, x_inf=None, y_inf=None, s_inf=None,
+                 wavelength=None, metrics=None,
                  calculations=True,
                  automatic_flag=0, inflection_flag=False, tree_id=-1):
         # ----------------
@@ -3550,6 +3587,7 @@ class Meander:
         self.automatic_flag = automatic_flag
         self.tree_id = tree_id
         self.inflection_flag = inflection_flag
+        self.wavelength = wavelength
 
         self.x_o = x_o
         self.y_o = y_o
@@ -3807,7 +3845,10 @@ class Meander:
         This is an estimate of the wavelength that from data turns out to be
         2 times the arc-length of the meander (lambda).
         """
-        self.data['lambda'] = self.data['lambda_hm'] * 2
+        if self.wavelength is not None:
+            self.data['lambda'] = copy.deepcopy(self.wavelength)
+        else:
+            self.data['lambda'] = self.data['lambda_hm'] * 2
         return
     
     def calculate_radius(self):

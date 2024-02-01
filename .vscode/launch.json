@@ -32,10 +32,28 @@
             "cwd": "${workspaceFolder}"
         },
         {
+            "name": "Python: Test Wavelet relationship",
+            "type": "python",
+            "request": "launch",
+            "program": "examples/workflows/NHDPlus_HR/manual_automated_comparison/Test_wavelet_relationship.py",
+            "console": "internalConsole",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "name": "Python: Test NHDPlus_HR Exraction",
             "type": "python",
             "request": "launch",
             "program": "examples/workflows/NHDPlus_HR/test_nhdplus_extraction.py",
+            "console": "internalConsole",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Extract meanders",
+            "type": "python",
+            "request": "launch",
+            "program": "examples/workflows/NHDPlus_HR/extract_meanders_NHDPlus_HR.py",
             "console": "internalConsole",
             "justMyCode": true,
             "cwd": "${workspaceFolder}"
