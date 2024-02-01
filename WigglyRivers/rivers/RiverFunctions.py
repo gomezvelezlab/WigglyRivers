@@ -1502,8 +1502,8 @@ def calculate_funneling_factor(x, y, s, idx_st, idx_end):
     if f_c < 1e-5:
         raise ValueError('Funneling factor is too small. Check geometry')
     results = {
-        'dist_l_l': dist_l_l, 'dist_l_n': dist_l_n,
-        'L_l': l_l, 'L_n': l_n, 'FF': f_c,
+        'L_l': dist_l_l, 'L_n': dist_l_n,
+        'L_l_all': l_l, 'L_n_all': l_n, 'FF': f_c,
         's_n': s_n, 's_l': s_l,
     }
     return results

@@ -4031,8 +4031,8 @@ class Meander:
             results = {'FF': np.nan, 'L_l': np.nan, 'L_n': np.nan}
             print(f'No Funneling Factor found for {self.id_meander}')
         self.data['FF'] = results['FF']
-        self.data['L_l'] = results['L_l']
-        self.data['L_n'] = results['L_n']
+        self.data['L_l'] = results['L_l'][0]
+        self.data['L_n'] = results['L_n'][0]
         return
 
 
