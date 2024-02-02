@@ -2417,7 +2417,7 @@ class RiverTransect:
 
         if np.sum(conn >= 0) == 0:
             self.logger.warning('No tree found')
-            print('No tree found')
+            # print('No tree found')
             self.tree_scales = None
         else:
             tree_scales = WTFunc.get_tree_scales_dict(
