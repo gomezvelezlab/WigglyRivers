@@ -30,6 +30,7 @@ from WigglyRivers import iwavelet
 # -------------------------
 # Parameters
 # -------------------------
+overwrite = False
 # Parameters
 # huc_id = '0602'
 # huc_id = '0104'
@@ -102,7 +103,7 @@ for r_val, i in enumerate(range_values[:-1]):
         path_output_meanders = f'{path_meander_info}/{range[0]}_{range[1]-1}/'
     else:
         path_output_meanders = f'{path_meander_info}/{range[0]}/'
-    if os.path.exists(path_output_meanders):
+    if os.path.exists(path_output_meanders) and not overwrite:
         print(f'Folder {path_output_meanders} already exists')
         continue
     # -----------------------------
