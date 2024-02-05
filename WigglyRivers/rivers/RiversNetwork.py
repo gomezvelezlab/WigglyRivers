@@ -67,7 +67,7 @@ CALC_VARS = ['x_inf', 'y_inf', 's_inf',
              'so', 'skewness', 'flatness', 'R_hm', 'curvature_side',
              'a_fm', 'lambda_fm,u', 'lambda_fm,d',
              'a_hm', 'lambda_hm,u', 'lambda_hm,d',
-             'A_hm', 'lambda', 'FF', 'L_l', 'L_n', 's_n', 's_l']
+             'A_hm', 'A_fm', 'lambda', 'FF', 'L_l', 'L_n', 's_n', 's_l']
 
 
 # -----------
@@ -967,7 +967,8 @@ class RiverDatasets:
             # Save Information
             cwt_info.update({
                 key: {
-                    'x': x, 'y': y, 'c': c, 's': s, 'w_m': w_m,
+                    # 'x': x, 'y': y,
+                    'c': c, 's': s, 'w_m': w_m,
                     'w_m_gm': w_m_gm,
                     'wave_c': wave_c, 'wavelength_c': wavelength_c,
                     'scales_c': scales_c, 'power_c': power_c,
@@ -3488,8 +3489,8 @@ class RiverTransect:
                           inflection_flag=inflection_flag, tree_id=tree_id)
         if len(self._calc_vars) == 0:
             self._calc_vars = meander.calc_vars
-        if metrics is None:
-            meander.perform_calculations()
+        # if metrics is None:
+        #     meander.perform_calculations()
         self.meanders[id_meander] = meander
         # -------------------------
         # Add metrics to database
@@ -4070,11 +4071,16 @@ class Meander:
         # y_rot = rotated_points[:, 1]
         # amplitude = np.max(y_rot) - np.min(y_rot)
 
-        # --------------------------
-        # Calculate amplitude
-        # --------------------------
+        # ---------------------------------
+        # Calculate amplitude Half-meander
+        # ---------------------------------
         amplitude = RF.calculate_amplitude(x_inf, y_inf)
         self.data['A_hm'] = amplitude
+        # ---------------------------------
+        # Calculate amplitude Full-meander
+        # ---------------------------------
+        amplitude = RF.calculate_amplitude(self.x, self.y)
+        self.data['A_fm'] = amplitude
         return
     
     def calculate_funneling_factor(self):

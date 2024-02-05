@@ -90,6 +90,8 @@ if range_values[-1] < full_dataset:
 elif range_values[-1] > full_dataset:
     range_values[-1] = full_dataset
 
+cwt_vars = ['c', 's', 'wave_c', 'wavelength_c', 'gws_c_sig', 'sawp_c_sig',
+            'wave_angle', 'wavelength_angle', 'gws_angle_sig', 'sawp_angle_sig']
 print(f'Number of folders to save {len(range_values) - 1}') 
 # TODO: This is a good example of within waterbody in 0513!
 # range = [1007, 1008]
@@ -97,6 +99,7 @@ time_all = time.time()
 for r_val, i in enumerate(range_values[:-1]):
     # Start saving data variables
     cwt_data = {}
+    minimal_cwt_data = {}
     reach_metrics_downstream = {}
     reach_metrics_no_clip = {}
     meander_database_downstream = {}
@@ -172,10 +175,12 @@ for r_val, i in enumerate(range_values[:-1]):
         rivers[id_river].get_cwt_curvature(mother='MORLET')
         rivers[id_river].get_cwt_angle(mother='MORLET')
         cwt_morlet = rivers.extract_cwt_data(rivers_ids=[id_river])
-        rivers[id_river].get_cwt_curvature(mother='DOG')
-        rivers[id_river].get_cwt_angle(mother='DOG')
-        cwt_dog = rivers.extract_cwt_data(rivers_ids=[id_river])
-        cwt_data[id_river] = {'morlet': cwt_morlet, 'dog': cwt_dog}
+        # if r_val > 0:
+        #     cwt_morlet[id_river] = {k: cwt_morlet[id_river][k] for k in cwt_vars}
+
+        # rivers[id_river].get_cwt_curvature(mother='DOG')
+        # cwt_dog = rivers.extract_cwt_data(rivers_ids=[id_river])
+        cwt_data[id_river] = {'morlet': copy.deepcopy(cwt_morlet[id_river])}
         # -----------------------------
         # Extract CWT tree
         # -----------------------------
