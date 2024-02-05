@@ -3377,6 +3377,9 @@ class RiverTransect:
         y = y_data[ind_start: ind_end + 1]
         z = z_data[ind_start: ind_end + 1]
         so = so_data[ind_start: ind_end + 1]
+        if len(x) < 3:
+            raise SmallMeanderError(
+                'Meander too small for current resolution.')
 
         # ---------------------------
         # Include inflection points
