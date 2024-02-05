@@ -2644,8 +2644,8 @@ class RiverTransect:
                     # plt.plot(s_m, c[idx_start:idx_end + 1])
                     # plt.axhline(0, color='k', linestyle='--')
                     # plt.show()
-                    idx_start = node.idx_planimetry_start
-                    idx_end = node.idx_planimetry_end
+                    idx_start = copy.deepcopy(node.idx_planimetry_start)
+                    idx_end = copy.deepcopy(node.idx_planimetry_end)
                     middle = int((idx_end - idx_start)/2)
                     i_r = 0
                     s_inf = []
@@ -2667,8 +2667,22 @@ class RiverTransect:
                         #     break
                         if len(s_inf) >= 1:
                             s_inf = np.array([s_inf[0]])
-                    node.idx_planimetry_start = start + 1
-                    s_inf_left = s_inf[0]
+
+                    # Check new inflection point with extended bounds
+                    # print(f'Old Start Inflection {node.idx_planimetry_start}')
+                    # print(f'New Start Inflection {start + 1}')
+                    # print(f'Extended Bounds Start {node.idx_planimetry_extended_start}')
+                    if start + 1 >= node.idx_planimetry_extended_start:
+                        node.idx_planimetry_start = start + 1
+                        s_inf_left = s_inf[0]
+                    else:
+                        # print('Starting inflection point out of full meander bounds. '
+                        #       'Correcting to CWT bounds.')
+                        self.logger.warning(
+                            'Starting Inflection point out of full meander bounds. '
+                            'Correcting to CWT bounds.')
+                        s_inf_left = s_curvature[node.idx_planimetry_start]
+
                     s_inf = []
                     i_r = 0
                     # Find final inflection point
@@ -2685,9 +2699,21 @@ class RiverTransect:
                         #     break
                         if len(s_inf) >= 1:
                             s_inf = np.array([s_inf[-1]])
-                    s_inf_right = s_inf[0]
-                    # Correct planimetry idx
-                    node.idx_planimetry_end = idx_end + i_r
+
+                    # Check new inflection point with extended bounds
+                    # print(f'Old End Inflection {node.idx_planimetry_end}')
+                    # print(f'New End Inflection {idx_end + i_r}')
+                    # print(f'Extended Bounds End {node.idx_planimetry_extended_end}')
+                    if idx_end + i_r <= node.idx_planimetry_extended_end:
+                        node.idx_planimetry_end = idx_end + i_r
+                        s_inf_right = s_inf[0]
+                    else:
+                        # print('Ending inflection point out of full meander bounds. '
+                        #       'Correcting to CWT bounds.')
+                        self.logger.warning(
+                            'Ending inflection point out of full meander bounds. '
+                            'Correcting to CWT bounds.')
+                        s_inf_right = s_curvature[node.idx_planimetry_end]
                     if node.idx_planimetry_end >= len(c):
                         node.idx_planimetry_end = len(c) - 1
 
@@ -3358,6 +3384,7 @@ class RiverTransect:
         if x_inf is not None:
             cond_1 = (x[0] != x_inf[0] and y[0] != y_inf[0])
             cond_2 = (x[-1] != x_inf[-1] and y[-1] != y_inf[-1])
+            cond_3 = np.sum(s == s_inf[0]) > 0 or np.sum(s == s_inf[-1]) > 0
             if cond_1 and cond_2:
                 x = np.hstack([x_inf, x])
                 y = np.hstack([y_inf, y])
@@ -3383,6 +3410,16 @@ class RiverTransect:
             y = y[s_sort]
             z = z[s_sort]
             so = so[s_sort]
+
+            # Correct for equal while adding inflection points
+            if cond_3:
+                s_un = np.unique(s)
+                i_sort = np.argsort(s_un)
+                s = s_un[i_sort]
+                x = x[i_sort]
+                y = y[i_sort]
+                z = z[i_sort]
+                so = so[i_sort]
 
             if inflection_flag:
                 i_s_inf_st = np.where(s == s_inf[0])[0][0]

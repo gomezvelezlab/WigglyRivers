@@ -109,7 +109,7 @@ for r_val, i in enumerate(range_values[:-1]):
         path_output_meanders = f'{path_meander_info}/{range[0]}_{range[1]-1}/'
     else:
         path_output_meanders = f'{path_meander_info}/{range[0]}/'
-    if os.path.exists(path_output_meanders) and not overwrite:
+    if os.path.exists(f'{path_output_meanders}reach_metrics_no_clip.hdf5') and not overwrite:
         print(f'Folder {path_output_meanders} already exists')
         continue
     # -----------------------------
@@ -153,7 +153,11 @@ for r_val, i in enumerate(range_values[:-1]):
 
     id_rivers_extracted = id_rivers
     time1 = time.time()
+    flag_reach = True
     for i_val, id_river in enumerate(id_rivers):
+        # Test River
+        # if i_val != 28:
+        #     continue
         if i_val % 500 == 0:
             print(f'Processing River {i_val} of {len(id_rivers)}')
             utl.toc(time1)
@@ -206,8 +210,9 @@ for r_val, i in enumerate(range_values[:-1]):
         metrics_reach = rivers[id_river].metrics_reach
         reach_metrics_downstream[id_river] = metrics_reach
         meander_database = rivers[id_river].database
-        if i_val == 0:
+        if flag_reach:
             meander_database_downstream = copy.deepcopy(meander_database)
+            flag_reach = False
         else:
             meander_database_downstream = pd.concat([
                 meander_database_downstream, meander_database])
@@ -216,6 +221,8 @@ for r_val, i in enumerate(range_values[:-1]):
         # -----------------------------
         # TODO: Claculate reach metrics with both, the clip downstream and no
         #  clip and save them separately
+        # TODO: Found a bug while extracting meanders with extended bounds.
+        #  See 0602 - i_val = 28, tree_id = 3, node.node_id = 1
         rivers[id_river].add_meanders_from_tree_scales(
             bounds_array_str='extended', overwrite=True, clip='no')
         # ---------------------------
