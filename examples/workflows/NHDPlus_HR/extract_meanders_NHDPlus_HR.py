@@ -32,10 +32,10 @@ from WigglyRivers import iwavelet
 # -------------------------
 overwrite = False
 # Parameters
-# huc_id = '0602'
+huc_id = '0602'
 # huc_id = '0104'
 # huc_id = '0601'
-huc_id = '0513'
+# huc_id = '0513'
 path_nhd = f'examples/workflows/NHDPlus_HR/NHDPlus_HR/raw_data/NHDPlus_H_{huc_id}_HU4_GDB/'
 path_output = f'examples/workflows/NHDPlus_HR/NHDPlus_HR/processed_data/NHDPlus_H_{huc_id}_HU4_GDB/'
 path_river_routing = f'{path_output}/river_routing/'
@@ -91,12 +91,18 @@ elif range_values[-1] > full_dataset:
     range_values[-1] = full_dataset
 
 print(f'Number of folders to save {len(range_values) - 1}') 
-# TODO: This is a good example of within waterbody!
+# TODO: This is a good example of within waterbody in 0513!
 # range = [1007, 1008]
 time_all = time.time()
 for r_val, i in enumerate(range_values[:-1]):
+    # Start saving data variables
+    cwt_data = {}
+    reach_metrics_downstream = {}
+    reach_metrics_no_clip = {}
+    meander_database_downstream = {}
     # Select range
     range = [range_values[r_val], range_values[r_val + 1]]
+    # range = [1007, 1008]
 
     # Check if folder is already extracted
     if range[1] - range[0] > 1:
@@ -156,6 +162,16 @@ for r_val, i in enumerate(range_values[:-1]):
         # Calculate Curvature
         # -----------------------------
         rivers[id_river].calculate_curvature(data_source='resample') 
+        # ---------------------------
+        # Calculate CWT with Morlet
+        # ---------------------------
+        rivers[id_river].get_cwt_curvature(mother='MORLET')
+        rivers[id_river].get_cwt_angle(mother='MORLET')
+        cwt_morlet = rivers.extract_cwt_data(rivers_ids=[id_river])
+        rivers[id_river].get_cwt_curvature(mother='DOG')
+        rivers[id_river].get_cwt_angle(mother='DOG')
+        cwt_dog = rivers.extract_cwt_data(rivers_ids=[id_river])
+        cwt_data[id_river] = {'morlet': cwt_morlet, 'dog': cwt_dog}
         # -----------------------------
         # Extract CWT tree
         # -----------------------------
@@ -179,20 +195,50 @@ for r_val, i in enumerate(range_values[:-1]):
         # -----------------------------
         # Add meander to database
         # -----------------------------
+        # With clip downstream
         rivers[id_river].add_meanders_from_tree_scales(
-            bounds_array_str='extended')
+            bounds_array_str='inflection', overwrite=True, clip='downstream')
         # ---------------------------
         # Calculate reach sinuosity
         # ---------------------------
         rivers[id_river].calculate_reach_metrics()
-    utl.toc(time1)
+        # Extract data
+        metrics_reach = rivers[id_river].metrics_reach
+        reach_metrics_downstream[id_river] = metrics_reach
+        meander_database = rivers[id_river].database
+        if i_val == 0:
+            meander_database_downstream = copy.deepcopy(meander_database)
+        else:
+            meander_database_downstream = pd.concat([
+                meander_database_downstream, meander_database])
+        # -----------------------------
+        # Add meander to database
+        # -----------------------------
+        # TODO: Claculate reach metrics with both, the clip downstream and no
+        #  clip and save them separately
+        rivers[id_river].add_meanders_from_tree_scales(
+            bounds_array_str='extended', overwrite=True, clip='no')
+        # ---------------------------
+        # Calculate reach sinuosity
+        # ---------------------------
+        rivers[id_river].calculate_reach_metrics()
+        metrics_reach = rivers[id_river].metrics_reach
+        reach_metrics_no_clip[id_river] = metrics_reach
 
+    utl.toc(time1)
     # Save rivers
     print('Saving Information')
+    FM.save_data(cwt_data, path_output_meanders, 'cwt_data.hdf5')
     rivers.save_databases_meanders(
         path_output_meanders, f'meander_database.feather')
     rivers.save_databases_meanders(
         path_output_meanders, f'meander_database.csv')
+    FM.save_data(meander_database_downstream, path_output_meanders,
+                 'meander_database_downstream.feather')
+    FM.save_data(reach_metrics_downstream, path_output_meanders,
+                 'reach_metrics_downstream.hdf5')
+    FM.save_data(reach_metrics_no_clip, path_output_meanders,
+                 'reach_metrics_no_clip.hdf5')
     rivers.save_tree_scales(path_output_meanders)
     # rivers.save_rivers(
     #     path_output_meanders, file_name=f'rivers.hdf5',

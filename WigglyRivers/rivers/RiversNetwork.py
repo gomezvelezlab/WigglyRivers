@@ -924,6 +924,79 @@ class RiverDatasets:
                 file_name=fn_tree_scales_database)
         return
 
+    def extract_cwt_data(self, rivers_ids=[]):
+        """
+        Description:
+        ------------
+            Extract continuous wavelet transform information.
+        """
+        cwt_info = {}
+
+        for i_key, key in enumerate(self.rivers['id_values']):
+            if len(rivers_ids) > 0 and key not in rivers_ids:
+                continue
+
+            w_m = self.rivers[key].w_m
+            w_m_gm = self.rivers[key].w_m_gm
+            x = self.rivers[key].x
+            y = self.rivers[key].y
+            c = self.rivers[key].c
+            s = self.rivers[key].s
+            wave_c = self.rivers[key].cwt_wave_c
+            wavelength_c = self.rivers[key].cwt_wavelength_c
+            scales_c = self.rivers[key].cwt_scales_c
+            power_c = self.rivers[key].cwt_power_c
+            coi_c = self.rivers[key].cwt_coi_c
+            gws_c = self.rivers[key].cwt_gws_c
+            sawp_c = self.rivers[key].cwt_sawp_c
+            power_sig = self.rivers[key].cwt_power_c_sig
+            gws_c_sig = self.rivers[key].cwt_gws_c_sig
+            sawp_c_sig = self.rivers[key].cwt_sawp_c_sig
+
+            wave_angle = self.rivers[key].cwt_wave_angle
+            wavelength_angle = self.rivers[key].cwt_wavelength_angle
+            scales_angle = self.rivers[key].cwt_scales_angle
+            power_angle = self.rivers[key].cwt_power_angle
+            coi_angle = self.rivers[key].cwt_coi_angle
+            gws_angle = self.rivers[key].cwt_gws_angle
+            sawp_angle = self.rivers[key].cwt_sawp_angle
+            power_sig_angle = self.rivers[key].cwt_power_angle_sig
+            gws_angle_sig = self.rivers[key].cwt_gws_angle_sig
+            sawp_angle_sig = self.rivers[key].cwt_sawp_angle_sig
+
+            # Save Information
+            cwt_info.update({
+                key: {
+                    'x': x, 'y': y, 'c': c, 's': s, 'w_m': w_m,
+                    'w_m_gm': w_m_gm,
+                    'wave_c': wave_c, 'wavelength_c': wavelength_c,
+                    'scales_c': scales_c, 'power_c': power_c,
+                    'coi_c': coi_c, 'gws_c': gws_c, 'sawp_c': sawp_c,
+                    'power_c_sig': power_sig, 'gws_c_sig': gws_c_sig,
+                    'sawp_c_sig': sawp_c_sig, 'wave_angle': wave_angle,
+                    'wavelength_angle': wavelength_angle,
+                    'scales_angle': scales_angle, 'power_angle': power_angle,
+                    'coi_angle': coi_angle, 'gws_angle': gws_angle,
+                    'sawp_angle': sawp_angle,
+                    'power_angle_sig': power_sig_angle,
+                    'gws_angle_sig': gws_angle_sig,
+                    'sawp_angle_sig': sawp_angle_sig,
+                }
+            })
+
+        return cwt_info
+
+    def save_cwt_data(self, path_output, file_name, rivers_ids= []):
+        """
+        Description:
+        ------------
+            Save continuous wavelet transform information.
+        """
+        cwt_info = self.extract_cwt_data(rivers_ids=rivers_ids)
+        if len(cwt_info) > 0:
+            FM.save_data(cwt_info, path_output=path_output,
+                         file_name=file_name)
+        return
 
     def save_rivers(self, path_output, file_name, save_cwt_info=False,
                     rivers_ids= [],
@@ -1614,7 +1687,7 @@ class RiverTransect:
         self.cwt_power_c = None
         self.cwt_gws_c = None
         self.cwt_gws_peak_wavelength_c = None
-        self.cwt_swap_c = None
+        self.cwt_sawp_c = None
         self.cwt_signif_c = None
         self.cwt_sawp_c = None
         self.cwt_sig95_c = None
@@ -3074,66 +3147,6 @@ class RiverTransect:
             graphs.plot_meander_matplotlib(x, y, x_meander, y_meander)
         return
 
-    # @DeprecationWarning
-    def plot_cwt(self, data_source='smooth', so=None, plot_tree=True,
-                 meanders=False, curvature_side=1, include_w=False):
-        """"""
-        w = None
-        if data_source == 'original':
-            x = self.x
-            y = self.y
-            if include_w:
-                w = self.w_m
-        elif data_source == 'smooth':
-            x = self.x_smooth
-            y = self.y_smooth
-            if include_w:
-                w = self.w_m
-        else:
-            raise ValueError(f"'data_source={data_source}' not implemented."
-                             f"Please use 'original' or 'smooth'")
-        
-
-        if plot_tree:
-            if meanders:
-                graphs.plot_wavelet_system(x, y, self.c,
-                                        self.s, self.cwt_wave,
-                                        self.cwt_scales,
-                                        self.cwt_wavelength,
-                                        self.cwt_zc_lines,
-                                        self.cwt_zc_sign, self.cwt_poly,
-                                        ml_tree=self.cwt_ml_tree,
-                                        peak_row=self.cwt_peak_row,
-                                        peak_col=self.cwt_peak_col,
-                                        xc=self.cwt_planimetry_coords[:, 0],
-                                        yc=self.cwt_planimetry_coords[:, 1],
-                                        regions=self.cwt_regions,
-                                        meanders=self.meanders,
-                                        curvature_side=curvature_side,
-                                        w=w)
-            else:
-                graphs.plot_wavelet_system(x, y, self.c,
-                                        self.s, self.cwt_wave,
-                                        self.cwt_scales,
-                                        self.cwt_wavelength,
-                                        self.cwt_zc_lines,
-                                        self.cwt_zc_sign, self.cwt_poly,
-                                        ml_tree=self.cwt_ml_tree,
-                                        peak_row=self.cwt_peak_row,
-                                        peak_col=self.cwt_peak_col,
-                                        xc=self.cwt_planimetry_coords[:, 0],
-                                        yc=self.cwt_planimetry_coords[:, 1],
-                                        regions=self.cwt_regions,
-                                        w=w)
-        else:
-            graphs.plot_wavelet_system(x=x, y=y, c=self.c,
-                                       s_curvature=self.s,
-                                       cwt_matrix=self.cwt_wave,
-                                       scales=self.cwt_scales,
-                                       cwt_period=self.cwt_wavelength,
-                                       w=w)
-        return
-
     # -------------------------
     # Reporting and Saving
     # -------------------------
@@ -3538,13 +3551,17 @@ class RiverTransect:
                      'half_meander_sinuosity', 'full_meander_sinuosity',
                      'residual_meander_sinuosity', 'mean_half_meander_length',
                      ]
+        tree_ids = np.hstack((-1, tree_ids))
         self.metrics_reach = {v: [0 for i in tree_ids] for v in variables}
         # self.metrics_reach = {str(i): {} for i in tree_ids}
         for i_t, tree_id in enumerate(tree_ids):
             # ===================
             # Distance metrics
             # ===================
-            subset_database = database[database['tree_id'] == tree_id]
+            if tree_id == -1:
+                subset_database = database
+            else:
+                subset_database = database[database['tree_id'] == tree_id]
             self.metrics_reach['tree_id'][i_t] = tree_id
             # Calculate D
             x_st = subset_database['x_start'].values[0]
