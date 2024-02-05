@@ -132,3 +132,40 @@ def convolution_smoother(x, kernel, iter):
 
     return x_smooth[len(x): len(x) * 2]
 
+
+def circumcenter(tri):
+    """
+    Description:
+    ------------
+        Compute the circumcenter of a triangle. The point where the
+        perpendicular bisectors of the sides of the triangle intersect.
+    ____________________________________________________________________________
+
+    Args:
+    -----
+    :param tri:
+        delaunay triangulation
+    :type tri:
+    :return:
+    :rtype:
+    """
+
+    # Get the indices of the vertices that form the triangle
+    tri_indices = tri.simplices[0]
+
+    # Get the coordinates of the vertices that form the triangle
+    tri_coords = tri.points[tri_indices]
+
+    # Calculate the circumcenter of the triangle
+    a = tri_coords[0]
+    b = tri_coords[1]
+    c = tri_coords[2]
+    d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]))
+    x = ((a[0] ** 2 + a[1] ** 2) * (b[1] - c[1]) + (b[0] ** 2 + b[1] ** 2) * (
+                c[1] - a[1]) + (c[0] ** 2 + c[1] ** 2) * (a[1] - b[1])) / d
+    y = ((a[0] ** 2 + a[1] ** 2) * (c[0] - b[0]) + (b[0] ** 2 + b[1] ** 2) * (
+                a[0] - c[0]) + (c[0] ** 2 + c[1] ** 2) * (b[0] - a[0])) / d
+    cc = np.array([x, y])
+    return cc
+
+

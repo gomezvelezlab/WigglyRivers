@@ -28,8 +28,10 @@ from scipy.spatial import Delaunay
 from scipy.spatial.distance import euclidean
 from scipy import signal
 from scipy.signal import find_peaks
+from circle_fit import taubinSVD
 from ..rivers import RiverFunctions as RF
 from ..utilities import utilities as utl
+from ..utilities import general_functions as gf
 from anytree import Node, RenderTree, PreOrderIter, LevelOrderIter
 
 
@@ -1467,17 +1469,25 @@ def get_centers(conn, peak_row, peak_col, period, ds, x, y, extract_all=False,
         x3, y3 = x[end_idx], y[end_idx]
         try:
             tri = Delaunay(np.array([[x1, y1], [x2, y2], [x3, y3]]))
+            cc = gf.circumcenter(tri)
+            x_c[cn], y_c[cn] = cc[0], cc[1]
         except:
             # print('Error in Delaunay triangulation, found colinear points')
             continue
-        cc = circumcenter(tri)
-        x_c[cn], y_c[cn] = cc[0], cc[1]
+        try:
+            coordinates = np.vstack((x[beg_idx: end_idx],
+                                     y[beg_idx: end_idx])).T
+            x_c[cn], y_c[cn], r, sigma = taubinSVD(coordinates)
+        except:
+            continue
         l = euclidean([x2, y2], [x_c[cn], y_c[cn]])
         rvec = np.array([x_c[cn]-x2, y_c[cn]-y2])/l
         # Compute xi and yi coordinates as a radius of the half period distance
         #   along the vector pointing to the in-center.
-        x_c[cn] = x2 + rvec[0] * per / np.pi
-        y_c[cn] = y2 + rvec[1] * per / np.pi
+        # x_c[cn] = x2 + rvec[0] * per / np.pi
+        # y_c[cn] = y2 + rvec[1] * per / np.pi
+        x_c[cn] = x2 + rvec[0] * per / (2*np.pi)
+        y_c[cn] = y2 + rvec[1] * per / (2*np.pi)
         # Store additional information
         r_x[cn] = rvec[0]
         r_y[cn] = rvec[1]
@@ -1500,42 +1510,6 @@ def get_centers(conn, peak_row, peak_col, period, ds, x, y, extract_all=False,
         return vars_to_return
     else:
         return x_c, y_c
-
-
-def circumcenter(tri):
-    """
-    Description:
-    ------------
-        Compute the circumcenter of a triangle. The point where the
-        perpendicular bisectors of the sides of the triangle intersect.
-    ____________________________________________________________________________
-
-    Args:
-    -----
-    :param tri:
-        delaunay triangulation
-    :type tri:
-    :return:
-    :rtype:
-    """
-
-    # Get the indices of the vertices that form the triangle
-    tri_indices = tri.simplices[0]
-
-    # Get the coordinates of the vertices that form the triangle
-    tri_coords = tri.points[tri_indices]
-
-    # Calculate the circumcenter of the triangle
-    a = tri_coords[0]
-    b = tri_coords[1]
-    c = tri_coords[2]
-    d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]))
-    x = ((a[0] ** 2 + a[1] ** 2) * (b[1] - c[1]) + (b[0] ** 2 + b[1] ** 2) * (
-                c[1] - a[1]) + (c[0] ** 2 + c[1] ** 2) * (a[1] - b[1])) / d
-    y = ((a[0] ** 2 + a[1] ** 2) * (c[0] - b[0]) + (b[0] ** 2 + b[1] ** 2) * (
-                a[0] - c[0]) + (c[0] ** 2 + c[1] ** 2) * (b[0] - a[0])) / d
-    cc = np.array([x, y])
-    return cc
 
 
 def get_tree_scales_dict(conn, peak_row, peak_col, peak_pwr, wave, wavelength,

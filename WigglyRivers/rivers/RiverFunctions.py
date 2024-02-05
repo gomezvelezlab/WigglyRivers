@@ -1023,20 +1023,55 @@ def calculate_radius_of_curvature(x, y, wavelength):
         - y_c: float, y coordinate of the center of the circle.
         - radius: float, radius of the circle.
     """
-    # Fit Circle
+    # argmax_c = np.argmax(np.abs(c))
+    # Find half distance
     coordinates = np.vstack((x, y)).T
-    x_mid = x[len(x)//2]
-    y_mid = y[len(y)//2]
+    s_val = get_reach_distances(coordinates)
+    s_mid = s_val[-1] / 2
+    arg_mid = np.argmin(np.abs(s_val - s_mid))
+    # x_mid = x[argmax_c]
+    # y_mid = y[argmax_c]
+    # x_mid = x[len(x)//2]
+    # y_mid = y[len(y)//2]
+    x_mid = x[arg_mid]
+    y_mid = y[arg_mid]
+    # x1, y1 = x[0], y[0]
+    # x2, y2 = x_mid, y_mid
+    # x3, y3 = x[-1], y[-1]
+    # --------------------------
+    # Fit Circle
+    # --------------------------
     x_cen, y_cen, r, sigma = taubinSVD(coordinates)
+    # Try calculating with circumcenter
+    # try:
+    #     tri = Delaunay(np.array([[x1, y1], [x2, y2], [x3, y3]]))
+    #     cc = GF.circumcenter(tri)
+    #     x_cen, y_cen = cc[0], cc[1]
+    # except:
+    #     # print('Error in Delaunay triangulation, found colinear points')
+    #     x_cen, y_cen, r, sigma = taubinSVD(coordinates)
+    # print(x_cen, y_cen, r, sigma)
+    # import matplotlib.pyplot as plt
+    # plt.plot(x, y, 'o-k')
+    # plt.gca().set_aspect('equal', adjustable='box')
+    # plt.plot(x_cen, y_cen, 'ro')
+    # circle = plt.Circle((x_cen, y_cen), r, fill=False)
+    # plt.gca().add_artist(circle)
+    # # plt.plot(x_cen_2, y_cen_2, 'bo')
+    # # circle = plt.Circle((x_cen_2, y_cen_2), r, fill=False, color='b')
+    # # plt.gca().add_artist(circle)
+    # plt.show()
+    # aaa
 
     # Calculate Omega
     w = wavelength / (2 * np.pi)
+    # w = wavelength / (np.pi)
     rvec = np.array([x_cen - x_mid, y_cen - y_mid])/r
 
     x_c = x_mid + rvec[0] * w
     y_c = y_mid + rvec[1] * w
-
     radius = np.sqrt((x_c - x_mid)**2 + (y_c - y_mid)**2)
+    # radius = np.abs(r)
     return x_c, y_c, radius
 
 

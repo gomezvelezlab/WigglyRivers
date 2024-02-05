@@ -157,8 +157,8 @@ def plot_wavelet_system(x, y, c, s_curvature, cwt_matrix, scales, cwt_period,
     # Curvature
     ax[1].plot(s_curvature, c, '-k')
     ax[1].set_xlim([np.min(s_curvature), np.max(s_curvature)])
-    ax[1].set_xlabel('Distance [m]')
-    ax[1].set_ylabel('Curvature [m$^{-1}$]')
+    ax[1].set_xlabel('Distance (m)')
+    ax[1].set_ylabel('Curvature (m$^{-1}$)')
     # Wavelet
     norm = MidPointNorm(midpoint=0)
     ax2_t = ax[2].twinx()
@@ -171,9 +171,9 @@ def plot_wavelet_system(x, y, c, s_curvature, cwt_matrix, scales, cwt_period,
     #    ax[2].plot(s_curvature, w, '-k', lw=2)
     #    ax2_t.plot(s_curvature, w, '-k', lw=2)
 
-    ax[2].set_xlabel('Distance [m]')
-    ax[2].set_ylabel('Scale [m]')
-    ax2_t.set_ylabel('Wavelength [m]')
+    ax[2].set_xlabel('Distance (m)')
+    ax[2].set_ylabel('Scale (m)')
+    ax2_t.set_ylabel('Wavelength (m)')
     ax[2].invert_yaxis()
     ax2_t.invert_yaxis()
     # ax[2].set_ylim([np.max(scales), np.min(scales)])
@@ -571,6 +571,7 @@ def plot_rivers_matplotlib(rivers, comids, data_source='resample', **kwargs):
 def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
                            gws, peaks_gws, id_river, coi=None, tree_ids=None, 
                            node_ids=None, min_s=None, include_removed=False,
+                           scale_by_width=False,
                            **kwargs):
 
     """
@@ -604,7 +605,10 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
     # Spectral
     im = ax[1].pcolormesh(
         s_curvature, wavelength, wave, cmap='Spectral')
-    ax[1].set_xlabel('Distance [m]')
+    if scale_by_width:
+        ax[1].set_xlabel(f'$s$')
+    else:
+        ax[1].set_xlabel('$s$ (m)')
     # ax[1, 1].set_ylabel('Wavelength [m]')
     ax[1].set_ylim([wavelength[-1], wavelength[0]])
     # if gamma_width is not None:
@@ -678,8 +682,12 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
     for peak in peaks_gws:
         ax_gws.axhline(peak, color='b', linestyle='--')
         ax[1].axhline(peak, color='b', linestyle='--')
-    ax_gws.set_xlabel('Power [m$^2$]')
-    ax_gws.set_ylabel('Wavelength [m]')
+    if scale_by_width:
+        ax_gws.set_xlabel(r"$|\overline{W_{n,GWS}}|^2$")
+        ax_gws.set_ylabel(r'$\lambda$')
+    else:
+        ax_gws.set_xlabel(f"$|\overline{{W_{{n,GWS}}}}|^2$\n(m$^{{-2}}$)")
+        ax_gws.set_ylabel(r'$\lambda$ (m)')
     ax_gws.set_yscale('log')
     ax_gws.set_xscale('log')
     ax_gws.invert_xaxis()
@@ -895,7 +903,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
 
     plt.tight_layout()
     # fig.subplots_adjust(left=0.25, right=0.90)
-    fig.subplots_adjust(left=0.1, right=0.80)
+    fig.subplots_adjust(left=0.12, right=0.80)
 
     # ========================
     # Move figures

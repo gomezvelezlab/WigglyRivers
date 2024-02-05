@@ -61,8 +61,8 @@ logging.basicConfig(handlers=[logging.NullHandler()])
 # -----------
 # parameters
 # -----------
-CALC_VARS = ['x_inf', 'y_inf', 's_inf',
-             'lambda_fm', 'lambda_hm', 'L_fm', 'L_hm',
+CALC_VARS = ['x_inf', 'y_inf', 's_inf', 'x_c_max', 'y_c_max', 'c_max',
+             's_c_max', 'lambda_fm', 'lambda_hm', 'L_fm', 'L_hm',
              'sigma_fm', 'sigma_hm',
              'so', 'skewness', 'flatness', 'R_hm', 'curvature_side',
              'a_fm', 'lambda_fm,u', 'lambda_fm,d',
@@ -942,6 +942,9 @@ class RiverDatasets:
             y = self.rivers[key].y
             c = self.rivers[key].c
             s = self.rivers[key].s
+            comid = self.rivers[key].comid
+            if comid is None:
+                comid = [''] * len(x)
             wave_c = self.rivers[key].cwt_wave_c
             wavelength_c = self.rivers[key].cwt_wavelength_c
             scales_c = self.rivers[key].cwt_scales_c
@@ -968,7 +971,7 @@ class RiverDatasets:
             cwt_info.update({
                 key: {
                     # 'x': x, 'y': y,
-                    'c': c, 's': s, 'w_m': w_m,
+                    'c': c, 's': s, 'w_m': w_m, 'comid': comid,
                     'w_m_gm': w_m_gm,
                     'wave_c': wave_c, 'wavelength_c': wavelength_c,
                     'scales_c': scales_c, 'power_c': power_c,
@@ -3125,6 +3128,7 @@ class RiverTransect:
         gws = self.cwt_gws_c
         peaks_gws = self.cwt_gws_peak_wavelength_c
         id_river = self.id_value
+        scale_by_width = self.scale_by_width
         # peaks_min, min_s = RF.calculate_spectrum_cuts(s, self.cwt_wave)
         peaks_min, min_s = RF.calculate_spectrum_cuts(s, self.c)
         if include_width:
@@ -3134,7 +3138,8 @@ class RiverTransect:
 
         graphs.plot_tree_from_anytree(
             x, y, s_curvature, wavelength, power, 
-            tree_scales, gws, peaks_gws, id_river, coi=coi, min_s=None, **kwargs)
+            tree_scales, gws, peaks_gws, id_river, coi=coi, min_s=None,
+            scale_by_width=scale_by_width, **kwargs)
         
     def interactive_meander_characterization_plot(self, inflection_flag=False, **kwargs):
         """
@@ -3385,6 +3390,11 @@ class RiverTransect:
         # ---------------------------
         # Include inflection points
         # ---------------------------
+        # Extract curvature
+        if self.c is not None:
+            c = self.c[ind_start: ind_end + 1]
+        else:
+            c = None
         if x_inf is not None:
             cond_1 = (x[0] != x_inf[0] and y[0] != y_inf[0])
             cond_2 = (x[-1] != x_inf[-1] and y[-1] != y_inf[-1])
@@ -3395,18 +3405,24 @@ class RiverTransect:
                 s = np.hstack([s_inf, s])
                 z = np.hstack([z_data[ind_start - 1], z_data[ind_end], z])
                 so= np.hstack([so_data[ind_start - 1], so_data[ind_end], z])
+                if c is not None:
+                    c = np.hstack([0, 0, c])
             elif cond_1:
                 x = np.hstack([x_inf[0], x])
                 y = np.hstack([y_inf[0], y])
                 s = np.hstack([s_inf[0], s])
                 z = np.hstack([z_data[ind_start - 1], z])
                 so= np.hstack([so_data[ind_start - 1], z])
+                if c is not None:
+                    c = np.hstack([0, c])
             elif cond_2:
                 x = np.hstack([x, x_inf[-1]])
                 y = np.hstack([y, y_inf[-1]])
                 s = np.hstack([s, s_inf[-1]])
                 z = np.hstack([z, z_data[ind_end]])
                 so= np.hstack([so, so_data[ind_end]])
+                if c is not None:
+                    c = np.hstack([c, 0])
 
             s_sort = np.argsort(s)
             s = s[s_sort]
@@ -3414,6 +3430,8 @@ class RiverTransect:
             y = y[s_sort]
             z = z[s_sort]
             so = so[s_sort]
+            if c is not None:
+                c = c[s_sort]
 
             # Correct for equal while adding inflection points
             if cond_3:
@@ -3424,6 +3442,8 @@ class RiverTransect:
                 y = y[i_sort]
                 z = z[i_sort]
                 so = so[i_sort]
+                if c is not None:
+                    c = c[i_sort]
 
             if inflection_flag:
                 i_s_inf_st = np.where(s == s_inf[0])[0][0]
@@ -3433,6 +3453,8 @@ class RiverTransect:
                 y = y[i_s_inf_st: i_s_inf_end + 1]
                 z = z[i_s_inf_st: i_s_inf_end + 1]
                 so = so[i_s_inf_st: i_s_inf_end + 1]
+                if c is not None:
+                    c = c[i_s_inf_st: i_s_inf_end + 1]
                 dif_idx = i_s_inf_end - i_s_inf_st
                 if dif_idx < 3:
                     raise SmallMeanderError(
@@ -3464,11 +3486,6 @@ class RiverTransect:
         x_o = self.x_o[idx_start_o: idx_end_o + 1]
         y_o = self.y_o[idx_start_o: idx_end_o + 1]
 
-        # Extract curvature
-        if self.c is not None:
-            c = self.c[ind_start: ind_end + 1]
-        else:
-            c = None
 
         # Find the most recurring comid
         # comid = np.median(comid_data[ind_start: ind_end + 1])
@@ -3479,6 +3496,9 @@ class RiverTransect:
         # Add meander
         # -------------------------
         self.id_meanders.append(id_meander)
+        if np.min(so) < 1:
+            a = 2
+
         meander = Meander(id_meander, s, x, y, z, ind_start, ind_end,
                           so=so, x_o=x_o, y_o=y_o,
                           ind_start_o=idx_start_o, ind_end_o=idx_end_o,
@@ -3780,6 +3800,22 @@ class Meander:
             self.so = so
         
         self.comid = comid
+        c_inf = c[self.ind_inf_st: self.ind_inf_end + 1]
+        self.argmax_c = self.ind_inf_st + np.argmax(np.abs(c_inf))
+        self.s_c_max = s[self.argmax_c]
+        self.c_max = c[self.argmax_c]
+        self.x_c_max = x[self.argmax_c]
+        self.y_c_max = y[self.argmax_c]
+        
+        # plt.figure()
+        # plt.plot(self.x, self.y, 'k')
+        # plt.plot(self.x_c_max, self.y_c_max, 'ro')
+
+        # plt.figure()
+        # plt.plot(s, c)
+        # plt.plot(self.s_c_max, self.c_max, 'ro')
+        # plt.show()
+        # aaa
 
         # ----------------------
         # Perform Calculations
@@ -3792,6 +3828,10 @@ class Meander:
         self.data['x_inf'] = [self.x_inf_st, self.x_inf_end]
         self.data['y_inf'] = [self.y_inf_st, self.y_inf_end]
         self.data['s_inf'] = [self.s_inf[0], self.s_inf[-1]]
+        self.data['x_c_max'] = self.x_c_max
+        self.data['y_c_max'] = self.y_c_max
+        self.data['s_c_max'] = self.s_c_max
+        self.data['c_max'] = self.c_max
         if metrics is None:
             if calculations:
                 self.perform_calculations()
@@ -3980,7 +4020,7 @@ class Meander:
         y = self.y[self.ind_inf_st: self.ind_inf_end + 1]
 
         x_c, y_c, radius = RF.calculate_radius_of_curvature(
-            x, y, self.data['lambda'])
+            x, y, self.data['lambda']/2)
 
         self.x_c = x_c
         self.y_c = y_c
