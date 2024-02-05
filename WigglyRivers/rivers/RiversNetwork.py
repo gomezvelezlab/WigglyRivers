@@ -3404,7 +3404,7 @@ class RiverTransect:
                 y = np.hstack([y_inf, y])
                 s = np.hstack([s_inf, s])
                 z = np.hstack([z_data[ind_start - 1], z_data[ind_end], z])
-                so= np.hstack([so_data[ind_start - 1], so_data[ind_end], z])
+                so= np.hstack([so_data[ind_start - 1], so_data[ind_end], so])
                 if c is not None:
                     c = np.hstack([0, 0, c])
             elif cond_1:
@@ -3412,7 +3412,7 @@ class RiverTransect:
                 y = np.hstack([y_inf[0], y])
                 s = np.hstack([s_inf[0], s])
                 z = np.hstack([z_data[ind_start - 1], z])
-                so= np.hstack([so_data[ind_start - 1], z])
+                so = np.hstack([so_data[ind_start - 1], so])
                 if c is not None:
                     c = np.hstack([0, c])
             elif cond_2:
@@ -3725,7 +3725,7 @@ class Meander:
         self.s = s
         self.x = x
         self.y = y
-        self.z = z
+        # self.z = z
         self.ind_start = ind_start
         self.ind_end = ind_end
         self.automatic_flag = automatic_flag
