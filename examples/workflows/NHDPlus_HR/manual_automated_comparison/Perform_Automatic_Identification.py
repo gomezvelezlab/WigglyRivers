@@ -78,7 +78,7 @@ projection = 'esri:102003'
 # Calculate automatic
 # ------------------------
 bounds_array_str = 'extended'
-clip = 'downstream'
+clip = ''
 # Select project to load
 for project in projects:
     time_1 = time.time()
@@ -131,14 +131,14 @@ for project in projects:
     # Add meander to database
     # -----------------------------
     rivers[id_river].add_meanders_from_tree_scales(
-        bounds_array_str=bounds_array_str, clip='downstream')
+        bounds_array_str=bounds_array_str, clip='no')
     # -----------------------------
     # Save database
     # -----------------------------
     rivers.save_rivers(
         path_output=f'{path_projects_c}{project}/',
         file_name='rivers_automatic.hdf5',
-        fn_meander_database=f'meander_database_{bounds_array_str}_clip_{clip}.csv')
+        fn_meander_database=f'meander_database_{bounds_array_str}{clip}.csv')
     rivers.save_rivers(
         path_output=f'{path_projects_c}{project}/',
         file_name='rivers_automatic.hdf5',
