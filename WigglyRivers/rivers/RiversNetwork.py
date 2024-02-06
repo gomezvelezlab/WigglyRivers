@@ -4012,7 +4012,7 @@ class Meander:
         if self.wavelength is not None:
             self.data['lambda'] = copy.deepcopy(self.wavelength)
         else:
-            self.data['lambda'] = self.data['lambda_hm'] * 2
+            self.data['lambda'] = self.data['lambda_fm']
         return
     
     def calculate_radius(self):
