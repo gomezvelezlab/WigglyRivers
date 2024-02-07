@@ -80,7 +80,7 @@ headwaters = headwaters[huc]
 # Iterate over series river transects
 # ====================================
 initial_step = 100
-step = 1000
+step = 500
 full_dataset = len(headwaters)
 initial_range = np.array([0, initial_step])
 range_values = np.arange(initial_range[-1], full_dataset, step)
@@ -90,8 +90,11 @@ if range_values[-1] < full_dataset:
 elif range_values[-1] > full_dataset:
     range_values[-1] = full_dataset
 
-cwt_vars = ['c', 's', 'wave_c', 'wavelength_c', 'gws_c_sig', 'sawp_c_sig',
-            'wave_angle', 'wavelength_angle', 'gws_angle_sig', 'sawp_angle_sig']
+# cwt_vars = ['c', 's', 'wave_c', 'wavelength_c', 'gws_c_sig', 'sawp_c_sig',
+#             'wave_angle', 'wavelength_angle', 'gws_angle_sig', 'sawp_angle_sig']
+cwt_vars = ['s', 'w_m', 'comid', 'wavelength_c', 'wavelength_angle',
+            'gws_c_sig', 'sawp_c_sig',
+            'gws_angle_sig', 'sawp_angle_sig']
 print(f'Number of folders to save {len(range_values) - 1}') 
 # TODO: This is a good example of within waterbody in 0513!
 # range = [1007, 1008]
@@ -146,7 +149,8 @@ for r_val, i in enumerate(range_values[:-1]):
     # Load headwaters
     # -----------------------------
     river_network_file = f'{path_river_routing}/river_network_huc_{huc}.hdf5'
-    kwargs_resample = {hw: {'smooth': 1e1, 'method': 'geometric_mean_width'} for hw in headwaters}
+    kwargs_resample = {hw: {'smooth': 1e0, 'method': 'geometric_mean_width'}
+                       for hw in headwaters}
     rivers.load_river_network(river_network_file, headwaters_comid=headwaters,
                             kwargs_resample=kwargs_resample)
     id_rivers = rivers.id_values
@@ -175,12 +179,16 @@ for r_val, i in enumerate(range_values[:-1]):
         rivers[id_river].get_cwt_curvature(mother='MORLET')
         rivers[id_river].get_cwt_angle(mother='MORLET')
         cwt_morlet = rivers.extract_cwt_data(rivers_ids=[id_river])
-        # if r_val > 0:
-        #     cwt_morlet[id_river] = {k: cwt_morlet[id_river][k] for k in cwt_vars}
+        if r_val > 0:
+            cwt_morlet[id_river] = {
+                k: cwt_morlet[id_river][k] for k in cwt_vars}
 
         # rivers[id_river].get_cwt_curvature(mother='DOG')
         # cwt_dog = rivers.extract_cwt_data(rivers_ids=[id_river])
         cwt_data[id_river] = {'morlet': copy.deepcopy(cwt_morlet[id_river])}
+        
+        # if i_val > 1:
+        #     aaa
         # -----------------------------
         # Extract CWT tree
         # -----------------------------
@@ -247,6 +255,12 @@ for r_val, i in enumerate(range_values[:-1]):
         path_output_meanders, f'meander_database.csv')
     FM.save_data(meander_database_downstream, path_output_meanders,
                  'meander_database_downstream.feather')
+    reach_metrics_downstream = {
+        k: reach_metrics_downstream[k] for k in
+        list(reach_metrics_downstream.keys()) if reach_metrics_downstream[k] is not None}
+    reach_metrics_no_clip = {
+        k: reach_metrics_no_clip[k] for k in
+        list(reach_metrics_no_clip.keys()) if reach_metrics_no_clip[k] is not None}
     FM.save_data(reach_metrics_downstream, path_output_meanders,
                  'reach_metrics_downstream.hdf5')
     FM.save_data(reach_metrics_no_clip, path_output_meanders,

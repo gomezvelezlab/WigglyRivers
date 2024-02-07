@@ -39,7 +39,8 @@ from .classExceptions import *
 def plot_interactive_river_plain(
         x: Union[list, np.ndarray], y: Union[list, np.ndarray],
         clicked_points: list=[], meander_ids: list=[], river_obj=None,
-        inflection_flag=False, mapbox_token=None, current_crs='epsg:4326', zoom=5):
+        inflection_flag=False, mapbox_token=None, current_crs='epsg:4326',
+        zoom=5):
     """
     Description:
     ------------

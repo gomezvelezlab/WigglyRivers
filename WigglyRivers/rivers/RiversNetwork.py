@@ -3100,7 +3100,7 @@ class RiverTransect:
     # -------------------------
     # Plotting
     # -------------------------
-    def plot_tree_nodes(self, include_width=True, **kwargs):
+    def plot_tree_nodes(self, include_width=True, title=None, **kwargs):
         """
         Description:
         ------------
@@ -3139,9 +3139,10 @@ class RiverTransect:
         graphs.plot_tree_from_anytree(
             x, y, s_curvature, wavelength, power, 
             tree_scales, gws, peaks_gws, id_river, coi=coi, min_s=None,
-            scale_by_width=scale_by_width, **kwargs)
+            scale_by_width=scale_by_width, title=title, **kwargs)
         
-    def interactive_meander_characterization_plot(self, inflection_flag=False, **kwargs):
+    def interactive_meander_characterization_plot(
+            self, inflection_flag=False, mapbox_token=None, **kwargs):
         """
         Description:
         ------------
@@ -3155,13 +3156,18 @@ class RiverTransect:
         ________________________________________________________________________
 
         """
-        # TODO: Incorporate scaling by width in the Interactive Plot
+        if self.scale_by_width and mapbox_token is not None:
+            raise ValueError(
+                'Due to coordinates issues the Interactive Meander'
+                ' Characterization is not implemented for'
+                ' scale_by_width=True')
         clicked_points = []
         meander_ids = copy.deepcopy(self.id_meanders)
         x, y, z = self._extract_data_source()
         f = iplot.plot_interactive_river_plain(
             x, y, clicked_points=clicked_points, meander_ids=meander_ids,
-            river_obj=self, inflection_flag=inflection_flag, **kwargs)
+            river_obj=self, inflection_flag=inflection_flag,
+            mapbox_token=mapbox_token, **kwargs)
 
         return f
     

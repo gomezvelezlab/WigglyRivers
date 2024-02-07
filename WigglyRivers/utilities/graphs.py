@@ -17,6 +17,7 @@ import copy
 import numpy as np
 # Graphs
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 import seaborn as sns
 from textwrap import wrap
@@ -571,7 +572,7 @@ def plot_rivers_matplotlib(rivers, comids, data_source='resample', **kwargs):
 def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
                            gws, peaks_gws, id_river, coi=None, tree_ids=None, 
                            node_ids=None, min_s=None, include_removed=False,
-                           scale_by_width=False,
+                           scale_by_width=False, title=None,
                            **kwargs):
 
     """
@@ -594,19 +595,29 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
     elif node_ids is not None and len(tree_id) > 1:
         raise ValueError('node_ids must be None if more than one tree_id')
 
-    # Planimetry
+    # ========================
+    # Plotting
+    # ========================
     fig, ax = plt.subplots(2, 1, figsize=(8, 5), sharey='row')
     # add title
-    fig.suptitle(f'River: {id_river}')
-    # Combine first two rows
-    ax[0].plot(x, y, '-k')
+    # fig.suptitle(f'{id_river}')
+    # -----------------
+    # Planimetry
+    # -----------------
+    if title is not None:
+        ax[0].set_title(f'(A) {title}')
+    else:
+        ax[0].set_title(f'(A) {id_river}')
+    ax[0].plot(x, y, '-k', label='River centerline')
     ax[0].set_aspect('equal')
     ax[0].axis('off')
+    # -----------------
     # Spectral
+    # -----------------
     im = ax[1].pcolormesh(
         s_curvature, wavelength, wave, cmap='Spectral')
     if scale_by_width:
-        ax[1].set_xlabel(f'$s$')
+        ax[1].set_xlabel(f'$s^*$')
     else:
         ax[1].set_xlabel('$s$ (m)')
     # ax[1, 1].set_ylabel('Wavelength [m]')
@@ -619,6 +630,8 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
                         hatch='x')
     # ax[1].invert_yaxis()
     ax[1].set_yscale('log')
+    ax[1].set_yticklabels([])
+    ax[1].set_title(f'(B) CWT of Curvature with Scale Space Tree')
 
     # Plot tree
     for tree_id in tree_ids:
@@ -649,7 +662,7 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
 
 
     # Finish Plot
-    fig.subplots_adjust(left=0.20, right=0.90)
+    fig.subplots_adjust(left=0.20, right=0.90, bottom=0.15)
     # cbar_ax = fig.add_axes([0.91, 0.18, 0.01, 0.7])
     # cbar = fig.colorbar(im, cax=cbar_ax)
     # cbar.set_label('Scaled Wavelet Transformed')
@@ -657,7 +670,10 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
     cbar_ax = fig.add_axes([0.91, pos.y0, 0.01, pos.height])
     cbar = fig.colorbar(im, cax=cbar_ax)
     # Add Label
-    cbar.ax.set_ylabel('Scaled Wavelet Transformed', rotation=270, labelpad=15)
+    for peak in peaks_gws:
+        cbar.ax.set_ylabel(r'$\log_2(|W_{n,c}|^2 (m^{-2}))$', rotation=270, labelpad=15)
+    else:
+        cbar.ax.set_ylabel(r'$\log_2(|W^*_{n,c}|^2)$', rotation=270, labelpad=15)
     # Peaks_min
     if min_s is not None:
         for s_m in min_s:
@@ -683,15 +699,16 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
         ax_gws.axhline(peak, color='b', linestyle='--')
         ax[1].axhline(peak, color='b', linestyle='--')
     if scale_by_width:
-        ax_gws.set_xlabel(r"$|\overline{W_{n,GWS}}|^2$")
-        ax_gws.set_ylabel(r'$\lambda$')
+        ax_gws.set_xlabel(r"$|\overline{W^*_{n,c,GWS}}|^2$")
+        ax_gws.set_ylabel(r'$\lambda^*$')
     else:
-        ax_gws.set_xlabel(f"$|\overline{{W_{{n,GWS}}}}|^2$\n(m$^{{-2}}$)")
+        ax_gws.set_xlabel(f"$|\overline{{W_{{n,c,GWS}}}}|^2$\n(m$^{{-2}}$)")
         ax_gws.set_ylabel(r'$\lambda$ (m)')
     ax_gws.set_yscale('log')
     ax_gws.set_xscale('log')
     ax_gws.invert_xaxis()
     ax_gws.set_ylim([wavelength[-1], wavelength[0]])
+    ax_gws.set_title(f'GWS')
 
     return
 
@@ -752,6 +769,8 @@ def plot_meander_matplotlib(x_river, y_river, x_meander, y_meander):
 
 
 def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
+    fs = 10
+    mpl.rcParams['font.size'] = fs
     # Extract Information
     cmap = 'YlGnBu'
     id_river = river.id_value
@@ -773,16 +792,16 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     scale_by_width = river.scale_by_width
 
     labels = [r'$C$ (m$^{-1}$)', r"$\lambda$ (m)", r"$\theta$", r"$s$ (m)",
-              r"$|\overline{W_{n,GWS}}|^2$ (m$^{-2}$)",
-              f"$|\overline{{W_{{n,SAWP}}}}|^2$\n(m$^{{-2}}$)",
-              r"$|\overline{W_{n,GWS}}|^2$",
-              r"$|\overline{W_{n,SAWP}}|^2$",
+              r"$|\overline{W_{n,c,GWS}}|^2$ (m$^{-2}$)",
+              f"$|\overline{{W_{{n,c,SAWP}}}}|^2$\n(m$^{{-2}}$)",
+              r"$|\overline{W_{n,\theta,GWS}}|^2$",
+              r"$|\overline{W_{n,\theta,SAWP}}|^2$",
               ]
     if scale_by_width:
         labels = [
             r'$C^*$', r"$\lambda^*$", r"$\theta$", r"$s^*$",
-            r"$|\overline{W_{n,GWS}}|^2$", r"$|\overline{W_{n,SAWP}}|^2$",
-            r"$|\overline{W_{n,GWS}}|^2$", r"$|\overline{W_{n,SAWP}}|^2$",
+            r"$|\overline{W^*_{n,c,GWS}}|^2$", r"$|\overline{W^*_{n,c,SAWP}}|^2$",
+            r"$|\overline{W_{n,\theta,GWS}}|^2$", r"$|\overline{W_{n,\theta,SAWP}}|^2$",
             ]
 
 
@@ -814,7 +833,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax[i_d].spines['right'].set_visible(False)
     ax[i_d].spines['bottom'].set_visible(False)
     ax[i_d].spines['left'].set_visible(False)
-    ax[i_d].set_title('River Planimetry')
+    ax[i_d].set_title('(A) River Planimetry')
 
     # =============
     # Curvature
@@ -826,7 +845,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
             ax[i_d].axvline(s[idx], color='r', linestyle='--')
     ax[i_d].set_xlim([np.min(s), np.max(s)])
     ax[i_d].set_ylabel(labels[0])
-    ax[i_d].set_title('Curvature')
+    ax[i_d].set_title('(B) Curvature')
 
     # ------------------------
     # Power Curvature
@@ -869,7 +888,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
             ax[i_d].axvline(s[idx], color='r', linestyle='--')
     ax[i_d].set_xlim([np.min(s), np.max(s)])
     ax[i_d].set_ylabel(labels[2])
-    ax[i_d].set_title('Direction Angle')
+    ax[i_d].set_title('(C) Direction Angle')
 
     # ------------------------
     # Power Angle
@@ -972,5 +991,8 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     # for peak in gws_peak_wavelen_angle:
     #     ax_gws_angle.axhline(peak, color='r', linestyle='--')
     # plt.tight_layout()
+
+    # Literals
+    # fig.text(0.1, 0.9, '(A)', weight='bold', fontsize=fs + 2)
 
     return fig, ax
