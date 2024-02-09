@@ -328,8 +328,9 @@ def create_geopandas_dataframe(pandas_df, geometry_columns, shape_type='line',
                                       pandas_df[geometry_columns[1]])
     elif shape_type.lower() == 'line':
         geometry = [LineString(np.array(xy).T)
-                    for xy in zip(pandas_df[geometry_columns[0]].values,
-                                  pandas_df[geometry_columns[1]].values)]
+                    for xy in zip(
+                        pandas_df[geometry_columns[0]].values,
+                        pandas_df[geometry_columns[1]].values)]
     else:
         raise ValueError(f'{shape_type} is not a valid type of geometry.')
     

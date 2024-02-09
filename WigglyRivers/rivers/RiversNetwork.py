@@ -548,7 +548,8 @@ class RiverDatasets:
                                  comid_network_file: str=None,
                                  min_distance: float=1000.0,
                                  path_out: str=None,
-                                 joblib_n_jobs: int=1) -> None:
+                                 joblib_n_jobs: int=1,
+                                 file_name: Union[None, str]=None) -> None:
         """
         Description:
         -----------
@@ -653,8 +654,11 @@ class RiverDatasets:
             data_to_save.update(results_all[i_hw])
         # Save Informaton
         if path_out is not None:
-            FM.save_data(data_to_save, path_out,
-                        file_name=f'river_network_huc_{huc}.hdf5')
+            if file_name is not None:
+                FM.save_data(data_to_save, path_out, file_name=file_name)
+            else:
+                FM.save_data(data_to_save, path_out,
+                            file_name=f'river_network_huc_{huc}.hdf5')
         else:
             return data_to_save
         return
