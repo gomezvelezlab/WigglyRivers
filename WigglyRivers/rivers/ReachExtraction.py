@@ -524,7 +524,7 @@ class CompleteReachExtraction:
         data_info = self.data_info[
             self.data_info[f'huc{huc_number:02d}'] == huc_n]
 
-        c_comid_prev = start_comid
+        c_comid_prev = copy.deepcopy(start_comid)
         c_comid = start_comid
         comid_network = np.zeros(len(comid))
         i = 0
@@ -549,6 +549,8 @@ class CompleteReachExtraction:
             # --------------------------
             c_comid = data_info.index[
                 data_info['fromnode'] == to_i].values
+            if isinstance(c_comid, str):
+                c_comid = [c_comid]
             if len(c_comid) == 0:
                 break
             elif c_comid[0] == c_comid_prev:
@@ -571,11 +573,13 @@ class CompleteReachExtraction:
                 if linking != 0:
                     # Sum in the overlapping
                     i_overlap += 1
-                if i_overlap == max_overlapping:
+                if i_overlap == max_overlapping + 1:
                     i_overlap = 0
                     break
             i += 1
         comid_network = comid_network[comid_network != 0]
+        comid_network = comid_network.astype(int)
+        comid_network = comid_network.astype(str)
         return comid_network, huc_n
 
     def map_coordinates(self, comid_list, file_coords):
@@ -623,13 +627,13 @@ class CompleteReachExtraction:
             if self.pre_loaded_coords:
                 coordinates = copy.deepcopy(self.coords_all)
                 keys = [i for i in c_all]
-                coordinates = {i: coordinates[i] for i in keys}
+                coordinates = {i: np.array(coordinates[i]) for i in keys}
             else:
                 # Load File
                 if file_coords.split('.')[-1] == 'hdf5':
                     keys = [str(i) for i in c_all]
                     coordinates = FM.load_data(f'{file_coords}', keys=keys)
-                    coordinates = {i: coordinates[i] for i in keys}
+                    coordinates = {i: np.array(coordinates[i]) for i in keys}
                 else:
                     coordinates = FM.load_data(f'{file_coords}')
             length_reach = np.array([
@@ -717,18 +721,22 @@ class CompleteReachExtraction:
             # Include Elevation
             # -----------------------------
             time1 = time.time()
-            z = np.zeros(x.shape)
-            i_cc = 0
-            for i_c, c in enumerate(c_all):
-                if i_c == 0:
-                    z_max = max_elev[i_c]
-                else:
-                    z_max = z[i_cc]
+            z = np.zeros(x.shape)*np.nan
+            # i_cc = 0
+            # for i_c, c in enumerate(c_all):
+            #     if i_c == 0:
+            #         z_max = max_elev[i_c]
+            #     else:
+            #         # TODO: Check lengths and why this is not matching
+            #         try:
+            #             z_max = z[i_cc]
+            #         except IndexError:
+            #             break
 
-                z[i_cc:i_cc + lengths[i_c]] = (
-                        z_max - (s[i_cc:i_cc + lengths[i_c]] - s[i_cc])
-                        * slope[i_c])
-                i_cc += lengths[i_c] - 1
+            #     z[i_cc:i_cc + lengths[i_c]] = (
+            #             z_max - (s[i_cc:i_cc + lengths[i_c]] - s[i_cc])
+            #             * slope[i_c])
+            #     i_cc += lengths[i_c] - 1
             
             # print('including elevation')
             # utl.toc(time1)
