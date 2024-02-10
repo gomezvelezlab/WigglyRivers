@@ -310,12 +310,36 @@ for i_huc, huc_4_val in enumerate(huc_4_unique):
 # Plot results
 # ======================================================
 # plot the headwaters
-fig, ax = plt.subplots()
+n_huc = 8
+fig, axs = plt.subplots(2, 1, figsize=(10, 10))
+ax = axs[0]
 wbd_shp_12.plot(ax=ax, column=f'huc{n_huc}', alpha=0.5, cmap='Set3')
 wbd_shp_huc_n_dissolved.plot(ax=ax, color='skyblue', edgecolor='black', alpha=1)
-# rivers_hw_all.plot(ax=ax, alpha=1, color='b', linewidth=1)
-rivers_hw_all.loc[comid_network].plot(ax=ax, alpha=1, color='b', linewidth=1)
+# plot the rivers
+for i_huc, huc_4_val in enumerate(huc_4_unique):
+    rivers_hw_all = FM.load_data(
+        f'{path_nhd_output}NHDPlus_H_{huc_4_val}_HU4_GDB/HW_HUC_{n_huc}/hw_mainstem_huc{n_huc}.shp')
+    rivers_hw_all.plot(ax=ax, alpha=1, color='b', linewidth=1)
+    lengths_df = FM.load_data(
+        f'{path_nhd_output}NHDPlus_H_{huc_4_val}_HU4_GDB/HW_HUC_{n_huc}/lengths_hw_huc{n_huc}.csv',
+        pandas_dataframe=True)
+    if i_huc == 0:
+        lengths_df_all = lengths_df
+    else:
+        lengths_df_all = pd.concat([lengths_df_all, lengths_df])
+
+# Remove axis
+ax.set_axis_off()
+ax.set_title(f'HUC{n_huc} Headwaters')
+
+# Plot histogram of lengths
+ax = axs[1]
+sns.histplot(lengths_df_all['length']/1000, ax=ax, color='skyblue')
+ax.set_xlabel('Length (km)')
+
+# rivers_hw_all.loc[comid_network].plot(ax=ax, alpha=1, color='b', linewidth=1)
 # rivers_hw_reachcode.plot(ax=ax, alpha=0.5, column='StreamLeve', cmap='YlOrRd') 
+plt.savefig(f'test_huc_06.png')
 plt.show()
 
 print('done')
