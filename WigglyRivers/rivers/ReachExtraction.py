@@ -674,8 +674,8 @@ class CompleteReachExtraction:
             if start_comid[0] == 1:
                 if da_hw[0] > 0:
                     da_initial[0] = da_hw[0]
-                elif da_inc[0] != da_t[0]:
-                    da_initial[0] = da_inc[0]
+                elif da_inc[0][0] != da_t[0]:
+                    da_initial[0] = da_inc[0][0]
                 elif da_t[0] > 0:
                     da_initial[0] = 0.1*da_t[0]
                 else:
