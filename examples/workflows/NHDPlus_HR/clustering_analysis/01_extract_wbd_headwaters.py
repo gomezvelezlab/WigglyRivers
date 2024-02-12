@@ -154,8 +154,8 @@ huc_4_unique = np.unique(huc_4)
 # Extract Rivers
 # -------------------------
 for i_huc, huc_4_val in enumerate(huc_4_unique):
-    # if i_huc < 1:
-    #    continue 
+    if i_huc < 1:
+       continue 
     print(f'Extracting Rivers for HUC4 {huc_4_val}...')
     shp_file = f'{path_nhd}NHDPlus_H_{huc_4_val}_HU4_GDB/NHDPlus_H_{huc_4_val}_HU4_GDB.gdb'
     river_shp = FM.read_gbd(shp_file, layer='NHDFlowline')
@@ -257,6 +257,7 @@ for i_huc, huc_4_val in enumerate(huc_4_unique):
     comid_network_all = {comid: [] for comid in hw_comid}
     coords_mapped = {comid: [] for comid in hw_comid}
     length_reach = []
+    da = []
     for comid in hw_comid:
         # Map network
         comid_network, _ = reach_generator.map_complete_reach(
@@ -269,12 +270,14 @@ for i_huc, huc_4_val in enumerate(huc_4_unique):
         coords_data = {k: coords_data[k].values for k in coords_data.columns}
         coords_mapped[comid] = coords_data
         length_reach.append(coords_data['s'][-1])
+        da.append(coords_data['da_sqkm'][-1])
     coords_mapped['comids'] = comid_network_all
 
     rivers_hw_all.set_index(comid_label.lower(), inplace=True)
     hw_river_only = rivers_hw_all.loc[hw_comid]
     lengths_df = pd.DataFrame({comid_label.lower(): hw_comid,
                                'length': length_reach,
+                               'da_sqkm': da,
                                'huc04': hw_river_only['huc04'].values,
                                f'huc{n_huc}': hw_river_only[f'huc{n_huc}'].values,
                                })
@@ -298,7 +301,6 @@ for i_huc, huc_4_val in enumerate(huc_4_unique):
                  f'hw_mainstem_huc{n_huc}.shp')
     FM.save_data(rivers_hw_all_projected, path_nhd_out,
                  f'hw_mainstem_huc{n_huc}_projected.shp')
-    # rivers_hw_all.set_index(comid_label.lower(), inplace=True)
     
 
 
