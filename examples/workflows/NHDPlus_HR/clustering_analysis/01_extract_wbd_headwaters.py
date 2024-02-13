@@ -58,6 +58,7 @@ projection = 'esri:102003'
 wbd_gdb = f'{path_wbd}/WBD_National_GDB/WBD_National_GDB.gdb'
 wbd_gdb = f'{path_wbd}/WBD_06_HU2_GDB/WBD_06_HU2_GDB.gdb'
 wbd_gdb = f'{path_wbd}/WBD_10_HU2_GDB/WBD_10_HU2_GDB.gdb'
+# wbd_gdb = f'{path_wbd}/WBD_03_HU2_GDB/WBD_03_HU2_GDB.gdb'
 
 # Load geodatabase
 print('Loading WBD...')
@@ -74,7 +75,7 @@ wbd_shp_12['huc04'] = huc_4
 # ----------------------------
 # Extract HUC N values 
 # ----------------------------
-n_huc = 6
+n_huc = 8
 print(f'Extracting HUC{n_huc} Headwaters...')
 huc_n = np.array([i[:n_huc] for i in wbd_shp_12['huc12']])
 # Extract unique values at that huc level
@@ -153,6 +154,13 @@ f_codes_to_remove = [
     42815,  # Pipeline
     42816,  # Pipeline
 ]
+
+f_code_canals = [
+    33400,  # Connector
+    33600,  # Canal/Ditch
+    33601,  # Canal/Ditch
+    33603,  # Canal/Ditch
+]
 # -------------------------
 # Open WBD Headwaters
 # -------------------------
@@ -163,8 +171,10 @@ huc_4_unique = np.unique(huc_4)
 # Extract Rivers
 # -------------------------
 for i_huc, huc_4_val in enumerate(huc_4_unique):
-    if huc_4_val != '1005':
+    if not(huc_4_val in ['1019']):
        continue 
+    # if huc_4_val != '0301':
+    #    continue 
     print(f'Extracting Rivers for HUC4 {huc_4_val}...')
     shp_file = f'{path_nhd}NHDPlus_H_{huc_4_val}_HU4_GDB/NHDPlus_H_{huc_4_val}_HU4_GDB.gdb'
     river_shp = FM.read_gbd(shp_file, layer='NHDFlowline')
@@ -182,6 +192,13 @@ for i_huc, huc_4_val in enumerate(huc_4_unique):
         cols_to_use = table.columns.difference(river_shp.columns)
         river_shp = pd.merge(river_shp, table[cols_to_use], left_index=True,
                             right_index=True, how='left')
+
+    try:
+        for fcode_remove in f_codes_to_remove:
+            river_shp = river_shp[
+                river_shp['FCode'] != fcode_remove]
+    except KeyError:
+        print('no FCode')
     # -------------------------
     # join withn WBD
     # -------------------------
@@ -193,34 +210,122 @@ for i_huc, huc_4_val in enumerate(huc_4_unique):
     for i_h, h_n in enumerate(huc_n_unique):
         subset_huc_n = subset_huc_4[subset_huc_4[f'huc{n_huc}'] == h_n]
         rivers_hw = gpd.sjoin(river_shp, subset_huc_n, how='inner',
-                              predicate='intersects')
-        rivers_hw = rivers_hw[rivers_hw[f'ReachCode_huc{n_huc}'] == h_n]
+                              predicate='within')
+        # rivers_hw = rivers_hw[rivers_hw[f'ReachCode_huc{n_huc}'] == h_n]
+
         # rivers_hw_reachcode = river_shp[river_shp[
         #     f'ReachCode_huc{n_huc}'] == h_n]
         # -------------------------
         # Extract Mainstem 
         # -------------------------
-        rivers_hw = rivers_hw[
-            rivers_hw['StreamLeve'] == rivers_hw['StreamLeve'].min()]
-        upstream_cum = 'TotDASqKm'
-        largest_stream = rivers_hw[upstream_cum].max()
+        min_stream_level = rivers_hw['StreamLeve'].min()
+        cond_1 = rivers_hw['StreamLeve'] == rivers_hw['StreamLeve'].min()
+        cond_2 = rivers_hw['StreamLeve'] == rivers_hw['StreamLeve'].min() + 1
+        # if min_stream_level <= 3:
+        #     rivers_hw = rivers_hw[cond_1]
+        # else:
+        #     rivers_hw = rivers_hw[cond_1 | cond_2]
+        # Total Drainage Area
+        # upstream_cum = 'TotDASqKm'
+        # UpstreamCumulativeStreamKm
+        upstream_cum = 'ArbolateSu'
+        rivers_copy = copy.deepcopy(rivers_hw)
+        n_comids = rivers_hw.shape[0]
+        iter_v = 0
+        while iter_v < n_comids:
+            largest_stream = rivers_copy[upstream_cum].max()
+            # Check stream order
+            stream_calculator = rivers_hw[rivers_hw[upstream_cum] == largest_stream]['StreamCalc'].values[0]
+            # Check the fcode
+            fcode_largest = rivers_hw[rivers_hw[upstream_cum] == largest_stream]['FCode'].values[0]
+            if fcode_largest in f_code_canals or stream_calculator == 0:
+                rivers_copy.loc[rivers_hw[upstream_cum] == largest_stream, upstream_cum] = 0
+            else:
+                break
+            if np.isnan(largest_stream):
+                break
+            if largest_stream < 0:
+                aaaaa
+                break
+            # if iter_v > 10:
+            #     break
+            iter_v += 1
         
         # Get outlet stream
         comid_largest_stream = rivers_hw[rivers_hw[upstream_cum] == largest_stream].index[0]
         rivers_hw.reset_index(inplace=True) 
         rivers_hw = rivers_hw.rename(columns=lambda x: x.lower())
 
+        # f, ax = plt.subplots(1, 1, figsize=(10, 10))
+        # subset_huc_n.plot(ax=ax, color='skyblue', edgecolor='black', alpha=1)
+        # river_shp.plot(ax=ax, alpha=0.5, color='gray')
+        # river_shp.plot(ax=ax, alpha=0.5, column='StreamLeve', cmap='YlOrRd')
+        # # rivers_hw.plot(ax=ax, alpha=0.5, column='streamleve', cmap='YlOrRd')
+        # rivers_hw.plot(ax=ax, alpha=0.5, color='blue')
+        # plt.show()
+
         # Map mainstem
         reach_generator = RE.CompleteReachExtraction(rivers_hw)
         comid_table = copy.deepcopy(reach_generator.data_info)
-        comid_network = reach_generator._recursive_upstream_exploration(
-            comid_largest_stream, comid_table)
+        start_comid = comid_largest_stream
+        # comid_network = reach_generator._recursive_upstream_exploration(
+        #     comid_largest_stream, comid_table)
+        # -------------------------------
+        # Route longest stream upstream
+        # -------------------------------
+        comid_network = {}
+        comid_network[start_comid] = [start_comid]
+        c_comid_pos = start_comid
+        c_comid = start_comid
+        i = 0
+        while i < len(comid_table):
+            # Update lists
+            c_comid_pos = c_comid
+            # --------------------------
+            # Get from nodes
+            # --------------------------
+            from_i = comid_table.loc[c_comid, 'fromnode']
+            # --------------------------
+            # Extract new comid
+            # --------------------------
+            c_comid = comid_table.index[
+                comid_table['tonode'] == from_i].values
+
+            if len(c_comid) == 0:
+                break
+            
+            # add linking
+            # Search for highest stream order
+            so = comid_table.loc[c_comid, 'streamorde'].values
+            if len(so) > 1:
+                if so[0] == so[1]:
+                    # da = comid_table.loc[c_comid, 'totdasqkm'].values
+                    da = comid_table.loc[c_comid, upstream_cum.lower()].values
+                    arg_max_so = np.argmax(da)
+                else:
+                    arg_max_so = np.argmax(so)
+            else:
+                arg_max_so = np.argmax(so)
+            if len(c_comid) == 1:
+                comid_network[start_comid].append(c_comid[0])
+                c_comid = c_comid[0]
+            elif len(c_comid) > 1:
+                comid_network[start_comid].append(c_comid[arg_max_so])
+                for j, c_comid_j in enumerate(c_comid):
+                    if j == arg_max_so:
+                        continue
+                c_comid = c_comid[arg_max_so]
+
+            i += 1
+
         rivers_hw = comid_table.loc[comid_network[comid_largest_stream]]
         if i_h == 0:
             rivers_hw_all = rivers_hw
         else:
             rivers_hw_all = pd.concat([rivers_hw_all, rivers_hw])
 
+    duplicates = rivers_hw_all.index.duplicated(keep='first')
+    unique_duplicates = rivers_hw_all.index[duplicates].unique()
     # change columns to lower case
     rivers_hw_all.reset_index(inplace=True) 
     # rivers_hw_all = rivers_hw_all.rename(columns=lambda x: x.lower())
@@ -340,9 +445,13 @@ fig, axs = plt.subplots(2, 1, figsize=(10, 10))
 ax = axs[0]
 wbd_shp_12.plot(ax=ax, column=f'huc{n_huc}', alpha=0.5, cmap='Set3')
 wbd_shp_huc_n_dissolved.plot(ax=ax, color='skyblue', edgecolor='black', alpha=1)
+# Add labels
+# for x, y, label in zip(wbd_shp_huc_n_dissolved.geometry.centroid.x, wbd_shp_huc_n_dissolved.geometry.centroid.y,
+#                        wbd_shp_huc_n_dissolved.index):
+#     ax.annotate(label, xy=(x, y), xytext=(3, 3), textcoords="offset points")
 # plot the rivers
 for i_huc, huc_4_val in enumerate(huc_4_unique):
-    if not(huc_4_val in ['1019', '1005']):
+    if not(huc_4_val in ['1005', '1019']):
        continue 
     rivers_hw_all = FM.load_data(
         f'{path_nhd_output}NHDPlus_H_{huc_4_val}_HU4_GDB/HW_HUC_{n_huc}/hw_mainstem_huc{n_huc}.shp')

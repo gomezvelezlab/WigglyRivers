@@ -484,12 +484,14 @@ class CompleteReachExtraction:
                                                 'linking_comid'] = c_comid_pos
                     if j == arg_max_so:
                         continue
+                    comid_network = self._recursive_upstream_exploration(
+                        c_comid[j], comid_table, comid_network)
                     # Test recursive to see if the other network exists
-                    try:
-                        comid_network = self._recursive_upstream_exploration(
-                            c_comid[j], comid_table, comid_network)
-                    except KeyError:
-                        continue
+                    # try:
+                    #     comid_network = self._recursive_upstream_exploration(
+                    #         c_comid[j], comid_table, comid_network)
+                    # except KeyError:
+                    #     continue
                 
                 c_comid = c_comid[arg_max_so]
 
@@ -678,8 +680,7 @@ class CompleteReachExtraction:
             if start_comid[0] == 1:
                 if da_hw[0] > 0:
                     da_initial[0] = da_hw[0]
-                # elif da_inc[0][0] != da_t[0]:
-                elif da_inc[0] != da_t[0]:
+                elif da_inc[0][0] != da_t[0]:
                     da_initial[0] = da_inc[0][0]
                 elif da_t[0] > 0:
                     da_initial[0] = 0.1*da_t[0]
