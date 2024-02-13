@@ -66,6 +66,15 @@
             "console": "internalConsole",
             "justMyCode": true,
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Plot Lengths River Analysis",
+            "type": "python",
+            "request": "launch",
+            "program": "examples/workflows/NHDPlus_HR/clustering_analysis/02_check_lengths.py",
+            "console": "internalConsole",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
