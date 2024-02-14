@@ -63,22 +63,22 @@ lengths_huc8_df = FM.load_data(f'{path_data}lengths_hw_huc8.feather',
 # plot the headwaters
 fig, axs = plt.subplots(3, 1, figsize=(10, 10))
 ax = axs[0]
-ax.set_title(f'HUC4')
+ax.set_title(f'HUC4 N={len(lengths_huc4_df)}')
 sns.histplot(lengths_huc4_df['length']/1000, ax=ax, color='skyblue')
 ax.set_xlabel('Length (km)')
-ax.set_xscale('log')
+# ax.set_xscale('log')
 # Plot histogram of lengths
-ax.set_title(f'HUC6')
 ax = axs[1]
+ax.set_title(f'HUC6 N={len(lengths_huc6_df)}')
 sns.histplot(lengths_huc6_df['length']/1000, ax=ax, color='skyblue')
 ax.set_xlabel('Length (km)')
-ax.set_xscale('log')
+# ax.set_xscale('log')
 # Plot histogram of lengths
-ax.set_title(f'HUC8')
 ax = axs[2]
+ax.set_title(f'HUC8 N={len(lengths_huc8_df)}')
 sns.histplot(lengths_huc8_df['length']/1000, ax=ax, color='skyblue')
 ax.set_xlabel('Length (km)')
-ax.set_xscale('log')
+# ax.set_xscale('log')
 
 plt.tight_layout()
 
