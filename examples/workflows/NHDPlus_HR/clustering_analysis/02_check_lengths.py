@@ -57,34 +57,78 @@ lengths_huc6_df = FM.load_data(f'{path_data}lengths_hw_huc6.feather',
 lengths_huc8_df = FM.load_data(f'{path_data}lengths_hw_huc8.feather',
                                pandas_dataframe=True)
 
+lengths_huc10_df = FM.load_data(f'{path_data}lengths_hw_huc10.feather',
+                               pandas_dataframe=True)
+
 # ======================================================
 # Plot results
 # ======================================================
 # plot the headwaters
-fig, axs = plt.subplots(3, 1, figsize=(10, 10))
+fig, axs = plt.subplots(4, 1, figsize=(10, 10))
 ax = axs[0]
 ax.set_title(f'HUC4 N={len(lengths_huc4_df)}')
 sns.histplot(lengths_huc4_df['length']/1000, ax=ax, color='skyblue')
+# Calculate the mean
+mean = np.mean(lengths_huc4_df['length']/1000)
+mean = 200
+# plot the mean with text
+ax.axvline(mean, color='r', linestyle='--')
+n_larger = np.sum(lengths_huc4_df['length']/1000 > mean)
+ax.text(mean, 0, f'{mean:.2f} km $N_l={n_larger}$',
+        rotation=90, verticalalignment='bottom')
 ax.set_xlabel('Length (km)')
 # ax.set_xscale('log')
+
 # Plot histogram of lengths
 ax = axs[1]
 ax.set_title(f'HUC6 N={len(lengths_huc6_df)}')
 sns.histplot(lengths_huc6_df['length']/1000, ax=ax, color='skyblue')
 ax.set_xlabel('Length (km)')
+# Calculate the mean
+mean = np.mean(lengths_huc6_df['length']/1000)
+mean = 200
+# plot the mean with text
+ax.axvline(mean, color='r', linestyle='--')
+n_larger = np.sum(lengths_huc6_df['length']/1000 > mean)
+ax.text(mean, 0, f'{mean:.2f} km $N_l={n_larger}$',
+        rotation=90, verticalalignment='bottom')
 # ax.set_xscale('log')
+
 # Plot histogram of lengths
 ax = axs[2]
 ax.set_title(f'HUC8 N={len(lengths_huc8_df)}')
 sns.histplot(lengths_huc8_df['length']/1000, ax=ax, color='skyblue')
 ax.set_xlabel('Length (km)')
+# Calculate the mean
+mean = np.mean(lengths_huc8_df['length']/1000)
+mean = 120
+# plot the mean with text
+ax.axvline(mean, color='r', linestyle='--')
+n_larger = np.sum(lengths_huc8_df['length']/1000 > mean)
+ax.text(mean, 0, f'{mean:.2f} km $N_l={n_larger}$',
+        rotation=90, verticalalignment='bottom')
+
+# Plot histogram of lengths
+ax = axs[3]
+ax.set_title(f'HUC10 N={len(lengths_huc10_df)}')
+sns.histplot(lengths_huc10_df['length']/1000, ax=ax, color='skyblue')
+ax.set_xlabel('Length (km)')
+# Calculate the mean
+mean = np.mean(lengths_huc10_df['length']/1000)
+mean = 35
+# plot the mean with text
+ax.axvline(mean, color='r', linestyle='--')
+n_larger = np.sum(lengths_huc10_df['length']/1000 > mean)
+ax.text(mean, 0, f'{mean:.2f} km $N_l={n_larger}$',
+        rotation=90, verticalalignment='bottom')
+# ax.set_xscale('log')
 # ax.set_xscale('log')
 
 plt.tight_layout()
 
 # rivers_hw_all.loc[comid_network].plot(ax=ax, alpha=1, color='b', linewidth=1)
 # rivers_hw_reachcode.plot(ax=ax, alpha=0.5, column='StreamLeve', cmap='YlOrRd') 
-plt.savefig(f'test_huc_06.png')
+plt.savefig(f'lengths_HUC_values.png')
 plt.show()
 
 print('done')
