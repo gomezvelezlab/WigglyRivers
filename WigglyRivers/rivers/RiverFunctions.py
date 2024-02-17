@@ -760,12 +760,22 @@ def fit_splines(s, x, y, method='geometric_mean', ds=0, k=3,
     splines = {'x_spl': x_spl, 'y_spl': y_spl}
 
     if return_derivatives:
-        dxds = x_spl.derivative(n=1)(s_poly)
-        dyds = y_spl.derivative(n=1)(s_poly)
-        d2xds2 = x_spl.derivative(n=2)(s_poly)
-        d2yds2 = y_spl.derivative(n=2)(s_poly)
-        derivatives = {'dxds': dxds, 'dyds': dyds, 'd2xds2': d2xds2,
-                       'd2yds2': d2yds2}
+        if k > 1:
+            dxds = x_spl.derivative(n=1)(s_poly)
+            dyds = y_spl.derivative(n=1)(s_poly)
+            d2xds2 = x_spl.derivative(n=2)(s_poly)
+            d2yds2 = y_spl.derivative(n=2)(s_poly)
+            derivatives = {'dxds': dxds, 'dyds': dyds, 'd2xds2': d2xds2,
+                        'd2yds2': d2yds2}
+        else:
+            # print('Fitted spline is linear, '
+            #       'calculating derivatives with np.gradient')
+            dxds = np.gradient(x_poly, s_poly)
+            dyds = np.gradient(y_poly, s_poly)
+            d2xds2 = np.gradient(dxds, s_poly)
+            d2yds2 = np.gradient(dyds, s_poly)
+            derivatives = {'dxds': dxds, 'dyds': dyds, 'd2xds2': d2xds2,
+                        'd2yds2': d2yds2}
         return s_poly, x_poly, y_poly, derivatives, splines
     else:
         return s_poly, x_poly, y_poly

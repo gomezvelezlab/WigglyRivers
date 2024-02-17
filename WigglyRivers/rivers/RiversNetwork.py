@@ -946,6 +946,7 @@ class RiverDatasets:
             y = self.rivers[key].y
             c = self.rivers[key].c
             s = self.rivers[key].s
+            angle = self.rivers[key].angle
             comid = self.rivers[key].comid
             if comid is None:
                 comid = [''] * len(x)
@@ -974,8 +975,9 @@ class RiverDatasets:
             # Save Information
             cwt_info.update({
                 key: {
-                    # 'x': x, 'y': y,
-                    'c': c, 's': s, 'w_m': w_m, 'comid': comid,
+                    'x': x, 'y': y,
+                    'c': c, 's': s, 'angle': angle, 'w_m': w_m,
+                    'comid': comid,
                     'w_m_gm': w_m_gm,
                     'wave_c': wave_c, 'wavelength_c': wavelength_c,
                     'scales_c': scales_c, 'power_c': power_c,

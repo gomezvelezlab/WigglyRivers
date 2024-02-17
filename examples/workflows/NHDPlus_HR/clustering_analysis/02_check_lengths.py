@@ -63,6 +63,52 @@ lengths_huc10_df = FM.load_data(f'{path_data}lengths_hw_huc10.feather',
 # ======================================================
 # Plot results
 # ======================================================
+# Plot Scatter of driange areas
+fig, axs = plt.subplots(4, 1, figsize=(6, 10))
+# HUC 4
+ax = axs[0]
+ax.set_title(f'HUC4 N={len(lengths_huc4_df)}')
+ax.scatter(lengths_huc4_df['length']/1000, lengths_huc4_df['da_sqkm'], 
+            color='skyblue')
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.set_xlabel('Length (km)')
+ax.set_ylabel('Drainage Area (km$^2$)')
+
+# HUC 6
+ax = axs[1]
+ax.set_title(f'HUC6 N={len(lengths_huc6_df)}')
+ax.scatter(lengths_huc6_df['length']/1000, lengths_huc6_df['da_sqkm'], 
+            color='skyblue')
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.set_xlabel('Length (km)')
+ax.set_ylabel('Drainage Area (km$^2$)')
+
+# HUC 8
+ax = axs[2]
+ax.set_title(f'HUC8 N={len(lengths_huc8_df)}')
+ax.scatter(lengths_huc8_df['length']/1000, lengths_huc8_df['da_sqkm'], 
+            color='skyblue')
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.set_xlabel('Length (km)')
+ax.set_ylabel('Drainage Area (km$^2$)')
+
+# HUC 10
+ax = axs[3]
+ax.set_title(f'HUC10 N={len(lengths_huc10_df)}')
+ax.scatter(lengths_huc10_df['length']/1000, lengths_huc10_df['da_sqkm'], 
+            color='skyblue')
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.set_xlabel('Length (km)')
+ax.set_ylabel('Drainage Area (km$^2$)')
+
+plt.tight_layout()
+plt.savefig(f'L_DA_HUC_values.png')
+plt.close('all')
+
 # plot the headwaters
 fig, axs = plt.subplots(4, 1, figsize=(10, 10))
 ax = axs[0]
@@ -70,7 +116,7 @@ ax.set_title(f'HUC4 N={len(lengths_huc4_df)}')
 sns.histplot(lengths_huc4_df['length']/1000, ax=ax, color='skyblue')
 # Calculate the mean
 mean = np.mean(lengths_huc4_df['length']/1000)
-mean = 200
+mean = 100
 # plot the mean with text
 ax.axvline(mean, color='r', linestyle='--')
 n_larger = np.sum(lengths_huc4_df['length']/1000 > mean)
@@ -86,7 +132,7 @@ sns.histplot(lengths_huc6_df['length']/1000, ax=ax, color='skyblue')
 ax.set_xlabel('Length (km)')
 # Calculate the mean
 mean = np.mean(lengths_huc6_df['length']/1000)
-mean = 200
+mean = 100
 # plot the mean with text
 ax.axvline(mean, color='r', linestyle='--')
 n_larger = np.sum(lengths_huc6_df['length']/1000 > mean)
@@ -101,7 +147,7 @@ sns.histplot(lengths_huc8_df['length']/1000, ax=ax, color='skyblue')
 ax.set_xlabel('Length (km)')
 # Calculate the mean
 mean = np.mean(lengths_huc8_df['length']/1000)
-mean = 120
+mean = 100
 # plot the mean with text
 ax.axvline(mean, color='r', linestyle='--')
 n_larger = np.sum(lengths_huc8_df['length']/1000 > mean)
@@ -115,7 +161,7 @@ sns.histplot(lengths_huc10_df['length']/1000, ax=ax, color='skyblue')
 ax.set_xlabel('Length (km)')
 # Calculate the mean
 mean = np.mean(lengths_huc10_df['length']/1000)
-mean = 35
+mean = 100
 # plot the mean with text
 ax.axvline(mean, color='r', linestyle='--')
 n_larger = np.sum(lengths_huc10_df['length']/1000 > mean)
