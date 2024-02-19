@@ -55,7 +55,7 @@ path_out = f'examples/workflows/NHDPlus_HR/NHDPlus_HR/WBD/cliped_data/'
 # =========================
 # Load lengths
 # =========================
-n_huc = 4
+n_huc = 6
 smooth_val = True
 rivers_hucn = FM.load_data(f'{path_data}river_transect_all_huc{n_huc}.hdf5')
 lengths_hucn_df = FM.load_data(f'{path_data}lengths_hw_huc{n_huc}.feather',
@@ -64,7 +64,7 @@ lengths_hucn_df = FM.load_data(f'{path_data}lengths_hw_huc{n_huc}.feather',
 lengths_hucn_df_100 = lengths_hucn_df.loc[lengths_hucn_df['length'] >= 100000]
 
 comids = lengths_hucn_df_100['nhdplusid'].astype(str).values
-ds = 50  # meters
+ds = 10  # meters
 for i_c, c in enumerate(comids):
 	print(c)
 	x = rivers_hucn[c]['x']

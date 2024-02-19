@@ -75,6 +75,24 @@
             "console": "internalConsole",
             "justMyCode": true,
             "cwd": "${workspaceFolder}"
-        }
+        },
+        {
+            "name": "Python: Clip River Transects",
+            "type": "python",
+            "request": "launch",
+            "program": "examples/workflows/NHDPlus_HR/clustering_analysis/03_clip_river_transects.py",
+            "console": "internalConsole",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Calculate CWT on Clips",
+            "type": "python",
+            "request": "launch",
+            "program": "examples/workflows/NHDPlus_HR/clustering_analysis/04_estimate_CWT.py",
+            "console": "internalConsole",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}"
+        },
     ]
 }

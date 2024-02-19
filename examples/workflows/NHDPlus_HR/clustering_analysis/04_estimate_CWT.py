@@ -91,7 +91,7 @@ for i_c, c in enumerate(comids):
     #     plt.close('all')
     # else:
     #     aaa
-    if i_c % 900 == 0 and i_c > 0:
+    if i_c % 100 == 0 and i_c > 0:
         print('Saving and Reseting rivers')
         if smooth_val:
             cwt_data = rivers.extract_cwt_data()
