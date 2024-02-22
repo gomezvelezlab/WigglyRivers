@@ -605,9 +605,9 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
     # Planimetry
     # -----------------
     if title is not None:
-        ax[0].set_title(f'(A) {title}')
+        ax[0].set_title(f'(a) {title}')
     else:
-        ax[0].set_title(f'(A) {id_river}')
+        ax[0].set_title(f'(a) {id_river}')
     ax[0].plot(x, y, '-k', label='River centerline')
     ax[0].set_aspect('equal')
     ax[0].axis('off')
@@ -631,7 +631,7 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
     # ax[1].invert_yaxis()
     ax[1].set_yscale('log')
     ax[1].set_yticklabels([])
-    ax[1].set_title(f'(B) CWT of Curvature with Scale Space Tree')
+    ax[1].set_title(f'(b) CWT of Curvature with Scale Space Tree')
 
     # Plot tree
     for tree_id in tree_ids:
@@ -670,10 +670,10 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
     cbar_ax = fig.add_axes([0.91, pos.y0, 0.01, pos.height])
     cbar = fig.colorbar(im, cax=cbar_ax)
     # Add Label
-    for peak in peaks_gws:
-        cbar.ax.set_ylabel(r'$\log_2(|W_{n,c}|^2 (m^{-2}))$', rotation=270, labelpad=15)
-    else:
+    if scale_by_width:
         cbar.ax.set_ylabel(r'$\log_2(|W^*_{n,c}|^2)$', rotation=270, labelpad=15)
+    else:
+        cbar.ax.set_ylabel(r'$\log_2(|W_{n,c}|^2$ (m$^{-2}))$', rotation=270, labelpad=15)
     # Peaks_min
     if min_s is not None:
         for s_m in min_s:
@@ -794,8 +794,8 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     labels = [r'$C$ (m$^{-1}$)', r"$\lambda$ (m)", r"$\theta$", r"$s$ (m)",
               r"$|\overline{W_{n,c,GWS}}|^2$ (m$^{-2}$)",
               f"$|\overline{{W_{{n,c,SAWP}}}}|^2$\n(m$^{{-2}}$)",
-              r"$|\overline{W_{n,\theta,GWS}}|^2$",
-              r"$|\overline{W_{n,\theta,SAWP}}|^2$",
+              f"$|\overline{{W_{{n,\theta,GWS}}}}|^2$\n(deg)",
+              f"$|\overline{{W_{{n,\theta,SAWP}}}}|^2$\n(deg)",
               ]
     if scale_by_width:
         labels = [
@@ -806,12 +806,14 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
 
 
     if only_significant:
-        power_c = river.cwt_power_c_sig
-        gws_c = river.cwt_gws_c_sig
-        sawp_c = river.cwt_sawp_c_sig
-        power_angle = river.cwt_power_angle_sig
-        gws_angle = river.cwt_gws_angle_sig
-        sawp_angle = river.cwt_sawp_angle_sig
+        power_c = river.cwt_power_c_sig[:]
+        gws_c = river.cwt_gws_c_sig[:]
+        sawp_c = river.cwt_sawp_c_sig[:]
+        power_angle = river.cwt_power_angle_sig[:]
+        gws_angle = river.cwt_gws_angle_sig[:]
+        sawp_angle = river.cwt_sawp_angle_sig[:]
+        power_c[power_c == 0] = np.nan
+        power_angle[power_angle == 0] = np.nan
     
     fig, ax = plt.subplots(7, 1, figsize=(8, 10))
 
@@ -833,7 +835,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     ax[i_d].spines['right'].set_visible(False)
     ax[i_d].spines['bottom'].set_visible(False)
     ax[i_d].spines['left'].set_visible(False)
-    ax[i_d].set_title('(A) River Planimetry')
+    ax[i_d].set_title('(a) River Planimetry')
 
     # =============
     # Curvature
@@ -845,7 +847,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
             ax[i_d].axvline(s[idx], color='r', linestyle='--')
     ax[i_d].set_xlim([np.min(s), np.max(s)])
     ax[i_d].set_ylabel(labels[0])
-    ax[i_d].set_title('(B) Curvature')
+    ax[i_d].set_title('(b) Curvature')
 
     # ------------------------
     # Power Curvature
@@ -888,7 +890,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
             ax[i_d].axvline(s[idx], color='r', linestyle='--')
     ax[i_d].set_xlim([np.min(s), np.max(s)])
     ax[i_d].set_ylabel(labels[2])
-    ax[i_d].set_title('(C) Direction Angle')
+    ax[i_d].set_title('(c) Direction Angle')
 
     # ------------------------
     # Power Angle
