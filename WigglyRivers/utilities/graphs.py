@@ -794,8 +794,8 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     labels = [r'$C$ (m$^{-1}$)', r"$\lambda$ (m)", r"$\theta$", r"$s$ (m)",
               r"$|\overline{W_{n,c,GWS}}|^2$ (m$^{-2}$)",
               f"$|\overline{{W_{{n,c,SAWP}}}}|^2$\n(m$^{{-2}}$)",
-              f"$|\overline{{W_{{n,\theta,GWS}}}}|^2$\n(deg)",
-              f"$|\overline{{W_{{n,\theta,SAWP}}}}|^2$\n(deg)",
+              f"$|\overline{{W_{{n,\\theta,GWS}}}}|^2$\n(deg)",
+              f"$|\overline{{W_{{n,\\theta,SAWP}}}}|^2$\n(deg)",
               ]
     if scale_by_width:
         labels = [
