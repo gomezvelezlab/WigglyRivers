@@ -16,7 +16,6 @@ conda install -c conda-forge h5py
 ```
 `geopandas` is installed first because it is the package that generates the most incompatibilities. After that package, we install the other dependencies with pip
 ```bash
-pip install joblib
 pip install simpledbf
 pip install statsmodels
 pip install seaborn
@@ -34,13 +33,6 @@ For interactive plots
 ```bash
 pip install ipympl
 ```
-
-Keep in mind that for Plotly to work you would need to install the following versions
-
-```bash
-pip install ipywidgets==7.7.1 jupyterlab-widgets==1.1.1
-```
-
 If you are using `.env` files remember to also install
 
 ```bash
@@ -60,6 +52,12 @@ pip install -e .
 - If you have problems with `geopandas` look at [this website](https://wilcoxen.maxwell.insightworks.com/pages/6373.html#:~:text=It%20has%20complex%20links%20to,between%2010%20and%2030%20minutes.) as some of the troubleshooting might help.
 - `h5py` and `fiona` might have some issues when importing at the same time. installing both of them using `conda install -c -conda-forge` solved the issue for me.
 - If the interactive plot with `plotly` gives you issues with `ipywidgets`  and `jupyterlab-widgets`, install the following versions  `pip install ipywidgets==7.7.1 jupyterlab-widgets==1.1.1` 
+- If you run into any issues with newer versions of `plotly` and Jupyter Notebooks, try installing the following versions of Jupyter lab widgets:
+
+```bash
+pip install ipywidgets==7.7.1 jupyterlab-widgets==1.1.1
+```
+
 - There is a known issue with `plotly<=5.15` where plotting MAPBOX with the interactive widget will prompt the following error message:
 
     ```python
@@ -67,7 +65,7 @@ pip install -e .
     Invalid property path 'mapbox._derived' for layout
     ```
 
-  There is a temporary fix to this issue given in the following [GitHub issue webpage](https://github.com/plotly/plotly.py/issues/2570) that requires to use of the function below and restart the kernel.
+  There is a temporary fix to this issue given in the following [GitHub issue webpage](https://github.com/plotly/plotly.py/issues/2570) that requires the use of the function below and restart the kernel.
 
     ```python
     def fix_widget_error():
