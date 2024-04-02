@@ -1,20 +1,22 @@
 # WigglyRivers
 
-_WigglyRivers_ is a Python-based tool that allows the characterization of the multiscale of 
+Sinuous channels are ubiquitous features along river networks. Their complex patterns span scales and influence morphodynamic processes, landscape evolution, and ecosystem services. Identifying and characterizing meandering features along river transects has challenged traditional curvature-based algorithms. Here, we present _WigglyRivers_, a Python package that builds on existing work using wavelet-based methods to create an unsupervised identification tool. This tool allows the characterization of the multiscale nature of river transects and the identification of individual meandering features. The package uses any set of river coordinates and calculates the curvature and direction-angle to perform the characterization, and also leverages the use of the High-Resolution National Hydrography Dataset (NHDPlus HR) to assess river transects at a catchment scale. Additionally, the _WigglyRivers_ package contains a supervised river identification tool that allows the visual selection of individual meandering features with satellite imagery in the background. Here, we provide examples in idealized river transects and show the capabilities of the \emph{WigglyRivers} package at a catchment scale. We also use the supervised identification tool to validate the unsupervised identification on river transects across the US. The package presented here can provide crucial data that represents an essential step toward understanding the multiscale characteristics of river networks and the link between river geomorphology and river corridor connectivity.
 
 ## Installation
 
 ### Requirements
 
-This package has a few requirements. I encourage using a virtual environment of [Anaconda 3](https://www.anaconda.com/products/individual) with Python 3.6 or higher. The virtual environment creation can be seen [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html). Below, we list the process to create a virtual environment and install the requirements for the package.
+This package has a few requirements. I encourage using a virtual environment of [Anaconda 3](https://www.anaconda.com/products/individual) with Python 3.10 or higher. The virtual environment creation can be seen [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html). Below, we list the process to create a virtual environment and install the requirements for the package.
 
 ```bash
-conda create -n wigglyrivers_env10 python=3.10
-conda activate wigglyrivers_env10
+conda create -n wigglyrivers_env python=3.XX
+conda activate wigglyrivers_env
 conda install -c conda-forge geopandas
 conda install -c conda-forge h5py
 ```
-`geopandas` is installed first because it is the package that generates the most incompatibilities. After that package, we install the other dependencies with pip
+
+This package was tested in Python version 3.10 and higher. Some incompatible dependencies might arise with older versions of Python. `geopandas` is installed first because the package generates the most incompatibilities. After that package, we install the other dependencies with pip
+
 ```bash
 pip install simpledbf
 pip install statsmodels
@@ -27,12 +29,13 @@ pip install meanderpy
 pip install circle-fit
 ```
 
-The package uses `anytree` to store the information of the meanders. To plot the tree please install [graphviz](https://graphviz.org/download/).
+The package uses `anytree` to store the information of the meanders. To plot the tree, please install [graphviz](https://graphviz.org/download/).
 
 For interactive plots
 ```bash
 pip install ipympl
 ```
+
 If you are using `.env` files remember to also install
 
 ```bash
@@ -46,17 +49,18 @@ To install the package you need to clone the repository and install it using `pi
 ```bash
 pip install -e .
 ```
+Some known incompatible dependencies are addressed in the troubleshooting section. If you have any issues not discussed in the troubleshooting section, please open an issue in the repository.
+
+### Test Installation
+
+
 
 ### Troubleshooting Package Installation
 
-- If you have problems with `geopandas` look at [this website](https://wilcoxen.maxwell.insightworks.com/pages/6373.html#:~:text=It%20has%20complex%20links%20to,between%2010%20and%2030%20minutes.) as some of the troubleshooting might help.
-- `h5py` and `fiona` might have some issues when importing at the same time. installing both of them using `conda install -c -conda-forge` solved the issue for me.
-- If the interactive plot with `plotly` gives you issues with `ipywidgets`  and `jupyterlab-widgets`, install the following versions  `pip install ipywidgets==7.7.1 jupyterlab-widgets==1.1.1` 
-- If you run into any issues with newer versions of `plotly` and Jupyter Notebooks, try installing the following versions of Jupyter lab widgets:
+- If you have problems with `geopandas` look at [this website](https://wilcoxen.maxwell.insightworks.com/pages/6373.html#:~:text=It%20has%20complex%20links%20to,between%2010%20and%2030%20minutes.).
+- `h5py` and `fiona` might have some issues when importing at the same time. Installing both of them using `conda install -c -conda-forge` solved the issue for me.
 
-```bash
-pip install ipywidgets==7.7.1 jupyterlab-widgets==1.1.1
-```
+- If the interactive plot with `plotly` gives you issues with `ipywidgets`  and `jupyterlab-widgets`, install the following versions  `pip install ipywidgets==7.7.1 jupyterlab-widgets==1.1.1` 
 
 - There is a known issue with `plotly<=5.15` where plotting MAPBOX with the interactive widget will prompt the following error message:
 

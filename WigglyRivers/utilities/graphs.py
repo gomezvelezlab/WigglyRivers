@@ -699,10 +699,10 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
         ax_gws.axhline(peak, color='b', linestyle='--')
         ax[1].axhline(peak, color='b', linestyle='--')
     if scale_by_width:
-        ax_gws.set_xlabel(r"$|\overline{W^*_{n,c,GWS}}|^2$")
+        ax_gws.set_xlabel(r"$|\\overline{W^*_{n,c,GWS}}|^2$")
         ax_gws.set_ylabel(r'$\lambda^*$')
     else:
-        ax_gws.set_xlabel(f"$|\overline{{W_{{n,c,GWS}}}}|^2$\n(m$^{{-2}}$)")
+        ax_gws.set_xlabel(f"$|\\overline{{W_{{n,c,GWS}}}}|^2$\n(m$^{{-2}}$)")
         ax_gws.set_ylabel(r'$\lambda$ (m)')
     ax_gws.set_yscale('log')
     ax_gws.set_xscale('log')
@@ -760,7 +760,6 @@ def plot_meander_matplotlib(x_river, y_river, x_meander, y_meander):
     # Zoom to meander
     x_coords = np.vstack([x_meander, y_meander]).T
     distance_meander = RF.get_reach_distances(x_coords)[1]
-    print(distance_meander)
     plt.xlim([np.min(x_meander) - distance_meander*2,
               np.max(x_meander) + distance_meander*2])
     plt.ylim([np.min(y_meander) - distance_meander*2,
@@ -793,9 +792,9 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
 
     labels = [r'$C$ (m$^{-1}$)', r"$\lambda$ (m)", r"$\theta$", r"$s$ (m)",
               r"$|\overline{W_{n,c,GWS}}|^2$ (m$^{-2}$)",
-              f"$|\overline{{W_{{n,c,SAWP}}}}|^2$\n(m$^{{-2}}$)",
-              f"$|\overline{{W_{{n,\\theta,GWS}}}}|^2$\n(deg)",
-              f"$|\overline{{W_{{n,\\theta,SAWP}}}}|^2$\n(deg)",
+              f"$|\\overline{{W_{{n,c,SAWP}}}}|^2$\n(m$^{{-2}}$)",
+              f"$|\\overline{{W_{{n,\\theta,GWS}}}}|^2$\n(deg)",
+              f"$|\\overline{{W_{{n,\\theta,SAWP}}}}|^2$\n(deg)",
               ]
     if scale_by_width:
         labels = [
