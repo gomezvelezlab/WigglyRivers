@@ -558,7 +558,7 @@ def plot_rivers_matplotlib(rivers, comids, data_source='resample', **kwargs):
 
     # Transforming coordinates
     for i, st_river in enumerate(comids):
-        ax.plot(x_all[i], y_all[i], label=int(st_river), **kwargs)
+        ax.plot(x_all[i], y_all[i], label=st_river, **kwargs)
 
     # set the layout
     ax.set_title('Rivers')
