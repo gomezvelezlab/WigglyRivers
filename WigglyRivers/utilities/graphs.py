@@ -699,7 +699,7 @@ def plot_tree_from_anytree(x, y, s_curvature, wavelength, wave, tree_scales,
         ax_gws.axhline(peak, color='b', linestyle='--')
         ax[1].axhline(peak, color='b', linestyle='--')
     if scale_by_width:
-        ax_gws.set_xlabel(r"$|\\overline{W^*_{n,c,GWS}}|^2$")
+        ax_gws.set_xlabel(r"$|\overline{W^*_{n,c,GWS}}|^2$")
         ax_gws.set_ylabel(r'$\lambda^*$')
     else:
         ax_gws.set_xlabel(f"$|\\overline{{W_{{n,c,GWS}}}}|^2$\n(m$^{{-2}}$)")
