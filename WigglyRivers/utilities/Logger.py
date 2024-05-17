@@ -65,8 +65,12 @@ class Logger:
     """
 
     def __init__(
-            self, console=False, file=None, level='DEBUG',
-            format='%(asctime)s[%(levelname)s] %(funcName)s: %(message)s'):
+        self,
+        console=False,
+        file=None,
+        level="DEBUG",
+        format="%(asctime)s[%(levelname)s] %(funcName)s: %(message)s",
+    ):
         """
         Class constructor
         """
@@ -79,17 +83,17 @@ class Logger:
         # ------------------------
         # Select level
         # ------------------------
-        if level.upper() == 'DEBUG':
+        if level.upper() == "DEBUG":
             level = logging.DEBUG
-        elif level.upper() == 'CRITICAL':
+        elif level.upper() == "CRITICAL":
             level = logging.CRITICAL
-        elif level.upper() == 'ERROR':
+        elif level.upper() == "ERROR":
             level = logging.ERROR
-        elif level.upper() == 'WARNING':
+        elif level.upper() == "WARNING":
             level = logging.WARNING
-        elif level.upper() == 'INFO':
+        elif level.upper() == "INFO":
             level = logging.INFO
-        elif level.upper() == 'NOTSET':
+        elif level.upper() == "NOTSET":
             level = logging.NOTSET
         # ------------------------
         # Set logger
@@ -108,8 +112,12 @@ class Logger:
     # set functions
     # --------------------------
     def set_logger(
-            self, console=False, file=None, level=logging.DEBUG,
-            format='%(asctime)s[%(levelname)s] %(funcName)s: %(message)s'):
+        self,
+        console=False,
+        file=None,
+        level=logging.DEBUG,
+        format="%(asctime)s[%(levelname)s] %(funcName)s: %(message)s",
+    ):
         """set logger handlers"""
         formatter = logging.Formatter(format)
         if console:
@@ -125,13 +133,13 @@ class Logger:
             file_handler.setLevel(level)
             file_handler.setFormatter(formatter)
             self._logging.addHandler(file_handler)
-        self._logging.info(f'Starting log')
+        self._logging.info(f"Starting log")
         if file is not None:
-            self._logging.info(f'Log will be saved in {file}')
+            self._logging.info(f"Log will be saved in {file}")
 
     def close_logger(self):
         """Close current logger"""
-        self.logger.info('Close Logger')
+        self.logger.info("Close Logger")
         handlers = self.logger.handlers[:]
         for handler in handlers:
             self.logger.removeHandler(handler)

@@ -43,7 +43,7 @@ def unzip_file(zip_file, path_output):
     """
     import zipfile
 
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+    with zipfile.ZipFile(zip_file, "r") as zip_ref:
         zip_ref.extractall(path_output)
 
 
@@ -61,7 +61,7 @@ def cr_folder(path):
     OUTPUT:
         :return: This function create all the given path.
     """
-    if path != '':
+    if path != "":
         # Verify if the path already exists
         if not os.path.exists(path):
             os.makedirs(path)
@@ -97,14 +97,14 @@ def toc(time1):
     OUTPUT:
     """
     dif = time.time() - time1
-    if dif >= 3600*24:
-        print(f'====\t{dif/3600/24:.4f} days\t ====')
+    if dif >= 3600 * 24:
+        print(f"====\t{dif/3600/24:.4f} days\t ====")
     elif dif >= 3600:
-        print(f'====\t{dif/3600:.4f} hours\t ====')
+        print(f"====\t{dif/3600:.4f} hours\t ====")
     elif dif >= 60:
-        print(f'====\t{dif/60:.4f} minutes\t ====')
+        print(f"====\t{dif/60:.4f} minutes\t ====")
     else:
-        print(f'====\t{dif:.4f} seconds\t ====')
+        print(f"====\t{dif:.4f} seconds\t ====")
 
 
 def fix_widget_error():
@@ -117,8 +117,7 @@ def fix_widget_error():
     import shutil
     import pkg_resources
 
-    pkg_dir = os.path.dirname(pkg_resources.resource_filename(
-        "plotly", "plotly.py"))
+    pkg_dir = os.path.dirname(pkg_resources.resource_filename("plotly", "plotly.py"))
 
     basedatatypesPath = os.path.join(pkg_dir, "basedatatypes.py")
 
@@ -127,7 +126,7 @@ def fix_widget_error():
     if os.path.exists(backup_file):
         # copy the backup file as current file
         shutil.copyfile(backup_file, basedatatypesPath)
-    else: 
+    else:
         # Save a backup copy of the original file
         shutil.copyfile(basedatatypesPath, backup_file)
 
@@ -147,5 +146,6 @@ def fix_widget_error():
     # overwrite old 'basedatatypes.py'
     with open(basedatatypesPath, "w") as f:
         f.write(lines)
+
 
 # fix_widget_error()

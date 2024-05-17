@@ -38,8 +38,7 @@ from anytree import Node, RenderTree, PreOrderIter, LevelOrderIter
 # ------------------------
 # Functions
 # ------------------------
-def calculate_cwt(curvature, ds, pad=1, dj=5e-2, s0=-1, j1=-1,
-                  mother='DOG', m=2):
+def calculate_cwt(curvature, ds, pad=1, dj=5e-2, s0=-1, j1=-1, mother="DOG", m=2):
     """
     Description:
     ------------
@@ -79,23 +78,35 @@ def calculate_cwt(curvature, ds, pad=1, dj=5e-2, s0=-1, j1=-1,
         coi: cone of influence.
     """
     wave, period, scales, coi, parameters = cwt_func.wavelet(
-        curvature, ds, pad, dj, s0, j1, mother, m)
-    power = np.abs(wave)**2
+        curvature, ds, pad, dj, s0, j1, mother, m
+    )
+    power = np.abs(wave) ** 2
 
     # Calculate global wavelet spectrum
     gws, peaks = cwt_func.calculate_global_wavelet_spectrum(wave)
     peak_periods = period[peaks]
 
     # Find SAWP (Spectral-Average Wave Period) using Zolezzi and Guneralp (2016)
-    dj = parameters['dj']
-    c_delta = parameters['C_delta']
-    sawp = cwt_func.calculate_scale_averaged_wavelet_power(wave, scales, ds, 
-                                                           dj, c_delta)
+    dj = parameters["dj"]
+    c_delta = parameters["C_delta"]
+    sawp = cwt_func.calculate_scale_averaged_wavelet_power(
+        wave, scales, ds, dj, c_delta
+    )
     return wave, period, scales, power, gws, peak_periods, sawp, coi, parameters
 
 
-def find_wave_significance(curvature, ds, scales, sigtest=0, lag1=0, siglvl=0.95,
-                           dof=None, mother='DOG', param=None, gws=None):
+def find_wave_significance(
+    curvature,
+    ds,
+    scales,
+    sigtest=0,
+    lag1=0,
+    siglvl=0.95,
+    dof=None,
+    mother="DOG",
+    param=None,
+    gws=None,
+):
     """
     Description:
     ----------------
@@ -155,8 +166,17 @@ def find_wave_significance(curvature, ds, scales, sigtest=0, lag1=0, siglvl=0.95
     """
     n = len(curvature)
     signif = cwt_func.wave_signif(
-        curvature, ds, scales, sigtest=sigtest, lag1=lag1, siglvl=siglvl,
-        dof=dof, mother=mother, param=param, gws=gws)
+        curvature,
+        ds,
+        scales,
+        sigtest=sigtest,
+        lag1=lag1,
+        siglvl=siglvl,
+        dof=dof,
+        mother=mother,
+        param=param,
+        gws=gws,
+    )
     # Expand signif --> (J+1)x(N) array
     sig95 = signif[:, np.newaxis].dot(np.ones(n)[np.newaxis, :])
     return signif, sig95
@@ -213,7 +233,7 @@ def find_zc_lines(cwt_matrix):
     # Find zero crossing location in spectrum
     # ===========================================
     zcr = np.diff((wave > 0).astype(int), n=1, axis=1)
-    zcr = np.hstack((zcr, zcr[:, 0].reshape((-1, 1))*0))
+    zcr = np.hstack((zcr, zcr[:, 0].reshape((-1, 1)) * 0))
 
     # Create Boundaries in the spectrum
     for row in range(zcr.shape[0]):
@@ -236,17 +256,16 @@ def find_zc_lines(cwt_matrix):
     n_zeros = np.sum(np.abs(zcr), axis=1)
     # Find row (period) where singular points occur (where number of zero
     # crossings change). Note that first row is considered as singular one
-    diff_m = np.hstack(([n_zeros[0]-1], np.diff(n_zeros)))
+    diff_m = np.hstack(([n_zeros[0] - 1], np.diff(n_zeros)))
     singular_points_row = np.where(diff_m > 0)[0]
-
 
     # Total number of nodes for variable initialization
     diff = np.diff(zcr[:, [0, -1]], axis=0)
-    diff_m = np.vstack(([0, 0], diff))/2
+    diff_m = np.vstack(([0, 0], diff)) / 2
     n_new_zc_lines_lateral = np.sum(np.abs(diff_m), axis=1)
     n_new_zc_lines = np.hstack(([0], np.diff(n_zeros)))
     n_new_zc_lines_internal = n_new_zc_lines - n_new_zc_lines_lateral
-    n_new_internal_nodes = n_new_zc_lines_internal + n_new_zc_lines_internal/2
+    n_new_internal_nodes = n_new_zc_lines_internal + n_new_zc_lines_internal / 2
 
     n_new_lateral_nodes = copy.deepcopy(n_new_zc_lines_lateral)
     n_nodes_intial = n_zeros[0] - 1
@@ -254,11 +273,11 @@ def find_zc_lines(cwt_matrix):
     n_nodes_per_period[0] = n_nodes_intial
     init_n_nodes = np.sum(n_nodes_per_period).astype(int)
     n_zc_lines = n_zeros[0] + np.sum(n_new_zc_lines)
-    
+
     # =========================================================
     # Make zero-crossing lines from zero-crossing locations
     # =========================================================
-    loc_x = np.zeros(wave.shape)*np.nan
+    loc_x = np.zeros(wave.shape) * np.nan
 
     # Initialize Variables
     zc_lines = [0 for _ in range(n_zc_lines * 6)]
@@ -273,9 +292,9 @@ def find_zc_lines(cwt_matrix):
     for row, s_p in enumerate(singular_points_row):
         zercr_col = np.where(zcr[s_p, :] != 0)[0]
         z_new_col = np.where(np.isnan(loc_x[s_p, zercr_col]))[0]
-        col_fin = z_new_col*np.nan
+        col_fin = z_new_col * np.nan
         for col, z_c in enumerate(z_new_col):
-            # Get line through 
+            # Get line through
             lrw, lcol = get_zcline(zcr, s_p, zercr_col[z_c])
             if len(lrw) < 2:
                 continue
@@ -293,7 +312,6 @@ def find_zc_lines(cwt_matrix):
             max_col[last_zc] = lcol[np.min(lrw) == lrw]
             max_row[last_zc] = zcr.shape[0] - lrw[0] - 1
 
-    
     idx_nan_st = np.where(np.isnan(zc_sign))[0][0]
     zc_lines = zc_lines[:idx_nan_st]
     zc_sign = zc_sign[:idx_nan_st]
@@ -348,7 +366,7 @@ def find_zc_lines(cwt_matrix):
         # max_col_c = max_col[i_zc]
         # dist = np.abs(max_col_c - max_col)
         coord = max_coordinates[i_zc]
-        dist = np.sqrt(np.sum((max_coordinates - coord)**2, axis=1))
+        dist = np.sqrt(np.sum((max_coordinates - coord) ** 2, axis=1))
         dist[i_zc] = np.inf
         dist[pairs_allocated] = np.inf
         i_min = -1
@@ -359,7 +377,7 @@ def find_zc_lines(cwt_matrix):
                 dist[i_min] = np.inf
                 i_min = -1
             if i_count > 100:
-                raise ValueError(f'Could not find a pair for zc {i_zc}')
+                raise ValueError(f"Could not find a pair for zc {i_zc}")
 
         # allocate pair
         pairs_allocated.append(i_zc)
@@ -376,11 +394,12 @@ def find_zc_lines(cwt_matrix):
             zc_sign_pairs[i_pair] = [zc_sign[i_min], zc_sign[i_zc]]
         # Set singular point as medium point between the two points
         coord = max_coordinates[i_zc]
-        singular_points.append(np.ceil(np.mean(
-            np.vstack((coord, max_coordinates[i_min])), axis=0)))
+        singular_points.append(
+            np.ceil(np.mean(np.vstack((coord, max_coordinates[i_min])), axis=0))
+        )
         corner.append(0)
         i_pair += 1
-    
+
     # Orderd corners before pairing
     col_c = np.array(col_c)
     row_c = np.array(row_c)
@@ -415,7 +434,7 @@ def find_zc_lines(cwt_matrix):
 
     # Pair corner points
     for i_zc_2, zc in enumerate(zc_lines_corner[:-1]):
-        zc_line_pairs[i_pair] = [zc, zc_lines_corner[i_zc_2+ 1]]
+        zc_line_pairs[i_pair] = [zc, zc_lines_corner[i_zc_2 + 1]]
         zc_2 = copy.deepcopy(zc_line_pairs[i_pair])
         if zc_2[0].shape[0] > zc_2[1].shape[0]:
             zc_2[0] = zc_2[0][zc_2[1][0, 0] >= zc_2[0][:, 0]]
@@ -423,21 +442,30 @@ def find_zc_lines(cwt_matrix):
             zc_2[1] = zc_2[1][zc_2[0][0, 0] >= zc_2[1][:, 0]]
         zc = zc_2
         zc_line_pairs[i_pair] = zc
-        zc_sign_pairs[i_pair] = [
-            zc_sign_corner[i_zc_2], zc_sign_corner[i_zc_2 + 1]]
+        zc_sign_pairs[i_pair] = [zc_sign_corner[i_zc_2], zc_sign_corner[i_zc_2 + 1]]
         # Set singular point as medium point between the two points
-        singular_points.append(np.ceil(np.mean(
-            np.vstack((max_coordinates_corner[i_zc_2],
-                       max_coordinates_corner[i_zc_2 + 1])), axis=0)))
+        singular_points.append(
+            np.ceil(
+                np.mean(
+                    np.vstack(
+                        (
+                            max_coordinates_corner[i_zc_2],
+                            max_coordinates_corner[i_zc_2 + 1],
+                        )
+                    ),
+                    axis=0,
+                )
+            )
+        )
         corner.append(1)
         i_pair += 1
-    
+
     # ============================
     # Find nesting of scales
     # ============================
     # Order by area
-    area_sum = np.zeros(len(zc_line_pairs)) 
-    masks = np.zeros((len(zc_line_pairs), wave.shape[0], wave.shape[1]))*np.nan
+    area_sum = np.zeros(len(zc_line_pairs))
+    masks = np.zeros((len(zc_line_pairs), wave.shape[0], wave.shape[1])) * np.nan
     for pair in list(zc_line_pairs.keys()):
         # Convert points within raster to 1
         zc = copy.deepcopy(zc_line_pairs[pair])
@@ -448,7 +476,7 @@ def find_zc_lines(cwt_matrix):
                 continue
             masks[pair, zc[0][row, 0], zc_left:zc_right] = 1
         area_sum[pair] = np.nansum(masks[pair])
-    
+
     # ------------------------
     # Reorder pairs by area
     # ------------------------
@@ -459,7 +487,7 @@ def find_zc_lines(cwt_matrix):
     corner = [corner[i] for i in s_area]
     pair_values = np.arange(len(zc_line_pairs))
     # remove overlapping areas
-    masks_all = np.zeros((wave.shape[0], wave.shape[1]))*np.nan
+    masks_all = np.zeros((wave.shape[0], wave.shape[1])) * np.nan
     for pair in list(zc_line_pairs.keys()):
         # Convert points within raster to 1
         zc = copy.deepcopy(zc_line_pairs[pair])
@@ -469,7 +497,7 @@ def find_zc_lines(cwt_matrix):
             if zc_left == zc_right:
                 continue
             masks_all[zc[0][row, 0], zc_left:zc_right] = pair
-    
+
     # Get singular points above current pair
     s_p_r = np.array(singular_points)[:, 0] + 1
     s_p_r[s_p_r > wave.shape[0] - 1] = wave.shape[0] - 1
@@ -488,9 +516,9 @@ def find_zc_lines(cwt_matrix):
     pair_values_p = pair_values_p[s_row]
 
     # find peak power on cwt_matrix with the mask
-    current_mask = np.zeros((wave.shape[0], wave.shape[1]))*np.nan
+    current_mask = np.zeros((wave.shape[0], wave.shape[1])) * np.nan
     current_mask[masks_all == pair] = 1
-    wave_mask = np.abs(cwt_matrix)**2 * current_mask
+    wave_mask = np.abs(cwt_matrix) ** 2 * current_mask
     # Find peak power between pairs of singular points
     peak_row = []
     peak_col = []
@@ -501,7 +529,7 @@ def find_zc_lines(cwt_matrix):
         s_p = singular_points_p[i_s + 1]
         s_r_1 = int(s_p[0])
         # Find secon point closes to singular point
-        dist = np.abs(singular_points_p[i_s + 1:, 0] - s_p[0])
+        dist = np.abs(singular_points_p[i_s + 1 :, 0] - s_p[0])
         # dist = np.sqrt(np.sum((singular_points_p[:i_s+ 1] - s_p)**2, axis=1))
         # dist[i_s] = np.inf
         i_min = -1
@@ -512,7 +540,7 @@ def find_zc_lines(cwt_matrix):
                 dist[i_min] = np.inf
                 i_min = -1
             if iteration > 10:
-                raise ValueError('Could not find second singular point')
+                raise ValueError("Could not find second singular point")
             iteration += 1
         points_taken.append(i_min)
         points_taken.append(i_s)
@@ -538,26 +566,26 @@ def find_zc_lines(cwt_matrix):
         peak_row.append(np.where(wave_clip == peak_pwr[-1])[0][0] + s_r_1)
         peak_col.append(np.where(wave_clip == peak_pwr[-1])[1][0] + s_c_1)
 
-
     points_taken = []
     # Create root node
     i_node = 0
     tree = {}
     node_c, pairs_taken = recursive_tree_structure(
-        pair, i_node, singular_points, belongs_to=belongs_to)
+        pair, i_node, singular_points, belongs_to=belongs_to
+    )
 
     utl.toc(time_1)
 
     plt.figure(figsize=(8, 5))
-    plt.pcolormesh(wave_clip, cmap='Spectral', shading='auto', alpha=0.8)
-
+    plt.pcolormesh(wave_clip, cmap="Spectral", shading="auto", alpha=0.8)
 
     plt.figure(figsize=(8, 5))
-    plt.pcolormesh(np.flipud(np.log2(np.abs(wave)**2)), cmap='Spectral',
-                   shading='auto')
-    plt.pcolormesh(masks_all, cmap='Spectral', shading='auto', alpha=0.8)
-    plt.pcolormesh(wave_mask, cmap='Spectral', shading='auto', alpha=0.8)
-    plt.scatter(peak_col, peak_row, c='k', s=10)
+    plt.pcolormesh(
+        np.flipud(np.log2(np.abs(wave) ** 2)), cmap="Spectral", shading="auto"
+    )
+    plt.pcolormesh(masks_all, cmap="Spectral", shading="auto", alpha=0.8)
+    plt.pcolormesh(wave_mask, cmap="Spectral", shading="auto", alpha=0.8)
+    plt.scatter(peak_col, peak_row, c="k", s=10)
     # plt.scatter(max_col, max_row, c='k', s=10)
     # plot a corner
     # corner = 0
@@ -575,14 +603,11 @@ def find_zc_lines(cwt_matrix):
     #         plt.plot([s_p[1], parent_s_p[1]], [s_p[0], parent_s_p[0]], '-ok',
     #                  lw=1)
 
-
     # plt.pcolormesh(wave_mask, cmap='Greys', shading='auto', alpha=0.8)
     # plt.scatter(singular_points_p[:, 1], singular_points_p[:, 0], c='k', s=10)
 
-    plt.plot(zc_line_pairs[pair][0][:, 1], zc_line_pairs[pair][0][:, 0], '-b',
-                lw=1)
-    plt.plot(zc_line_pairs[pair][1][:, 1], zc_line_pairs[pair][1][:, 0], '-r',
-                lw=1)
+    plt.plot(zc_line_pairs[pair][0][:, 1], zc_line_pairs[pair][0][:, 0], "-b", lw=1)
+    plt.plot(zc_line_pairs[pair][1][:, 1], zc_line_pairs[pair][1][:, 0], "-r", lw=1)
     plt.gca().invert_yaxis()
     # for pair in list(zc_line_pairs.keys()):
     #     for i in range(2):
@@ -592,27 +617,28 @@ def find_zc_lines(cwt_matrix):
     #         else:
     #             plt.plot(zc_line[:, 1], zc_line[:, 0], '-r', lw=0.5)
     #         # Plot singular point
-    #         plt.scatter(singular_points[pair][1], singular_points[pair][0], 
+    #         plt.scatter(singular_points[pair][1], singular_points[pair][0],
     #                     color='k', s=10)
     #         # annotate singular point
     #         plt.annotate(pair, (singular_points[pair][1], singular_points[pair][0]))
 
-
     return zc_line_pairs, zc_sign_pairs, singular_points_row
 
-def recursive_tree_structure(pair, i_node, singular_points, belongs_to,
-                             parent_node=None, pairs_taken=[]):
+
+def recursive_tree_structure(
+    pair, i_node, singular_points, belongs_to, parent_node=None, pairs_taken=[]
+):
 
     pairs_mask = np.where(belongs_to == pair)[0]
     # Include children
-    node_c = Node(i_node, parent=parent_node,
-                  singular_point=singular_points[pair])
+    node_c = Node(i_node, parent=parent_node, singular_point=singular_points[pair])
 
     for pair_c in pairs_mask:
         if pair_c == pair:
             continue
         recursive_tree_structure(
-            pair_c, i_node, singular_points, belongs_to, node_c, pairs_taken)
+            pair_c, i_node, singular_points, belongs_to, node_c, pairs_taken
+        )
 
     pairs_taken.append(pair)
     i_node += 1
@@ -669,7 +695,7 @@ def scale_space_tree(cwt_matrix):
     # Find zero crossing location in spectrum
     # ===========================================
     zcr = np.diff((wave > 0).astype(np.int64), n=1, axis=1)
-    zcr = np.hstack((zcr, zcr[:, 0].reshape((-1, 1))*0))
+    zcr = np.hstack((zcr, zcr[:, 0].reshape((-1, 1)) * 0))
 
     # Create Boundaries in the spectrum
     for row in range(zcr.shape[0]):
@@ -697,11 +723,11 @@ def scale_space_tree(cwt_matrix):
 
     # Total number of nodes for variable initialization
     diff = np.diff(zcr[:, [0, -1]], axis=0)
-    diff_m = np.vstack(([0, 0], diff))/2
+    diff_m = np.vstack(([0, 0], diff)) / 2
     n_new_zc_lines_lateral = np.sum(np.abs(diff_m), axis=1)
     n_new_zc_lines = np.hstack(([0], np.diff(n_zeros)))
     n_new_zc_lines_internal = n_new_zc_lines - n_new_zc_lines_lateral
-    n_new_internal_nodes = n_new_zc_lines_internal + n_new_zc_lines_internal/2
+    n_new_internal_nodes = n_new_zc_lines_internal + n_new_zc_lines_internal / 2
 
     n_new_lateral_nodes = copy.deepcopy(n_new_zc_lines_lateral)
     n_nodes_intial = n_zeros[0] - 1
@@ -709,16 +735,17 @@ def scale_space_tree(cwt_matrix):
     n_nodes_per_period[0] = n_nodes_intial
     init_n_nodes = np.sum(n_nodes_per_period).astype(int)
     n_zc_lines = n_zeros[0] + np.sum(n_new_zc_lines)
-    
+
     # =========================================================
     # Make zero-crossing lines from zero-crossing locations
     # =========================================================
-    ml_idx = np.ones(wave.shape[1])*-1
-    loc_x = np.zeros(wave.shape)*np.nan
+    ml_idx = np.ones(wave.shape[1]) * -1
+    loc_x = np.zeros(wave.shape) * np.nan
 
     # Initialize Variables
-    xtr_colmin, xtr_colmax, xtr_rwmin, xtr_rwmax, xtr_conn = [np.zeros(
-        init_n_nodes * 6)*np.nan for _ in range(5)]
+    xtr_colmin, xtr_colmax, xtr_rwmin, xtr_rwmax, xtr_conn = [
+        np.zeros(init_n_nodes * 6) * np.nan for _ in range(5)
+    ]
 
     xtr_poly = [0 for _ in range(init_n_nodes * 6)]
     zc_lines = [0 for _ in range(n_zc_lines * 6)]
@@ -730,7 +757,7 @@ def scale_space_tree(cwt_matrix):
     nodes_in_per = np.zeros(zcr.shape[0])
 
     if init_n_nodes == 0:
-        raise ValueError('No zero crossing lines found')
+        raise ValueError("No zero crossing lines found")
 
     # Initialize loop through every period
     for row, s_p in enumerate(singular_points_row):
@@ -750,9 +777,9 @@ def scale_space_tree(cwt_matrix):
             z_new_col = np.hstack((z_new_col, argmin))
             z_new_col = np.sort(z_new_col)
         # ----------------------------------------------
-        col_fin = z_new_col*np.nan
+        col_fin = z_new_col * np.nan
         for col, z_c in enumerate(z_new_col):
-            # Get line through 
+            # Get line through
             lrw, lcol = get_zcline(zcr, s_p, zercr_col[z_c])
             last_zc += 1
             # Flip line, because initial xwt was flipped
@@ -776,36 +803,39 @@ def scale_space_tree(cwt_matrix):
                 nodes_in_per[s_p] = nodes_in_per[s_p] + 1
                 cc += 1
                 if cc > len(xtr_rwmin) - 1:
-                    raise ValueError('Number of nodes exceeds the expected.'
-                                     ' Space scale tree cannot be constructed')
+                    raise ValueError(
+                        "Number of nodes exceeds the expected."
+                        " Space scale tree cannot be constructed"
+                    )
                 xtr_rwmin[cc] = s_p
                 xtr_colmin[cc] = loc_x[s_p, z_c]
                 xtr_colmax[cc] = loc_x[s_p, zercr_col[cn + 1]]
-                xtr_idx = int(np.round((xtr_colmin[cc] + xtr_colmax[cc] + 1)/2))
+                xtr_idx = int(np.round((xtr_colmin[cc] + xtr_colmax[cc] + 1) / 2))
                 xtr_conn[cc] = ml_idx[xtr_idx]
-                ml_idx[int(xtr_colmin[cc]):int(xtr_colmax[cc]) + 1] = cc
+                ml_idx[int(xtr_colmin[cc]) : int(xtr_colmax[cc]) + 1] = cc
                 if xtr_conn[cc] != -1:
                     index = int(xtr_conn[cc])
                     xtr_rwmax[index] = s_p
-                    [lline_rw, lline_col] = np.where(
-                        loc_x == xtr_colmin[index])
-                    [rline_rw, rline_col] = np.where(
-                        loc_x == xtr_colmax[index])
-                    lcond = ((lline_rw < xtr_rwmin[index]) |
-                            (lline_rw > xtr_rwmax[index]))
-                    rcond = ((rline_rw < xtr_rwmin[index]) |
-                             (rline_rw > xtr_rwmax[index]))
+                    [lline_rw, lline_col] = np.where(loc_x == xtr_colmin[index])
+                    [rline_rw, rline_col] = np.where(loc_x == xtr_colmax[index])
+                    lcond = (lline_rw < xtr_rwmin[index]) | (
+                        lline_rw > xtr_rwmax[index]
+                    )
+                    rcond = (rline_rw < xtr_rwmin[index]) | (
+                        rline_rw > xtr_rwmax[index]
+                    )
                     lline_col = np.delete(lline_col, lcond)
                     lline_rw = np.delete(lline_rw, lcond)
                     rline_col = np.delete(rline_col, rcond)
                     rline_rw = np.delete(rline_rw, rcond)
 
-                    rw_lines = np.hstack((
-                        lline_rw, np.flipud(rline_rw), lline_rw[0]))
-                    col_lines = np.hstack((
-                        lline_col, np.flipud(rline_col), lline_col[0]))
-                    xtr_poly[index] = np.vstack((zcr.shape[0] - rw_lines - 1,
-                                                 col_lines)).T
+                    rw_lines = np.hstack((lline_rw, np.flipud(rline_rw), lline_rw[0]))
+                    col_lines = np.hstack(
+                        (lline_col, np.flipud(rline_col), lline_col[0])
+                    )
+                    xtr_poly[index] = np.vstack(
+                        (zcr.shape[0] - rw_lines - 1, col_lines)
+                    ).T
 
     # =========================================================
     # Correct Number of Nodes
@@ -837,26 +867,27 @@ def scale_space_tree(cwt_matrix):
     for cc, f_leaf in enumerate(fleaf):
         [lline_rw, lline_col] = np.where(loc_x == xtr_colmin[f_leaf])
         [rline_rw, rline_col] = np.where(loc_x == xtr_colmax[f_leaf])
-        lcond = ((lline_rw < xtr_rwmin[f_leaf]) |
-                 (lline_rw > xtr_rwmax[f_leaf]))
-        rcond = ((rline_rw < xtr_rwmin[f_leaf]) |
-                 (rline_rw > xtr_rwmax[f_leaf]))
+        lcond = (lline_rw < xtr_rwmin[f_leaf]) | (lline_rw > xtr_rwmax[f_leaf])
+        rcond = (rline_rw < xtr_rwmin[f_leaf]) | (rline_rw > xtr_rwmax[f_leaf])
         lline_col = np.delete(lline_col, lcond)
         lline_rw = np.delete(lline_rw, lcond)
         rline_col = np.delete(rline_col, rcond)
         rline_rw = np.delete(rline_rw, rcond)
-        rw_lines = np.hstack((
-            lline_rw, np.flipud(rline_rw), lline_rw[0]))
-        col_lines = np.hstack((
-            lline_col, np.flipud(rline_col), lline_col[0]))
+        rw_lines = np.hstack((lline_rw, np.flipud(rline_rw), lline_rw[0]))
+        col_lines = np.hstack((lline_col, np.flipud(rline_col), lline_col[0]))
         xtr_poly[f_leaf] = np.vstack((zcr.shape[0] - rw_lines - 1, col_lines)).T
 
     # ==========================
     # Output
     # ==========================
-    regions = np.vstack((zcr.shape[0] - xtr_rwmin - 1,
-                         zcr.shape[0] - xtr_rwmax - 1,
-                         xtr_colmin, xtr_colmax)).T
+    regions = np.vstack(
+        (
+            zcr.shape[0] - xtr_rwmin - 1,
+            zcr.shape[0] - xtr_rwmax - 1,
+            xtr_colmin,
+            xtr_colmax,
+        )
+    ).T
     return xtr_conn, regions, xtr_poly, zc_lines, zc_sign
 
 
@@ -890,7 +921,7 @@ def get_zcline(zcr, rw_start, col_start):
 
     rw_end = zcr.shape[0] - 1
     sgn = zcr[rw_start, col_start]
-    assert (sgn == 1 or sgn == -1)
+    assert sgn == 1 or sgn == -1
 
     n_out = rw_end - rw_start + 1
     col_out = np.zeros(n_out) * np.nan
@@ -1001,7 +1032,7 @@ def hexl(inmat):
         Constructs a hexagonal lattice for saddle points and extremes detection.
 
         The size of the lattixe is [inmat.size(), 6], i.e. it has six elements
-        in the third dimension each containing one of the dix surrounding 
+        in the third dimension each containing one of the dix surrounding
         elements in the lattice, in the following order: top left, top center,
         mid left, mid right, bottom center, bottom right.
 
@@ -1026,26 +1057,34 @@ def hexl(inmat):
     :rtype:
     """
     nr, nc = inmat.shape
-    assert(nr > 2 and nc > 2)
+    assert nr > 2 and nc > 2
 
-    lat1, lat2, lat3, lat4, lat5, lat6 = inmat, inmat, inmat, inmat, inmat,\
-        inmat
-    lat1 = np.delete(np.delete(lat1, [nc - 1, nc - 2], axis=1),
-                     [nr - 1, nr - 2], axis=0)  # top left
-    lat2 = np.delete(np.delete(lat2, [nc - 1, nc - 2], axis=1), [0, nr - 1],
-                     axis=0)  # top center
-    lat3 = np.delete(np.delete(lat3, [0, nc - 1], axis=1), [nr - 1, nr - 2],
-                     axis=0)  # mid left
-    lat4 = np.delete(np.delete(lat4, [0, nc - 1], axis=1), [0, 1],
-                     axis=0)  # mid right
-    lat5 = np.delete(np.delete(lat5, [0, nr - 1], axis=0), [0, 1],
-                     axis=1)  # bottom center
-    lat6 = np.delete(np.delete(lat6, [0, 1], axis=0), [0, 1],
-                     axis=1)  # bottom right
+    lat1, lat2, lat3, lat4, lat5, lat6 = inmat, inmat, inmat, inmat, inmat, inmat
+    lat1 = np.delete(
+        np.delete(lat1, [nc - 1, nc - 2], axis=1), [nr - 1, nr - 2], axis=0
+    )  # top left
+    lat2 = np.delete(
+        np.delete(lat2, [nc - 1, nc - 2], axis=1), [0, nr - 1], axis=0
+    )  # top center
+    lat3 = np.delete(
+        np.delete(lat3, [0, nc - 1], axis=1), [nr - 1, nr - 2], axis=0
+    )  # mid left
+    lat4 = np.delete(np.delete(lat4, [0, nc - 1], axis=1), [0, 1], axis=0)  # mid right
+    lat5 = np.delete(
+        np.delete(lat5, [0, nr - 1], axis=0), [0, 1], axis=1
+    )  # bottom center
+    lat6 = np.delete(np.delete(lat6, [0, 1], axis=0), [0, 1], axis=1)  # bottom right
     lat = np.concatenate(
-        (lat1[:, :, np.newaxis], lat2[:, :, np.newaxis], lat4[:, :, np.newaxis],
-         lat6[:, :, np.newaxis], lat5[:, :, np.newaxis],
-         lat3[:, :, np.newaxis]), axis=2)  # Concatenate the six arrays
+        (
+            lat1[:, :, np.newaxis],
+            lat2[:, :, np.newaxis],
+            lat4[:, :, np.newaxis],
+            lat6[:, :, np.newaxis],
+            lat5[:, :, np.newaxis],
+            lat3[:, :, np.newaxis],
+        ),
+        axis=2,
+    )  # Concatenate the six arrays
     return lat
 
 
@@ -1087,24 +1126,21 @@ def sadext(inmat):
     # stack input matrix with itself and its first column
     inmat6_2 = np.dstack((inmat6, inmat6[:, :, 0]))
     # broadcast comparison between inmat6 and ccell
-    greater_than_ccell = np.greater(inmat6_2, ccell.reshape((
-        ccell.shape[0], ccell.shape[1], -1))).astype(int)
+    greater_than_ccell = np.greater(
+        inmat6_2, ccell.reshape((ccell.shape[0], ccell.shape[1], -1))
+    ).astype(int)
     # absolute difference between adjacent columns along the third axis
-    diff_greater_than_ccell = np.abs(np.diff(greater_than_ccell,
-                                             axis=2))
+    diff_greater_than_ccell = np.abs(np.diff(greater_than_ccell, axis=2))
     # compute id
     id_value = np.sum(diff_greater_than_ccell, axis=2) / 2
     # create a boolean mask to set id as nan wherever any element
     # or its surrounding lattice is nan
-    nan_index = np.any(np.isnan(np.dstack((inmat6, ccell))),
-                       axis=2)
+    nan_index = np.any(np.isnan(np.dstack((inmat6, ccell))), axis=2)
     id_value[nan_index] = np.nan
     # duplicate first and last column
-    id_value = np.concatenate((id_value[:, [0]], id_value, id_value[:, [-1]]),
-                              axis=1)
+    id_value = np.concatenate((id_value[:, [0]], id_value, id_value[:, [-1]]), axis=1)
     # duplicate first and last row
-    id_value = np.concatenate((id_value[[0], :], id_value, id_value[[-1], :]),
-                              axis=0)
+    id_value = np.concatenate((id_value[[0], :], id_value, id_value[[-1], :]), axis=0)
 
     return id_value
 
@@ -1233,8 +1269,7 @@ def detect_meanders(wave, conn, peak_row, peak_col):
                 continue
 
             if np.any(np.isnan(peak_row[branch])):
-                raise ValueError(
-                    'NaN values in peak_row, review you conn matrix')
+                raise ValueError("NaN values in peak_row, review you conn matrix")
             rw_indices = peak_row[branch].astype(int)
             col_indices = peak_col[branch].astype(int)
 
@@ -1336,8 +1371,7 @@ def clean_tree(conn, meander_id):
         m_node = np.intersect1d(branch, meander_id)
         if len(m_node) > 0:
             m_node_idx = np.where(branch == m_node[0])[0][0]
-            frm = np.concatenate(
-                (frm, np.setdiff1d(branch[m_node_idx + 1:], frm)))
+            frm = np.concatenate((frm, np.setdiff1d(branch[m_node_idx + 1 :], frm)))
 
     if len(frm) > 0:
         conn = remove_nodes(conn, frm.astype(int))
@@ -1376,8 +1410,18 @@ def get_branch(cp, conn):
     return np.array(branch_idx)
 
 
-def get_centers(conn, peak_row, peak_col, period, ds, x, y, extract_all=False,
-                bound_to_poly=False, bounds=None):
+def get_centers(
+    conn,
+    peak_row,
+    peak_col,
+    period,
+    ds,
+    x,
+    y,
+    extract_all=False,
+    bound_to_poly=False,
+    bounds=None,
+):
     """
     Description:
     ------------
@@ -1439,8 +1483,7 @@ def get_centers(conn, peak_row, peak_col, period, ds, x, y, extract_all=False,
     if bound_to_poly:
         bounds = bounds
     else:
-        bounds=None
-    
+        bounds = None
 
     for i_cn, cn in enumerate(fgood):
         per = period[int(peak_row[cn])] / 2
@@ -1475,19 +1518,18 @@ def get_centers(conn, peak_row, peak_col, period, ds, x, y, extract_all=False,
             # print('Error in Delaunay triangulation, found colinear points')
             continue
         try:
-            coordinates = np.vstack((x[beg_idx: end_idx],
-                                     y[beg_idx: end_idx])).T
+            coordinates = np.vstack((x[beg_idx:end_idx], y[beg_idx:end_idx])).T
             x_c[cn], y_c[cn], r, sigma = taubinSVD(coordinates)
         except:
             continue
         l = euclidean([x2, y2], [x_c[cn], y_c[cn]])
-        rvec = np.array([x_c[cn]-x2, y_c[cn]-y2])/l
+        rvec = np.array([x_c[cn] - x2, y_c[cn] - y2]) / l
         # Compute xi and yi coordinates as a radius of the half period distance
         #   along the vector pointing to the in-center.
         # x_c[cn] = x2 + rvec[0] * per / np.pi
         # y_c[cn] = y2 + rvec[1] * per / np.pi
-        x_c[cn] = x2 + rvec[0] * per / (2*np.pi)
-        y_c[cn] = y2 + rvec[1] * per / (2*np.pi)
+        x_c[cn] = x2 + rvec[0] * per / (2 * np.pi)
+        y_c[cn] = y2 + rvec[1] * per / (2 * np.pi)
         # Store additional information
         r_x[cn] = rvec[0]
         r_y[cn] = rvec[1]
@@ -1504,18 +1546,45 @@ def get_centers(conn, peak_row, peak_col, period, ds, x, y, extract_all=False,
         end_idx_all[cn] = end_idx
         mid_idx_all[cn] = mid_idx
     if extract_all:
-        vars_to_return = [x_c, y_c, half_periods, r_x, r_y, x_1_all, x_2_all,
-                          x_3_all, y_1_all, y_2_all, y_3_all, cc_x, cc_y,
-                          beg_idx_all, end_idx_all, mid_idx_all]
+        vars_to_return = [
+            x_c,
+            y_c,
+            half_periods,
+            r_x,
+            r_y,
+            x_1_all,
+            x_2_all,
+            x_3_all,
+            y_1_all,
+            y_2_all,
+            y_3_all,
+            cc_x,
+            cc_y,
+            beg_idx_all,
+            end_idx_all,
+            mid_idx_all,
+        ]
         return vars_to_return
     else:
         return x_c, y_c
 
 
-def get_tree_scales_dict(conn, peak_row, peak_col, peak_pwr, wave, wavelength,
-                         scales, ds, x, y, s_curvature, poly,
-                         include_metrics=True,
-                         bound_to_poly=False):
+def get_tree_scales_dict(
+    conn,
+    peak_row,
+    peak_col,
+    peak_pwr,
+    wave,
+    wavelength,
+    scales,
+    ds,
+    x,
+    y,
+    s_curvature,
+    poly,
+    include_metrics=True,
+    bound_to_poly=False,
+):
     """
     Description:
     ------------
@@ -1569,15 +1638,45 @@ def get_tree_scales_dict(conn, peak_row, peak_col, peak_pwr, wave, wavelength,
     conn_sorted = conn[idx_sort]
     idx_conn_u = idx_sort[conn_sorted != -1]
     # Create the dictionary
-    var_labels = ['branch_id', 'idx_conn', 'branch', 'conn', 'levels_root_leaf',
-                'levels_leaf_root', 'link_branch_by_level', 'peak_col',
-                'peak_row', 'peak_pwr',
-                's_c', 'scales_c', 'wavelength_c', 'x_c', 'y_c', 'r_x', 'r_y',
-                'x_1', 'x_2', 'x_3', 'y_1', 'y_2', 'y_3', 'cc_x', 'cc_y',
-                'beg_idx', 'end_idx', 'mid_idx', 'radius',
-                'idx_planimetry_start', 'idx_planimetry_end', 
-                'sn', 'l', 'lambda_value', 'fl', 'sk',
-                'meander_in_level_root_leaf']
+    var_labels = [
+        "branch_id",
+        "idx_conn",
+        "branch",
+        "conn",
+        "levels_root_leaf",
+        "levels_leaf_root",
+        "link_branch_by_level",
+        "peak_col",
+        "peak_row",
+        "peak_pwr",
+        "s_c",
+        "scales_c",
+        "wavelength_c",
+        "x_c",
+        "y_c",
+        "r_x",
+        "r_y",
+        "x_1",
+        "x_2",
+        "x_3",
+        "y_1",
+        "y_2",
+        "y_3",
+        "cc_x",
+        "cc_y",
+        "beg_idx",
+        "end_idx",
+        "mid_idx",
+        "radius",
+        "idx_planimetry_start",
+        "idx_planimetry_end",
+        "sn",
+        "l",
+        "lambda_value",
+        "fl",
+        "sk",
+        "meander_in_level_root_leaf",
+    ]
     tree_scales = {i: [] for i in var_labels}
 
     ml_out = []
@@ -1596,62 +1695,70 @@ def get_tree_scales_dict(conn, peak_row, peak_col, peak_pwr, wave, wavelength,
             continue
 
         # Inlcude Branch
-        tree_scales['branch_id'].append(branch_id)
-        tree_scales['idx_conn'].append(branch)
-        tree_scales['conn'].append(conn[branch])
+        tree_scales["branch_id"].append(branch_id)
+        tree_scales["idx_conn"].append(branch)
+        tree_scales["conn"].append(conn[branch])
 
         # Add Levels
         # order from root to leaf
         level = np.arange(len(branch))
-        tree_scales['levels_leaf_root'].append(level)
-        tree_scales['levels_root_leaf'].append(level[::-1])
-        tree_scales['meander_in_level_root_leaf'].append(level[::-1][0])
+        tree_scales["levels_leaf_root"].append(level)
+        tree_scales["levels_root_leaf"].append(level[::-1])
+        tree_scales["meander_in_level_root_leaf"].append(level[::-1][0])
 
-        # Add Peaks in CWT    
-        tree_scales['peak_col'].append(peak_col[branch])
-        tree_scales['peak_row'].append(peak_row[branch])
-        tree_scales['peak_pwr'].append(peak_pwr[branch])
+        # Add Peaks in CWT
+        tree_scales["peak_col"].append(peak_col[branch])
+        tree_scales["peak_row"].append(peak_row[branch])
+        tree_scales["peak_pwr"].append(peak_pwr[branch])
 
         # Add location in wavelet plot
         s_c = s_curvature[peak_col[branch].astype(int)]
         wavelength_c = wavelength[peak_row[branch].astype(int)]
         scales_c = scales[peak_row[branch].astype(int)]
-        tree_scales['s_c'].append(s_c)
-        tree_scales['scales_c'].append(scales_c)
-        tree_scales['wavelength_c'].append(wavelength_c)
+        tree_scales["s_c"].append(s_c)
+        tree_scales["scales_c"].append(scales_c)
+        tree_scales["wavelength_c"].append(wavelength_c)
 
         # Add planimetry information
         conn_branch = conn[branch]
         peak_row_branch = peak_row[branch]
         peak_col_branch = peak_col[branch]
 
-        # Extract bounds 
+        # Extract bounds
         bounds = meander_bounds(poly, branch, peak_row)
-        tree_scales['idx_planimetry_start'].append(bounds[:, 0])
-        tree_scales['idx_planimetry_end'].append(bounds[:, 1])
+        tree_scales["idx_planimetry_start"].append(bounds[:, 0])
+        tree_scales["idx_planimetry_end"].append(bounds[:, 1])
 
         # fgood = np.where(~np.isnan(peak_row))[0]
         # print(branch, peak_row[branch], fgood[branch], fgood[conn])
         vars_to_return = get_centers(
-            conn_branch, peak_row_branch, peak_col_branch, wavelength,
-            ds, x, y, extract_all=True, bound_to_poly=bound_to_poly,
-            bounds=bounds)
-        
-        tree_scales['x_c'].append(vars_to_return[0])
-        tree_scales['y_c'].append(vars_to_return[1])
-        tree_scales['r_x'].append(vars_to_return[3])
-        tree_scales['r_y'].append(vars_to_return[4])
-        tree_scales['x_1'].append(vars_to_return[5])
-        tree_scales['x_2'].append(vars_to_return[6])
-        tree_scales['x_3'].append(vars_to_return[7])
-        tree_scales['y_1'].append(vars_to_return[8])
-        tree_scales['y_2'].append(vars_to_return[9])
-        tree_scales['y_3'].append(vars_to_return[10])
-        tree_scales['cc_x'].append(vars_to_return[11])
-        tree_scales['cc_y'].append(vars_to_return[12])
-        tree_scales['beg_idx'].append(vars_to_return[13])
-        tree_scales['end_idx'].append(vars_to_return[14])
-        tree_scales['mid_idx'].append(vars_to_return[15])
+            conn_branch,
+            peak_row_branch,
+            peak_col_branch,
+            wavelength,
+            ds,
+            x,
+            y,
+            extract_all=True,
+            bound_to_poly=bound_to_poly,
+            bounds=bounds,
+        )
+
+        tree_scales["x_c"].append(vars_to_return[0])
+        tree_scales["y_c"].append(vars_to_return[1])
+        tree_scales["r_x"].append(vars_to_return[3])
+        tree_scales["r_y"].append(vars_to_return[4])
+        tree_scales["x_1"].append(vars_to_return[5])
+        tree_scales["x_2"].append(vars_to_return[6])
+        tree_scales["x_3"].append(vars_to_return[7])
+        tree_scales["y_1"].append(vars_to_return[8])
+        tree_scales["y_2"].append(vars_to_return[9])
+        tree_scales["y_3"].append(vars_to_return[10])
+        tree_scales["cc_x"].append(vars_to_return[11])
+        tree_scales["cc_y"].append(vars_to_return[12])
+        tree_scales["beg_idx"].append(vars_to_return[13])
+        tree_scales["end_idx"].append(vars_to_return[14])
+        tree_scales["mid_idx"].append(vars_to_return[15])
 
         # Add radius
         x_2 = vars_to_return[6]
@@ -1665,8 +1772,8 @@ def get_tree_scales_dict(conn, peak_row, peak_col, peak_pwr, wave, wavelength,
         y_c = vars_to_return[1]
         radius_x = np.array([x_center, x_c])
         radius_y = np.array([y_center, y_c])
-        dist_r = np.sqrt((x_center - x_c)**2 + (y_center - y_c)**2)
-        tree_scales['radius'].append(dist_r)
+        dist_r = np.sqrt((x_center - x_c) ** 2 + (y_center - y_c) ** 2)
+        tree_scales["radius"].append(dist_r)
 
         if include_metrics:
             # Additional metrics
@@ -1674,20 +1781,19 @@ def get_tree_scales_dict(conn, peak_row, peak_col, peak_pwr, wave, wavelength,
             lambda_values = []
             sn_values = []
             for b in bounds:
-                x_s = x[b[0]:b[1] + 1]
-                y_s = y[b[0]:b[1] + 1]
+                x_s = x[b[0] : b[1] + 1]
+                y_s = y[b[0] : b[1] + 1]
 
                 # Distances
                 l.append(RF.calculate_l(x_s, y_s))
                 lambda_values.append(RF.calculate_lambda(x_s, y_s))
                 # Sinuosity
-                sn_values.append(RF.calculate_sinuosity(l[-1],
-                                                        lambda_values[-1]))
-            
+                sn_values.append(RF.calculate_sinuosity(l[-1], lambda_values[-1]))
+
             # Store data
-            tree_scales['sn'].append(np.array(sn_values))
-            tree_scales['l'].append(np.array(l))
-            tree_scales['lambda_value'].append(np.array(lambda_values))
+            tree_scales["sn"].append(np.array(sn_values))
+            tree_scales["l"].append(np.array(l))
+            tree_scales["lambda_value"].append(np.array(lambda_values))
 
             # Calculate flatness and skewness
             ids = np.arange(len(bounds[:, 0]))
@@ -1695,44 +1801,51 @@ def get_tree_scales_dict(conn, peak_row, peak_col, peak_pwr, wave, wavelength,
             peak_row_branch = peak_row[branch]
             peak_col_branch = peak_col[branch]
             sk_val, fl_val = calculate_meander_shape(
-                wave, wavelength, peak_row_branch, peak_col_branch, ids,
-                bounds, scale, ds
+                wave,
+                wavelength,
+                peak_row_branch,
+                peak_col_branch,
+                ids,
+                bounds,
+                scale,
+                ds,
             )
-            tree_scales['sk'].append(sk_val)
-            tree_scales['fl'].append(fl_val)
+            tree_scales["sk"].append(sk_val)
+            tree_scales["fl"].append(fl_val)
 
         # Add branch to already processed
         ml_out += list(branch)
         branch_id += 1
-    
-    # Calculate general level 
-    max_level = np.max([np.max(l) for l in tree_scales['levels_root_leaf']])
-    tree_scales['general_levels'] = np.arange(max_level+1)
-    tree_scales['max_level_in_branch'] = np.array(
-         [np.max(l) for l in tree_scales['levels_root_leaf']])
+
+    # Calculate general level
+    max_level = np.max([np.max(l) for l in tree_scales["levels_root_leaf"]])
+    tree_scales["general_levels"] = np.arange(max_level + 1)
+    tree_scales["max_level_in_branch"] = np.array(
+        [np.max(l) for l in tree_scales["levels_root_leaf"]]
+    )
 
     # Add Linking
-    branches = tree_scales['idx_conn']
-    rows = len(tree_scales['branch_id'])
+    branches = tree_scales["idx_conn"]
+    rows = len(tree_scales["branch_id"])
     cols = np.max([len(b) for b in branches])
-    branches_array = np.zeros((rows, cols))*np.nan
-    conn_array = np.zeros((rows, cols))*np.nan
+    branches_array = np.zeros((rows, cols)) * np.nan
+    conn_array = np.zeros((rows, cols)) * np.nan
     # Fill the branches array
     for i, b in enumerate(branches):
-        branches_array[i, :len(b)] = b
-        conn_array[i, :len(b)] = conn[b]
-    
+        branches_array[i, : len(b)] = b
+        conn_array[i, : len(b)] = conn[b]
+
     # Cycle through the branch_ids
-    for branch_id in tree_scales['branch_id']:
+    for branch_id in tree_scales["branch_id"]:
         b = branches_array[branch_id]
         # cycle through levels in root_leaf order
-        levels = tree_scales['levels_root_leaf'][branch_id]
+        levels = tree_scales["levels_root_leaf"][branch_id]
         link_branch_by_level = []
         for i_l in range(len(levels)):
             b_l = b[i_l]
             idx_b = np.where(branches_array == b_l)[0].astype(int)
             link_branch_by_level.append(idx_b)
-        tree_scales['link_branch_by_level'].append(link_branch_by_level[::-1])
+        tree_scales["link_branch_by_level"].append(link_branch_by_level[::-1])
 
     return tree_scales
 
@@ -1790,10 +1903,10 @@ def check_conn(conn):
     :return: conn
     :rtype:
     """
-    assert(isinstance(conn, np.ndarray))
-    assert(np.isinf(conn).sum() == 0)
-    assert((conn >= -1).all())
-    if conn.dtype != 'int':
+    assert isinstance(conn, np.ndarray)
+    assert np.isinf(conn).sum() == 0
+    assert (conn >= -1).all()
+    if conn.dtype != "int":
         conn = conn.astype(int)
 
     return conn
@@ -1873,8 +1986,8 @@ def plot_tree(conn, x, y, ax=None, **kwargs):
     if ax is None:
         ax = plt.gca()
     conn = check_conn(conn)
-    assert(x.shape == y.shape)
-    assert(conn.shape == y.shape)
+    assert x.shape == y.shape
+    assert conn.shape == y.shape
     nc = n_child(conn)
     h = [0 for _ in range(conn.shape[0])]
     for cp, c_n in enumerate(conn):
@@ -1892,8 +2005,9 @@ def plot_tree(conn, x, y, ax=None, **kwargs):
     return h
 
 
-def calculate_meander_shape(wave, wavelength, peak_row, peak_col, meander_id,
-                            bounds, scale, ds):
+def calculate_meander_shape(
+    wave, wavelength, peak_row, peak_col, meander_id, bounds, scale, ds
+):
     """
     Description:
     ------------
@@ -1933,40 +2047,37 @@ def calculate_meander_shape(wave, wavelength, peak_row, peak_col, meander_id,
         mp_filt = int(peak_row[id_m])
         if m_filt[-1] - m_filt[0] == 0:
             continue
-        phi = (m_filt - m_filt[0])/(m_filt[-1] - m_filt[0]) * np.pi
+        phi = (m_filt - m_filt[0]) / (m_filt[-1] - m_filt[0]) * np.pi
         m_per = wavelength[int(mp_filt)]
         # Filter to select scale of shape parameters (1/3 of meander scale)
-        sp_filt = np.diff((wavelength - m_per/3) > 0, prepend=0) == 1
+        sp_filt = np.diff((wavelength - m_per / 3) > 0, prepend=0) == 1
         sper = wavelength[sp_filt]
         if len(sper) == 0:
             continue
 
         # Spectrum at meander scale
         sign = np.sign(wave[int(peak_row[id_m]), int(peak_col[id_m])])
-        m_wave = wave[mp_filt, m_filt]*sign
+        m_wave = wave[mp_filt, m_filt] * sign
         # Spectrum at shape scale
-        s_wave = wave[sp_filt, m_filt]*sign
+        s_wave = wave[sp_filt, m_filt] * sign
 
         # Detect Peaks
         try:
-            s_peak_idx = np.where(np.diff(np.diff(s_wave) > 0,
-                                          prepend=0) == -1)[0] + 1
+            s_peak_idx = np.where(np.diff(np.diff(s_wave) > 0, prepend=0) == -1)[0] + 1
             s_peak_max = np.max(s_wave[s_peak_idx])
         except ValueError:
             s_peak_max = 0
 
         m_peak_max = np.max(m_wave)
-        scaling = np.sqrt(ds/scale[sp_filt])
-        skv = np.cos(3*phi)
-        fatv = np.sin(3*phi)
+        scaling = np.sqrt(ds / scale[sp_filt])
+        skv = np.cos(3 * phi)
+        fatv = np.sin(3 * phi)
 
-        sk_val[cm] = scaling*np.sum(s_wave * skv)/np.sum(skv**2) *\
-                     s_peak_max/m_peak_max
-        fl_val[cm] = scaling*np.sum(s_wave * fatv)/np.sum(fatv**2) *\
-                        s_peak_max/m_peak_max
+        sk_val[cm] = (
+            scaling * np.sum(s_wave * skv) / np.sum(skv**2) * s_peak_max / m_peak_max
+        )
+        fl_val[cm] = (
+            scaling * np.sum(s_wave * fatv) / np.sum(fatv**2) * s_peak_max / m_peak_max
+        )
 
     return sk_val, fl_val
-
-
-
-

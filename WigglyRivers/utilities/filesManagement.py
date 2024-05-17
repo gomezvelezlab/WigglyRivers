@@ -7,16 +7,17 @@
 #                               Last revised 2021-01-25
 # _____________________________________________________________________________
 # _____________________________________________________________________________
-'''
+"""
 The functions given on this package allow the user to save data in different
 formats
 
-'''
+"""
 # ------------------------
 # Importing Modules
-# ------------------------ 
+# ------------------------
 import os
 import copy
+
 # Data Managment
 import geopandas as gpd
 from shapely import LineString
@@ -24,6 +25,7 @@ import fiona
 import pickle
 import scipy.io as sio
 import pandas as pd
+
 # import netCDF4 as nc
 import json
 import numpy as np
@@ -32,6 +34,7 @@ import h5py
 # Personal libaries
 from . import utilities as utl
 from . import classExceptions as CE
+
 
 # ------------------------
 # Functions
@@ -48,13 +51,11 @@ class NpEncoder(json.JSONEncoder):
 
 
 def get_save_formats():
-    return ['p', 'pickle', 'mat', 'json', 'txt', 'csv', 'shp', 'hdf5',
-            'feather']
+    return ["p", "pickle", "mat", "json", "txt", "csv", "shp", "hdf5", "feather"]
 
 
 def get_load_formats():
-    return ['p', 'pickle', 'mat', 'json', 'txt', 'csv', 'shp', 'dbf', 'hdf5',
-            'feather']
+    return ["p", "pickle", "mat", "json", "txt", "csv", "shp", "dbf", "hdf5", "feather"]
 
 
 def save_data(data, path_output, file_name, *args, **kwargs):
@@ -91,45 +92,46 @@ def save_data(data, path_output, file_name, *args, **kwargs):
     # ---------------------
     # Save data
     # ---------------------
-    name_out = os.path.join(path_output,file_name) #f'{path_output}{file_name}'
-    extension = file_name.split('.')[-1]
+    name_out = os.path.join(path_output, file_name)  # f'{path_output}{file_name}'
+    extension = file_name.split(".")[-1]
 
     dataframe = copy.deepcopy(data)
-    if (isinstance(data, pd.DataFrame) or isinstance(
-        data, gpd.GeoDataFrame)) and extension not in ('shp', 'txt',
-                                                       'csv', 'feather'):
+    if (
+        isinstance(data, pd.DataFrame) or isinstance(data, gpd.GeoDataFrame)
+    ) and extension not in ("shp", "txt", "csv", "feather"):
         data = {}
         for i in dataframe.columns:
             data[i] = dataframe[i].values
-    
-    if isinstance(data, dict) and extension in ('shp', 'txt', 'csv', 'feather'):
+
+    if isinstance(data, dict) and extension in ("shp", "txt", "csv", "feather"):
         dataframe = pd.DataFrame.from_dict(data)
 
-    if extension == 'mat':
+    if extension == "mat":
         sio.savemat(name_out, data, *args, **kwargs)
-    elif extension in ('txt', 'csv'):
+    elif extension in ("txt", "csv"):
         # dataframe = pd.DataFrame.from_dict(data)
         dataframe.to_csv(name_out, *args, **kwargs)
-    elif extension == 'feather':
+    elif extension == "feather":
         # dataframe = pd.DataFrame.from_dict(data)
         dataframe.to_feather(name_out, *args, **kwargs)
-    elif extension in ('p', 'pickle'):
+    elif extension in ("p", "pickle"):
         file_open = open(name_out, "wb")
         pickle.dump(data, file_open)
         file_open.close()
-    elif extension == 'json':
-        with open(name_out, 'w') as json_file:
+    elif extension == "json":
+        with open(name_out, "w") as json_file:
             json.dump(data, json_file, cls=NpEncoder)
-    elif extension == 'shp':
+    elif extension == "shp":
         if isinstance(data, pd.DataFrame):
             data = gpd.GeoDataFrame(data, geometry=data.geometry)
         data.to_file(name_out)
-    elif extension == 'hdf5':
+    elif extension == "hdf5":
         save_dict_to_hdf5(data, name_out)
     else:
         raise CE.FormatError(
-            f'format .{extension} not implemented. '
-            f'Use extensions {get_save_formats()}')
+            f"format .{extension} not implemented. "
+            f"Use extensions {get_save_formats()}"
+        )
 
 
 def load_data(file_data, pandas_dataframe=False, *args, **kwargs):
@@ -144,7 +146,7 @@ def load_data(file_data, pandas_dataframe=False, *args, **kwargs):
             Data file
         :param pandas_dataframe: boolean,
             If true returns a pandas dataframe instead of a dictionary.
-                                
+
     _______________________________________________________________________
     OUTPUT:
         :return data: dict,
@@ -154,46 +156,47 @@ def load_data(file_data, pandas_dataframe=False, *args, **kwargs):
     # Error Management
     # ---------------------
     if not isinstance(file_data, str):
-        raise TypeError('data must be a string.')
+        raise TypeError("data must be a string.")
 
     try:
-        keys = kwargs['keys']
+        keys = kwargs["keys"]
     except:
         keys = None
 
     # ---------------------
     # load data
     # ---------------------
-    extension = file_data.split('.')[-1].lower()
-    if extension == 'mat':
+    extension = file_data.split(".")[-1].lower()
+    if extension == "mat":
         data = sio.loadmat(file_data, *args, **kwargs)
-    elif extension in ('txt', 'csv'):
+    elif extension in ("txt", "csv"):
         dataframe = pd.read_csv(file_data, *args, **kwargs)
         data = {}
         for i in dataframe.columns:
             data[i] = dataframe[i].values
-    elif extension == 'feather':
+    elif extension == "feather":
         dataframe = pd.read_feather(file_data, *args, **kwargs)
         data = {}
         for i in dataframe.columns:
             data[i] = dataframe[i].values
-    elif extension in ('p', 'pickle'):
+    elif extension in ("p", "pickle"):
         file_open = open(file_data, "rb")
         data = pickle.load(file_open)
         file_open.close()
-    elif extension == 'json':
+    elif extension == "json":
         with open(file_data) as f:
             data = json.load(f)
-    elif extension == 'shp':
+    elif extension == "shp":
         data = gpd.read_file(file_data)
-    elif extension == 'dbf':
+    elif extension == "dbf":
         from simpledbf import Dbf5
+
         dbf = Dbf5(file_data)
         df = dbf.to_dataframe()
         data = {}
         for i in df.columns:
             data[i] = df[i].values
-    elif extension == 'hdf5':
+    elif extension == "hdf5":
         data = load_dict_from_hdf5(file_data, key_c=keys)
         # with h5py.File(file_data, 'r') as f:
         #     if keys is None:
@@ -201,8 +204,9 @@ def load_data(file_data, pandas_dataframe=False, *args, **kwargs):
         #     data = {key: np.array(f[key]) for key in keys}
     else:
         raise CE.FormatError(
-            f'format .{extension} not implemented. '
-            f'Use files with extensions {get_load_formats()}')
+            f"format .{extension} not implemented. "
+            f"Use files with extensions {get_load_formats()}"
+        )
     if pandas_dataframe:
         data = pd.DataFrame.from_dict(data)
     return data
@@ -223,8 +227,8 @@ def readGDB(file_data, layer):
     try:
         layers.index(layer)
     except ValueError:
-        raise KeyError(f'{layer} is not present in the GDB')
-    shapefile = gpd.read_file(file_data, driver='FileGDB', layer=layer)
+        raise KeyError(f"{layer} is not present in the GDB")
+    shapefile = gpd.read_file(file_data, driver="FileGDB", layer=layer)
     return shapefile
 
 
@@ -232,16 +236,32 @@ def save_dict_to_hdf5(dic, filename):
     """
     ....
     """
-    with h5py.File(filename, 'w') as h5file:
-        recursively_save_dict_contents_to_group(h5file, '/', dic)
+    with h5py.File(filename, "w") as h5file:
+        recursively_save_dict_contents_to_group(h5file, "/", dic)
+
 
 def recursively_save_dict_contents_to_group(h5file, path, dic):
     """
     ....
     """
-    types = (np.ndarray, np.int64, np.float64, str, bytes, float, int, bool,
-             list, np.bool_, np.int_, np.float_, np.str_, np.bytes_, np.int32,
-             np.float32)
+    types = (
+        np.ndarray,
+        np.int64,
+        np.float64,
+        str,
+        bytes,
+        float,
+        int,
+        bool,
+        list,
+        np.bool_,
+        np.int_,
+        np.float_,
+        np.str_,
+        np.bytes_,
+        np.int32,
+        np.float32,
+    )
     for key, item in dic.items():
         if isinstance(item, types):
             try:
@@ -253,27 +273,27 @@ def recursively_save_dict_contents_to_group(h5file, path, dic):
                 array = np.full((len(item), max_length), np.nan)
                 # fill array with item
                 for i in range(len(item)):
-                    array[i, :lengths[i]] = item[i]
-                h5file[path + str(key)] = array 
+                    array[i, : lengths[i]] = item[i]
+                h5file[path + str(key)] = array
             except TypeError:
                 item2 = [str(i) for i in item]
                 h5file[path + str(key)] = item2
 
         elif isinstance(item, dict):
-            recursively_save_dict_contents_to_group(
-                h5file, path + key + '/', item)
+            recursively_save_dict_contents_to_group(h5file, path + key + "/", item)
         else:
-            raise ValueError('Cannot save %s type'%type(item))
+            raise ValueError("Cannot save %s type" % type(item))
+
 
 def load_dict_from_hdf5(filename, key_c=None):
     """
     ....
     """
-    with h5py.File(filename, 'r') as h5file:
-        dataset = recursively_load_dict_contents_from_group(
-            h5file, '/', key_c=key_c)
+    with h5py.File(filename, "r") as h5file:
+        dataset = recursively_load_dict_contents_from_group(h5file, "/", key_c=key_c)
         h5file.close()
         return dataset
+
 
 def recursively_load_dict_contents_from_group(h5file, path, key_c=None):
     """
@@ -296,18 +316,20 @@ def recursively_load_dict_contents_from_group(h5file, path, key_c=None):
                 except AttributeError:
                     ans[key] = item[()]
             if isinstance(ans[key], bytes):
-                ans[key] = ans[key].decode('utf-8')
+                ans[key] = ans[key].decode("utf-8")
             if isinstance(ans[key], np.ndarray):
                 if isinstance(ans[key][0], bytes):
-                    ans[key] = np.array([i.decode('utf-8') for i in ans[key]])
+                    ans[key] = np.array([i.decode("utf-8") for i in ans[key]])
         elif isinstance(item, h5py._hl.group.Group):
             ans[key] = recursively_load_dict_contents_from_group(
-                h5file, path + key + '/')
+                h5file, path + key + "/"
+            )
     return ans
 
 
-def create_geopandas_dataframe(pandas_df, geometry_columns, shape_type='line',
-                               crs='EPSG:4326'):
+def create_geopandas_dataframe(
+    pandas_df, geometry_columns, shape_type="line", crs="EPSG:4326"
+):
     """
     Description:
         Creates a geopandas dataframe from a pandas dataframe.
@@ -323,26 +345,31 @@ def create_geopandas_dataframe(pandas_df, geometry_columns, shape_type='line',
         Type of geometry that will be created. Options: 'line', 'point'.
     """
     # Create geometry
-    if shape_type.lower() == 'point':
-        geometry = gpd.points_from_xy(pandas_df[geometry_columns[0]],
-                                      pandas_df[geometry_columns[1]])
-    elif shape_type.lower() == 'line':
-        geometry = [LineString(np.array(xy).T)
-                    for xy in zip(
-                        pandas_df[geometry_columns[0]].values,
-                        pandas_df[geometry_columns[1]].values)]
+    if shape_type.lower() == "point":
+        geometry = gpd.points_from_xy(
+            pandas_df[geometry_columns[0]], pandas_df[geometry_columns[1]]
+        )
+    elif shape_type.lower() == "line":
+        geometry = [
+            LineString(np.array(xy).T)
+            for xy in zip(
+                pandas_df[geometry_columns[0]].values,
+                pandas_df[geometry_columns[1]].values,
+            )
+        ]
     else:
-        raise ValueError(f'{shape_type} is not a valid type of geometry.')
-    
+        raise ValueError(f"{shape_type} is not a valid type of geometry.")
+
     # Create geopandas dataframe
     gdf = gpd.GeoDataFrame(pandas_df, crs=crs, geometry=geometry)
 
     # Remove object columns
     for i in gdf.columns:
-        if gdf[i].dtype == 'object':
+        if gdf[i].dtype == "object":
             gdf = gdf.drop(i, axis=1)
 
     return gdf
+
 
 def read_gbd(file_data, layer, **kwargs):
     """
@@ -355,6 +382,5 @@ def read_gbd(file_data, layer, **kwargs):
         :param layer: str,
             Layer that will be loaded from the GDB.
     """
-    shapefile = gpd.read_file(
-        file_data, driver='FileGDB', layer=layer, **kwargs)
+    shapefile = gpd.read_file(file_data, driver="FileGDB", layer=layer, **kwargs)
     return shapefile

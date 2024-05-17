@@ -8,5 +8,4 @@
 
 # Package Path
 
-VERSION_FILES = '3.0.0'
-
+VERSION_FILES = "3.0.0"

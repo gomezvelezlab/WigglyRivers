@@ -26,6 +26,7 @@ from scipy import signal
 # Functions
 # ------------------------
 
+
 def savgol_filter(x, ds, order, savgol_window, kernel):
     """
 
@@ -83,7 +84,7 @@ def savgol_filter(x, ds, order, savgol_window, kernel):
         error = np.linalg.norm(x - (x_smooth + x0))
         return error
 
-    result = optimize.minimize(f, [0], args=[x, x_smooth], method='SLSQP')
+    result = optimize.minimize(f, [0], args=[x, x_smooth], method="SLSQP")
     x_0 = result.x
     x_smooth = x_smooth + x_0
 
@@ -91,15 +92,14 @@ def savgol_filter(x, ds, order, savgol_window, kernel):
 
 
 def gaussian_function(t, sigma):
-    result = 1 / np.sqrt(
-        2 * np.pi * sigma ** 2) * np.exp(-(t ** 2) / (2 * sigma ** 2))
+    result = 1 / np.sqrt(2 * np.pi * sigma**2) * np.exp(-(t**2) / (2 * sigma**2))
     return result
 
 
 def convolution_smoother(x, kernel, iter):
     """
     Calculates a mean smoothing by convolution, This function is based
-    on the __convolution_smoother__ of pynumdiff, created by 
+    on the __convolution_smoother__ of pynumdiff, created by
     Van Breugel et al. (2022).
 
     Van Breugel, F. V., Liu, Y., Brunton, B. W., & Kutz, J. N. (2022).
@@ -123,14 +123,14 @@ def convolution_smoother(x, kernel, iter):
     """
     x_smooth = np.hstack((x[::-1], x, x[::-1]))
     for _ in range(iter):
-        x_smooth_f = np.convolve(x_smooth, kernel, 'same')
-        x_smooth_b = np.convolve(x_smooth[::-1], kernel, 'same')[::-1]
+        x_smooth_f = np.convolve(x_smooth, kernel, "same")
+        x_smooth_b = np.convolve(x_smooth[::-1], kernel, "same")[::-1]
 
         w = np.arange(0, len(x_smooth_f), 1)
         w = w / np.max(w)
         x_smooth = x_smooth_f * w + x_smooth_b * (1 - w)
 
-    return x_smooth[len(x): len(x) * 2]
+    return x_smooth[len(x) : len(x) * 2]
 
 
 def circumcenter(tri):
@@ -161,11 +161,15 @@ def circumcenter(tri):
     b = tri_coords[1]
     c = tri_coords[2]
     d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]))
-    x = ((a[0] ** 2 + a[1] ** 2) * (b[1] - c[1]) + (b[0] ** 2 + b[1] ** 2) * (
-                c[1] - a[1]) + (c[0] ** 2 + c[1] ** 2) * (a[1] - b[1])) / d
-    y = ((a[0] ** 2 + a[1] ** 2) * (c[0] - b[0]) + (b[0] ** 2 + b[1] ** 2) * (
-                a[0] - c[0]) + (c[0] ** 2 + c[1] ** 2) * (b[0] - a[0])) / d
+    x = (
+        (a[0] ** 2 + a[1] ** 2) * (b[1] - c[1])
+        + (b[0] ** 2 + b[1] ** 2) * (c[1] - a[1])
+        + (c[0] ** 2 + c[1] ** 2) * (a[1] - b[1])
+    ) / d
+    y = (
+        (a[0] ** 2 + a[1] ** 2) * (c[0] - b[0])
+        + (b[0] ** 2 + b[1] ** 2) * (a[0] - c[0])
+        + (c[0] ** 2 + c[1] ** 2) * (b[0] - a[0])
+    ) / d
     cc = np.array([x, y])
     return cc
-
-

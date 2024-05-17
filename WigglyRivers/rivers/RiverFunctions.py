@@ -55,10 +55,15 @@ def convert_str_float_list_vector(x_val):
     :return:
         x_val: np.ndarray, List of floats.
     """
-    x_val = x_val.replace('[', '').replace(']', '').replace('\n', ',').replace(
-        ' ', ',').split(',')
-    x_val = np.array([float(x) for x in x_val if x != ''])
-    return  x_val
+    x_val = (
+        x_val.replace("[", "")
+        .replace("]", "")
+        .replace("\n", ",")
+        .replace(" ", ",")
+        .split(",")
+    )
+    x_val = np.array([float(x) for x in x_val if x != ""])
+    return x_val
 
 
 def line_intersection(line1, line2):
@@ -86,7 +91,7 @@ def line_intersection(line1, line2):
 
     div = det(xdiff, ydiff)
     if div == 0:
-       raise Exception('lines do not intersect')
+        raise Exception("lines do not intersect")
 
     d = (det(*line1), det(*line2))
     x = det(d, xdiff) / div
@@ -94,9 +99,15 @@ def line_intersection(line1, line2):
     return x, y
 
 
-def kinoshita_curve_abad(theta_0: float, lambda_value: float, j_s: float,
-                    j_f: float, n: int, m_points: int=1000,
-                    ds: Union[None, float]=None):
+def kinoshita_curve_abad(
+    theta_0: float,
+    lambda_value: float,
+    j_s: float,
+    j_f: float,
+    n: int,
+    m_points: int = 1000,
+    ds: Union[None, float] = None,
+):
     """
     Description:
     ------------
@@ -104,7 +115,7 @@ def kinoshita_curve_abad(theta_0: float, lambda_value: float, j_s: float,
         Generate a Kinoshita Curve with the information related
         to the reach generated.
 
-        The Kinoshita curve is based on (Kinoshita, 1961). The 
+        The Kinoshita curve is based on (Kinoshita, 1961). The
         equations presented in this function are based on the
         equations presented in (Abad and Garcia, 2009).
 
@@ -164,36 +175,50 @@ def kinoshita_curve_abad(theta_0: float, lambda_value: float, j_s: float,
 
     k = 2 * np.pi / lambda_value
 
-    theta_rad = (
-        theta_0*np.sin(k*s) +
-        theta_0**3*(j_s * np.cos(3 * k * s) - j_f * np.sin(3 * k * s)))
+    theta_rad = theta_0 * np.sin(k * s) + theta_0**3 * (
+        j_s * np.cos(3 * k * s) - j_f * np.sin(3 * k * s)
+    )
     theta_rad = theta_rad[:-1]
-    theta = theta_rad*180/np.pi
+    theta = theta_rad * 180 / np.pi
 
-    curve = (k * theta_0 * np.cos(k*s) - 3 * k * theta_0 ** 3
-             * (j_s * np.sin(3 * k * s)) +
-             j_f * np.cos(3 * k * s))
+    curve = (
+        k * theta_0 * np.cos(k * s)
+        - 3 * k * theta_0**3 * (j_s * np.sin(3 * k * s))
+        + j_f * np.cos(3 * k * s)
+    )
 
     # Generate coordinates
-    deltax = deltas*np.cos(theta_rad)
-    deltay = deltas*np.sin(theta_rad)
+    deltax = deltas * np.cos(theta_rad)
+    deltay = deltas * np.sin(theta_rad)
 
-    x = np.array([0]+list(np.cumsum(deltax)))
-    y = np.array([0]+list(np.cumsum(deltay)))
+    x = np.array([0] + list(np.cumsum(deltax)))
+    y = np.array([0] + list(np.cumsum(deltay)))
 
     lmax = x[-1]
     ymax = np.max(np.abs(y))
-    sinuosity = smax/lmax
+    sinuosity = smax / lmax
 
-    data = {'curve': curve, 'theta': theta, 's': s,
-            'lmax': lmax, 'ymax': ymax, 'sinuosity': sinuosity}
+    data = {
+        "curve": curve,
+        "theta": theta,
+        "s": s,
+        "lmax": lmax,
+        "ymax": ymax,
+        "sinuosity": sinuosity,
+    }
 
     return x, y, data
 
 
-def kinoshita_curve_zolezzi(theta_0: float, lambda_value: float, theta_s: float,
-                    theta_f: float, n: int, m_points: int=1000,
-                    ds: Union[None, float]=None):
+def kinoshita_curve_zolezzi(
+    theta_0: float,
+    lambda_value: float,
+    theta_s: float,
+    theta_f: float,
+    n: int,
+    m_points: int = 1000,
+    ds: Union[None, float] = None,
+):
     """
     Description:
     ------------
@@ -201,7 +226,7 @@ def kinoshita_curve_zolezzi(theta_0: float, lambda_value: float, theta_s: float,
         Generate a Kinoshita Curve with the information related
         to the reach generated.
 
-        The Kinoshita curve is based on (Kinoshita, 1961). The 
+        The Kinoshita curve is based on (Kinoshita, 1961). The
         equations presented in this function are based on the
         equations presented in (Zolezzi and Güneralp, 2016).
 
@@ -259,27 +284,41 @@ def kinoshita_curve_zolezzi(theta_0: float, lambda_value: float, theta_s: float,
         s = np.arange(0, smax + ds, ds)
     deltas = s[1]
 
-    k = 2*np.pi / lambda_value
+    k = 2 * np.pi / lambda_value
 
-    theta_rad = theta_0 * np.cos(k*s) + theta_s*np.sin(3*k*s) + theta_f*np.cos(3*k*s)
+    theta_rad = (
+        theta_0 * np.cos(k * s)
+        + theta_s * np.sin(3 * k * s)
+        + theta_f * np.cos(3 * k * s)
+    )
 
-    curve = -k*(theta_0*np.sin(k*s) - 3*theta_s*np.cos(3*k*s) + 3*theta_f*np.sin(3*k*s))
+    curve = -k * (
+        theta_0 * np.sin(k * s)
+        - 3 * theta_s * np.cos(3 * k * s)
+        + 3 * theta_f * np.sin(3 * k * s)
+    )
 
-    theta = theta_rad*180/np.pi
+    theta = theta_rad * 180 / np.pi
 
     # Generate coordinates
-    deltax = deltas*np.cos(theta_rad)
-    deltay = deltas*np.sin(theta_rad)
+    deltax = deltas * np.cos(theta_rad)
+    deltay = deltas * np.sin(theta_rad)
 
-    x = np.array([0]+list(np.cumsum(deltax)))
-    y = np.array([0]+list(np.cumsum(deltay)))
+    x = np.array([0] + list(np.cumsum(deltax)))
+    y = np.array([0] + list(np.cumsum(deltay)))
 
     lmax = x[-1]
     ymax = np.max(np.abs(y))
-    sinuosity = smax/lmax
+    sinuosity = smax / lmax
 
-    data = {'c': curve, 'theta': theta, 's': s,
-            'lmax': lmax, 'ymax': ymax, 'sinuosity': sinuosity}
+    data = {
+        "c": curve,
+        "theta": theta,
+        "s": s,
+        "lmax": lmax,
+        "ymax": ymax,
+        "sinuosity": sinuosity,
+    }
 
     return x, y, data
 
@@ -305,14 +344,14 @@ def rle(in_array):
         p: np.ndarray, start positions.
         ia: np.ndarray, values.
     """
-    ia = np.asarray(in_array)                # force numpy
+    ia = np.asarray(in_array)  # force numpy
     n = len(ia)
     if n == 0:
         return None, None, None
     else:
-        y = ia[1:] != ia[:-1]                # pairwise unequal (string safe)
-        i = np.append(np.where(y), n - 1)    # must include last element posi
-        z = np.diff(np.append(-1, i))        # run lengths
+        y = ia[1:] != ia[:-1]  # pairwise unequal (string safe)
+        i = np.append(np.where(y), n - 1)  # must include last element posi
+        z = np.diff(np.append(-1, i))  # run lengths
         p = np.cumsum(np.append(0, z))[:-1]  # positions
         return z, p, ia[i]
 
@@ -360,14 +399,14 @@ def calculate_curvature(ss, xs, ys, derivatives=None):
         d2x = np.gradient(dx, ss)
         d2y = np.gradient(dy, ss)
     else:
-        dx = derivatives['dxds']
-        dy = derivatives['dyds']
-        d2x = derivatives['d2xds2']
-        d2y = derivatives['d2yds2']
-    c = (dx*d2y - dy*d2x) / (dx**2 + dy**2)**(3/2)
+        dx = derivatives["dxds"]
+        dy = derivatives["dyds"]
+        d2x = derivatives["d2xds2"]
+        d2y = derivatives["d2yds2"]
+    c = (dx * d2y - dy * d2x) / (dx**2 + dy**2) ** (3 / 2)
     c_r = copy.deepcopy(c)
     c_r[c_r == 0] = np.nan
-    r = -1/c_r
+    r = -1 / c_r
 
     # --------------------------------
     # Calculate direction angle
@@ -377,14 +416,14 @@ def calculate_curvature(ss, xs, ys, derivatives=None):
     # Start with known point
     # theta[0] = np.arctan(dy/dx)[0]
     # Direction-angle
-    alpha = np.arctan(dy/dx)[0]
+    alpha = np.arctan(dy / dx)[0]
     # Conditions
     if dy[0] > 0 and dx[0] < 0:
         # Condition 2
-        theta[0] = np.pi + alpha 
+        theta[0] = np.pi + alpha
     elif dy[0] < 0 and dx[0] < 0:
         # Condition 4
-        theta[0] = 2*np.pi - np.pi/2 - alpha
+        theta[0] = 2 * np.pi - np.pi / 2 - alpha
     else:
         # Condition 1
         theta[0] = copy.deepcopy(alpha)
@@ -418,20 +457,20 @@ def get_inflection_points(s, c):
     """
     # Find inflexion points
     # condition_c = (c >= 0)
-    condition_c = (c > 0)
+    condition_c = c > 0
 
     lengths, positions, type_run = rle(condition_c)
-    
+
     ind_l = positions[1:] - 1
     ind_r = positions[1:]
-    
+
     x_l = s[ind_l]
     x_r = s[ind_r]
     y_l = c[ind_l]
     y_r = c[ind_r]
 
     # Get Inflection points
-    s_inf = -(x_r - x_l)/(y_r - y_l)*y_l + x_l
+    s_inf = -(x_r - x_l) / (y_r - y_l) * y_l + x_l
     c_inf = np.zeros_like(s_inf)
     return s_inf, c_inf, ind_l, ind_r
 
@@ -463,16 +502,16 @@ def calculate_direction_angle(ss, xs, ys, derivatives=None):
         dxds = np.gradient(xs, ss)
         dyds = np.gradient(ys, ss)
     else:
-        dxds = derivatives['dxds']
-        dyds = derivatives['dyds']
-    
+        dxds = derivatives["dxds"]
+        dyds = derivatives["dyds"]
+
     # -------------------------------------------------------------------------
     # These computations have complications when the river is rotated. Making
     #   the angle jump between positive and negative angles once we complete
     #   a loop.
 
     # Direction-angle
-    alpha = np.arctan(dyds/dxds)
+    alpha = np.arctan(dyds / dxds)
     # alpha = np.arctan(dxds/-dyds)
     # Condition 1
     theta = copy.deepcopy(alpha)
@@ -514,29 +553,29 @@ def calculate_direction_azimuth(ss, xs, ys, derivatives=None):
         dxds = np.gradient(xs, ss)
         dyds = np.gradient(ys, ss)
     else:
-        dxds = derivatives['dxds']
-        dyds = derivatives['dyds']
-    
+        dxds = derivatives["dxds"]
+        dyds = derivatives["dyds"]
+
     # -------------------------------------------------------------------------
     # These computations have complications when the river is rotated. Making
     #   the angle jump between positive and negative angles once we complete
     #   a loop.
     # Azimuth
     # For cuadrant 1
-    alpha = np.arctan(dyds/dxds)
-    theta = np.pi/2 - alpha
+    alpha = np.arctan(dyds / dxds)
+    theta = np.pi / 2 - alpha
 
     # For cuadrant 2
     cond = (dyds >= 0) & (dxds < 0)
-    theta[cond] = 3*np.pi/2 - alpha[cond]
+    theta[cond] = 3 * np.pi / 2 - alpha[cond]
 
     # For cuadrant 3
     cond = (dyds < 0) & (dxds > 0)
-    theta[cond] = np.pi/2 - alpha[cond]
+    theta[cond] = np.pi / 2 - alpha[cond]
 
     # For cuadrant 4
     cond = (dyds < 0) & (dxds < 0)
-    theta[cond] = 3*np.pi/2 - alpha[cond]
+    theta[cond] = 3 * np.pi / 2 - alpha[cond]
     return theta
 
 
@@ -665,14 +704,23 @@ def get_reach_distances(x_coord):
         Distance from the start point to the end point.
     """
     s_diff = np.diff(x_coord, axis=0)
-    s_dist = np.sqrt((s_diff ** 2).sum(axis=1))
+    s_dist = np.sqrt((s_diff**2).sum(axis=1))
     s_dist = np.hstack((0, s_dist))
     s = np.cumsum(s_dist)
     return s
 
 
-def fit_splines(s, x, y, method='geometric_mean', ds=0, k=3,
-                smooth=0, ext=0, return_derivatives=True):
+def fit_splines(
+    s,
+    x,
+    y,
+    method="geometric_mean",
+    ds=0,
+    k=3,
+    smooth=0,
+    ext=0,
+    return_derivatives=True,
+):
     """
     Description:
     ------------
@@ -710,19 +758,20 @@ def fit_splines(s, x, y, method='geometric_mean', ds=0, k=3,
     # ------------------
     # Fit the splines
     # ------------------
-    if method == 'min' or method == 'minimum':
+    if method == "min" or method == "minimum":
         diff_s = np.min(np.diff(s))
-    elif method == 'geometric_mean':
+    elif method == "geometric_mean":
         diff_s = 10 ** np.mean(np.log10(np.diff(s)))
-    elif method == 'mean':
+    elif method == "mean":
         diff_s = np.mean(np.diff(s))
     else:
-        raise ValueError(f"method '{method} not implemented."
-                         f"Please use 'min' or 'geometric_mean'")
+        raise ValueError(
+            f"method '{method} not implemented." f"Please use 'min' or 'geometric_mean'"
+        )
     if ds > 0:
         diff_s = ds
 
-    s_poly = np.arange(s[0], s[-1] + diff_s/2, diff_s)
+    s_poly = np.arange(s[0], s[-1] + diff_s / 2, diff_s)
     # # -------------------------
     # # Equally spaced values
     # # -------------------------
@@ -757,7 +806,7 @@ def fit_splines(s, x, y, method='geometric_mean', ds=0, k=3,
     x_poly = x_spl(s_poly)
     y_poly = y_spl(s_poly)
     # s_poly_2 = get_reach_distances(np.vstack((x_poly, y_poly)).T)
-    splines = {'x_spl': x_spl, 'y_spl': y_spl}
+    splines = {"x_spl": x_spl, "y_spl": y_spl}
 
     if return_derivatives:
         if k > 1:
@@ -765,8 +814,12 @@ def fit_splines(s, x, y, method='geometric_mean', ds=0, k=3,
             dyds = y_spl.derivative(n=1)(s_poly)
             d2xds2 = x_spl.derivative(n=2)(s_poly)
             d2yds2 = y_spl.derivative(n=2)(s_poly)
-            derivatives = {'dxds': dxds, 'dyds': dyds, 'd2xds2': d2xds2,
-                        'd2yds2': d2yds2}
+            derivatives = {
+                "dxds": dxds,
+                "dyds": dyds,
+                "d2xds2": d2xds2,
+                "d2yds2": d2yds2,
+            }
         else:
             # print('Fitted spline is linear, '
             #       'calculating derivatives with np.gradient')
@@ -774,15 +827,18 @@ def fit_splines(s, x, y, method='geometric_mean', ds=0, k=3,
             dyds = np.gradient(y_poly, s_poly)
             d2xds2 = np.gradient(dxds, s_poly)
             d2yds2 = np.gradient(dyds, s_poly)
-            derivatives = {'dxds': dxds, 'dyds': dyds, 'd2xds2': d2xds2,
-                        'd2yds2': d2yds2}
+            derivatives = {
+                "dxds": dxds,
+                "dyds": dyds,
+                "d2xds2": d2xds2,
+                "d2yds2": d2yds2,
+            }
         return s_poly, x_poly, y_poly, derivatives, splines
     else:
         return s_poly, x_poly, y_poly
 
 
-def fit_splines_complete(data, method='geometric_mean', ds=0,
-                         k=3, smooth=0, ext=0):
+def fit_splines_complete(data, method="geometric_mean", ds=0, k=3, smooth=0, ext=0):
     """
     Description:
     ------------
@@ -817,14 +873,14 @@ def fit_splines_complete(data, method='geometric_mean', ds=0,
             'so_poly': stream order in the spline fit.
     """
     # Extract data
-    comid = np.array(data['comid'])
-    so = data['so']
-    s = data['s']
-    x = data['x']
-    y = data['y']
-    z = data['z']
-    da = data['da_sqkm']
-    w = data['w_m']
+    comid = np.array(data["comid"])
+    so = data["so"]
+    s = data["s"]
+    x = data["x"]
+    y = data["y"]
+    z = data["z"]
+    da = data["da_sqkm"]
+    w = data["w_m"]
     # Set smooth relative to the length of the data
     smooth = smooth * len(s)
     # ----------------------------------------
@@ -832,20 +888,28 @@ def fit_splines_complete(data, method='geometric_mean', ds=0,
     # ----------------------------------------
     w_gm = 10 ** np.mean(np.log10(w))
     w_value = np.nanmin(w)
-    if method == 'min_width' and not(np.isnan(w_value)):
-        method = 'geometric_mean'
+    if method == "min_width" and not (np.isnan(w_value)):
+        method = "geometric_mean"
         ds = w_value
-    elif method == 'geometric_mean_width' and not(np.isnan(w_gm)):
-        method = 'geometric_mean'
+    elif method == "geometric_mean_width" and not (np.isnan(w_gm)):
+        method = "geometric_mean"
         ds = w_gm
-    elif method in ['min_width', 'geometric_mean_width'] and np.isnan(w_value):
-        raise ValueError('The width value is NaN')
+    elif method in ["min_width", "geometric_mean_width"] and np.isnan(w_value):
+        raise ValueError("The width value is NaN")
     # -------------------
     # Get coordinate poly
     # -------------------
     s_poly, x_poly, y_poly, derivatives, splines = fit_splines(
-        s, x, y, method=method, ds=ds, k=k, smooth=smooth, ext=ext,
-        return_derivatives=True)
+        s,
+        x,
+        y,
+        method=method,
+        ds=ds,
+        k=k,
+        smooth=smooth,
+        ext=ext,
+        return_derivatives=True,
+    )
     # ----------------------------------------
     # Generate Splines on the rest of the data
     # ----------------------------------------
@@ -853,14 +917,17 @@ def fit_splines_complete(data, method='geometric_mean', ds=0,
     # y_spl = UnivariateSpline(s, y, k=k, s=smooth, ext=ext)
 
     z_spl = UnivariateSpline(s, z, k=1, s=0, ext=0)
-    f_comid = interpolate.interp1d(s, comid, fill_value=(comid[0], comid[-1]),
-                                   kind='previous', bounds_error=False)
-    f_so = interpolate.interp1d(s, so, fill_value=(so[0], so[-1]),
-                                kind='previous', bounds_error=False)
-    f_da = interpolate.interp1d(s, da, fill_value='extrapolate')
-    f_w = interpolate.interp1d(s, w, fill_value='extrapolate')
-    splines.update({'z_spl': z_spl, 'f_comid': f_comid, 'f_so': f_so,
-                    'f_da': f_da, 'f_w': f_w})
+    f_comid = interpolate.interp1d(
+        s, comid, fill_value=(comid[0], comid[-1]), kind="previous", bounds_error=False
+    )
+    f_so = interpolate.interp1d(
+        s, so, fill_value=(so[0], so[-1]), kind="previous", bounds_error=False
+    )
+    f_da = interpolate.interp1d(s, da, fill_value="extrapolate")
+    f_w = interpolate.interp1d(s, w, fill_value="extrapolate")
+    splines.update(
+        {"z_spl": z_spl, "f_comid": f_comid, "f_so": f_so, "f_da": f_da, "f_w": f_w}
+    )
     # ------------------
     # Create points
     # -----------------
@@ -876,10 +943,17 @@ def fit_splines_complete(data, method='geometric_mean', ds=0,
     # Create data
     # -----------------
     data_fitted = {
-        's_poly': s_poly ,'x_poly': x_poly, 'y_poly': y_poly,
-        'z_poly': z_poly, 'comid_poly': comid_poly,
-        'so_poly': so_poly, 'da_sqkm_poly': da_poly, 'w_m_poly': w_poly,
-        'derivatives': derivatives, 'splines': splines}
+        "s_poly": s_poly,
+        "x_poly": x_poly,
+        "y_poly": y_poly,
+        "z_poly": z_poly,
+        "comid_poly": comid_poly,
+        "so_poly": so_poly,
+        "da_sqkm_poly": da_poly,
+        "w_m_poly": w_poly,
+        "derivatives": derivatives,
+        "splines": splines,
+    }
 
     return data_fitted
 
@@ -938,11 +1012,12 @@ def smooth_data(x, y, s, poly_order=2, savgol_window=2, gaussian_window=1):
     ds_new = np.diff(s_new_smooth)[0]
 
     # refit splines
-    s_smooth, x_smooth, y_smooth = fit_splines(s_smooth, x_smooth, y_smooth,
-                                               ds=ds_new, return_derivatives=False)
-    
+    s_smooth, x_smooth, y_smooth = fit_splines(
+        s_smooth, x_smooth, y_smooth, ds=ds_new, return_derivatives=False
+    )
+
     if len(x_smooth) != len(x):
-        raise ValueError('The length of the smoothed data is different')
+        raise ValueError("The length of the smoothed data is different")
 
     return s_smooth, x_smooth, y_smooth
 
@@ -1076,57 +1151,58 @@ def calculate_radius_of_curvature(x, y, wavelength):
     # Calculate Omega
     w = wavelength / (2 * np.pi)
     # w = wavelength / (np.pi)
-    rvec = np.array([x_cen - x_mid, y_cen - y_mid])/r
+    rvec = np.array([x_cen - x_mid, y_cen - y_mid]) / r
 
     x_c = x_mid + rvec[0] * w
     y_c = y_mid + rvec[1] * w
-    radius = np.sqrt((x_c - x_mid)**2 + (y_c - y_mid)**2)
+    radius = np.sqrt((x_c - x_mid) ** 2 + (y_c - y_mid) ** 2)
     # radius = np.abs(r)
     return x_c, y_c, radius
 
 
 def calculate_asymetry(x, y, c):
     """
-    Description:
-    ------------
-        Calculate the asymetry of the transect using Eq. 24 in Howard and
-        Hemberger (1991).
-
-        If the value is lower than zero the meander has an assymetry to the
-        left, and if the value is higher than zero the meander has an
-        assymetry to the right. For most NHDPlus information cases
-        left is upstream and right is downstream.
-
-        References:
+        Description:
         ------------
-        Howard, A. D., & Hemberger, A. T. (1991). Multivariate characterization
-        of meandering. Geomorphology, 4(3–4), 161–186.
-        https://doi.org/10.1016/0169-555X(91)90002-R
+            Calculate the asymetry of the transect using Eq. 24 in Howard and
+            Hemberger (1991).
 
-    ____________________________________________________________________________
-/rotate
-    Args:
-    ------------
-    :param x: np.ndarray,
-        x coordinates.
-    :param y: np.ndarray,
-        y coordinates.
-    :param c: np.ndarray,
-        Curvature.
-    :return: assymetry: float,
-        Asymetry of the transect.
+            If the value is lower than zero the meander has an assymetry to the
+            left, and if the value is higher than zero the meander has an
+            assymetry to the right. For most NHDPlus information cases
+            left is upstream and right is downstream.
+
+            References:
+            ------------
+            Howard, A. D., & Hemberger, A. T. (1991). Multivariate characterization
+            of meandering. Geomorphology, 4(3–4), 161–186.
+            https://doi.org/10.1016/0169-555X(91)90002-R
+
+        ____________________________________________________________________________
+    /rotate
+        Args:
+        ------------
+        :param x: np.ndarray,
+            x coordinates.
+        :param y: np.ndarray,
+            y coordinates.
+        :param c: np.ndarray,
+            Curvature.
+        :return: assymetry: float,
+            Asymetry of the transect.
     """
 
     # Detect maximum point of curvature
     argmax_c = np.argmax(np.abs(c))
     # Calculate distances
     lambda_h = calculate_lambda(x, y)
-    lambda_u = calculate_lambda(x[:argmax_c+1], y[:argmax_c+1])
+    lambda_u = calculate_lambda(x[: argmax_c + 1], y[: argmax_c + 1])
     lambda_d = calculate_lambda(x[argmax_c:], y[argmax_c:])
 
     # Calculate assymetry
-    a_h = (lambda_u - lambda_d)/lambda_h
+    a_h = (lambda_u - lambda_d) / lambda_h
     return a_h, lambda_h, lambda_u, lambda_d
+
 
 def extend_node_bound(node, c):
     """
@@ -1151,7 +1227,7 @@ def extend_node_bound(node, c):
     # ------------------------------
     idx_start = node.idx_planimetry_start
     idx_end = node.idx_planimetry_end
-    c_meander = c[idx_start:idx_end + 1]
+    c_meander = c[idx_start : idx_end + 1]
     # ------------------------------
     # Set extend values
     # ------------------------------
@@ -1163,10 +1239,10 @@ def extend_node_bound(node, c):
         mult = -1
     else:
         mult = 1
-    
+
     # get maximum differences in curvature inside the meander
     dif_c = np.abs(max_peak - min_peak)
-    
+
     # ----------------------------------------------------
     # Find peaks to the left and right of the curvature
     # ----------------------------------------------------
@@ -1178,8 +1254,8 @@ def extend_node_bound(node, c):
         idx_left = idx_start - idx_dif_left
         if idx_left < 0:
             idx_left = 0
-        val_range_left = np.arange(idx_left, idx_start+1, 1).astype(int)
-        c_left = mult*c[val_range_left]
+        val_range_left = np.arange(idx_left, idx_start + 1, 1).astype(int)
+        c_left = mult * c[val_range_left]
         peak_left, _ = find_peaks(c_left)
         # Selected Value with highest curvature
         if len(peak_left) > 0:
@@ -1196,7 +1272,7 @@ def extend_node_bound(node, c):
             #     idx_peak_left = val_range_left[peak_left[-1]]
         else:
             idx_peak_left = copy.deepcopy(idx_start)
-            idx_dif_left += idx_dif//2
+            idx_dif_left += idx_dif // 2
         i += 1
         if i > 10:
             break
@@ -1210,7 +1286,7 @@ def extend_node_bound(node, c):
         if idx_right >= len(c):
             idx_right = len(c) - 1
         val_range_right = np.arange(idx_end, idx_right + 1, 1).astype(int)
-        c_right = mult*c[val_range_right]
+        c_right = mult * c[val_range_right]
         peak_right, _ = find_peaks(c_right)
         # Selected Value with highest curvature
         if len(peak_right) > 0:
@@ -1229,11 +1305,10 @@ def extend_node_bound(node, c):
             #     idx_peak_right = val_range_right[peak_right[0]]
         else:
             idx_peak_right = copy.deepcopy(idx_end)
-            idx_dif_right += idx_dif//2
+            idx_dif_right += idx_dif // 2
         i += 1
         if i > 10:
             break
-    
 
     node.idx_planimetry_extended_start = idx_peak_left
     node.idx_planimetry_extended_end = idx_peak_right
@@ -1260,9 +1335,14 @@ def calculate_coordinates_from_curvature(s_curvature, c, x, y):
         delta_theta = c_v * arc_length
         # Update direction vector using polar coordinates
         current_direction = np.dot(
-            np.array([[np.cos(delta_theta), -np.sin(delta_theta)],
-                      [np.sin(delta_theta), np.cos(delta_theta)]]),
-            current_direction)
+            np.array(
+                [
+                    [np.cos(delta_theta), -np.sin(delta_theta)],
+                    [np.sin(delta_theta), np.cos(delta_theta)],
+                ]
+            ),
+            current_direction,
+        )
         # Update x and y coordinates using direction vector and arc length
         delta_x = arc_length * current_direction[0]
         delta_y = arc_length * current_direction[1]
@@ -1282,7 +1362,7 @@ def calculate_channel_width(da):
     Calculate the channel width from the drainage area.
 
     This function uses equation (15) presented in Wilkerson et al. (2014).
-    
+
     References:
     ------------
     Wilkerson, G. V., Kandel, D. R., Perg, L. A., Dietrich, W. E., Wilcock,
@@ -1303,18 +1383,18 @@ def calculate_channel_width(da):
 
     if isinstance(da, int) or isinstance(da, float):
         da = np.array([da])
-    
-    cond_1 = (np.log(da) < 1.6)
+
+    cond_1 = np.log(da) < 1.6
     cond_2 = (np.log(da) >= 1.6) & (np.log(da) < 5.820)
-    cond_3 = (np.log(da) >= 5.820)
+    cond_3 = np.log(da) >= 5.820
 
     w = np.zeros_like(da)
 
-    w[cond_1] = 2.18*da[cond_1]**0.191
-    w[cond_2] = 1.41*da[cond_2]**0.462
-    w[cond_3] = 7.18*da[cond_3]**0.183
+    w[cond_1] = 2.18 * da[cond_1] ** 0.191
+    w[cond_2] = 1.41 * da[cond_2] ** 0.462
+    w[cond_3] = 7.18 * da[cond_3] ** 0.183
 
-    # Threshold 
+    # Threshold
     w[w < 1] = 1
 
     return w
@@ -1357,7 +1437,7 @@ def calculate_spectrum_cuts(s, c):
 
     # Use the Morlet Wavelet to perfom the separation
     ds = np.diff(s)[0]
-    values = WTFunc.calculate_cwt(c, ds, mother='MORLET')
+    values = WTFunc.calculate_cwt(c, ds, mother="MORLET")
     wave = values[0]
 
     wave = np.abs(wave**2)
@@ -1365,6 +1445,7 @@ def calculate_spectrum_cuts(s, c):
     peaks_min, _ = find_peaks(-wave_sum, prominence=np.std(wave_sum))
     min_s = s[peaks_min]
     return peaks_min, min_s
+
 
 def calculate_amplitude(x, y):
     """
@@ -1384,19 +1465,21 @@ def calculate_amplitude(x, y):
     """
     # Calculate the distance
     coords = np.vstack((x, y)).T
-    index_initial = 0 
+    index_initial = 0
     index_final = len(coords) - 1
     rotated_points, _ = translate_rotate(
-        coords, index_initial=index_initial, index_final=index_final)
+        coords, index_initial=index_initial, index_final=index_final
+    )
     # --------------------------
     # Calculate amplitude
     # --------------------------
     y_rot = rotated_points[:, 1]
-    if y_rot[len(y_rot)//2] < 0:
+    if y_rot[len(y_rot) // 2] < 0:
         y_rot = -y_rot
     amplitude = np.max(y_rot) - np.min(y_rot)
 
     return amplitude
+
 
 def calculate_funneling_factor(x, y, s, idx_st, idx_end):
     """
@@ -1427,7 +1510,8 @@ def calculate_funneling_factor(x, y, s, idx_st, idx_end):
     # --------------------------------------------------
     coords = np.vstack((x, y)).T
     rotated_points, _ = translate_rotate(
-        coords, index_initial=idx_st, index_final=idx_end)
+        coords, index_initial=idx_st, index_final=idx_end
+    )
     x_values = rotated_points[:, 0]
     y_values = rotated_points[:, 1]
 
@@ -1442,12 +1526,11 @@ def calculate_funneling_factor(x, y, s, idx_st, idx_end):
     # Fit Spline
     # --------------------------------------------------
     tck, u = splprep([x_values, y_values], u=s, s=0, k=1)
-    s = np.linspace(s[0], s[-1], int(np.ceil(len(s)*1.5)))
+    s = np.linspace(s[0], s[-1], int(np.ceil(len(s) * 1.5)))
     new_points = splev(s, tck)
     x_values = new_points[0]
     y_values = new_points[1]
 
-    
     # --------------------------
     # Calculate neck distance
     # --------------------------
@@ -1458,7 +1541,7 @@ def calculate_funneling_factor(x, y, s, idx_st, idx_end):
     l_n = np.array([[np.nan, np.nan], [np.nan, np.nan]])
     s_n = np.array([np.nan, np.nan])
     for i_y_val, y_val in enumerate(lim_y[:-5]):
-        i_vals = (y_values >= y_val)
+        i_vals = y_values >= y_val
         x_vals = x_values[i_vals]
         y_vals = y_values[i_vals]
         x_val_1 = x_vals[0]
@@ -1470,11 +1553,11 @@ def calculate_funneling_factor(x, y, s, idx_st, idx_end):
                 plt.figure()
                 plt.plot(x_values, y_values)
                 # plt.plot(x_vals, y_vals)
-                plt.scatter([x_val_1], [y_val_1], color='b')
-                plt.scatter([x_val_2], [y_val_2], color='r')
+                plt.scatter([x_val_1], [y_val_1], color="b")
+                plt.scatter([x_val_2], [y_val_2], color="r")
                 plt.grid()
-                plt.plot([x_val_1, x_val_2], [y_val_1, y_val_2], color='r')
-                plt.gca().set_aspect('equal')
+                plt.plot([x_val_1, x_val_2], [y_val_1, y_val_2], color="r")
+                plt.gca().set_aspect("equal")
                 plt.show()
                 print((x_val_2 - x_val_1))
                 print(np.abs(y_val_2 - y_val_1))
@@ -1495,8 +1578,7 @@ def calculate_funneling_factor(x, y, s, idx_st, idx_end):
             x_val_22 = x_values[i_vals][-1]
             y_val_12 = y_values[i_vals][0]
             y_val_22 = y_values[i_vals][-1]
-            l_n = np.array(
-                [[x_val_12, y_val_12], [x_val_22, y_val_22]])
+            l_n = np.array([[x_val_12, y_val_12], [x_val_22, y_val_22]])
             s_n = np.array([s_val_12, s_val_22])
         if x_val_1 == x_values[0] or x_val_2 == x_values[-1]:
             break
@@ -1507,7 +1589,7 @@ def calculate_funneling_factor(x, y, s, idx_st, idx_end):
     l_l = np.array([[np.nan, np.nan], [np.nan, np.nan]])
     s_l = np.array([np.nan, np.nan])
     if np.isnan(dist_l_n):
-        raise ValueError('Meander wraps on itself. Check geometry')
+        raise ValueError("Meander wraps on itself. Check geometry")
     else:
         # ----------------------------------------
         # Calculate distance inside the meander
@@ -1526,10 +1608,10 @@ def calculate_funneling_factor(x, y, s, idx_st, idx_end):
                     plt.figure()
                     plt.plot(x_values, y_values)
                     # plt.plot(x_vals, y_vals)
-                    plt.scatter([x_val_1], [y_val_1], color='b')
-                    plt.scatter([x_val_2], [y_val_2], color='r')
-                    plt.plot([x_val_1, x_val_2], [y_val_1, y_val_2], color='r')
-                    plt.gca().set_aspect('equal')
+                    plt.scatter([x_val_1], [y_val_1], color="b")
+                    plt.scatter([x_val_2], [y_val_2], color="r")
+                    plt.plot([x_val_1, x_val_2], [y_val_1, y_val_2], color="r")
+                    plt.gca().set_aspect("equal")
                     plt.show()
             # elif np.abs(y_val_2 - y_val_1) > 1e-3:
             #     break
@@ -1539,17 +1621,19 @@ def calculate_funneling_factor(x, y, s, idx_st, idx_end):
                 s_val_2 = s[y_values >= y_val][-1]
                 y_val_1 = y_values[y_values >= y_val][0]
                 y_val_2 = y_values[y_values >= y_val][-1]
-                l_l = np.array(
-                    [[x_val_1, y_val_1], [x_val_2, y_val_2]])
+                l_l = np.array([[x_val_1, y_val_1], [x_val_2, y_val_2]])
                 s_l = np.array([s_val_1, s_val_2])
 
-    f_c = dist_l_l/dist_l_n
+    f_c = dist_l_l / dist_l_n
     if f_c < 1e-5:
-        raise ValueError('Funneling factor is too small. Check geometry')
+        raise ValueError("Funneling factor is too small. Check geometry")
     results = {
-        'L_l': dist_l_l, 'L_n': dist_l_n,
-        'L_l_all': l_l, 'L_n_all': l_n, 'FF': f_c,
-        's_n': s_n, 's_l': s_l,
+        "L_l": dist_l_l,
+        "L_n": dist_l_n,
+        "L_l_all": l_l,
+        "L_n_all": l_n,
+        "FF": f_c,
+        "s_n": s_n,
+        "s_l": s_l,
     }
     return results
-
