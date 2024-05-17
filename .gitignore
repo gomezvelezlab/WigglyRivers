@@ -1,3 +1,21 @@
+# Additional
+*.png
+*.jpg
+*.p
+*.hdf5
+*.feather
+*.csv
+*.gdb
+*.xml
+*.zip
+*.shp
+*.cpg
+*.dbf
+*.prj
+*.shx
+*.pdf
+!examples/new_user_workflow/manuscript_figures/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
