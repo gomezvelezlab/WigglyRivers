@@ -15,6 +15,7 @@
 *.shx
 *.pdf
 !examples/new_user_workflow/manuscript_figures/*
+!WigglyRivers/tests/data_test/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -17,6 +17,7 @@ formats
 # ------------------------
 import os
 import copy
+from pathlib import Path
 
 # Data Managment
 import geopandas as gpd
@@ -155,7 +156,7 @@ def load_data(file_data, pandas_dataframe=False, *args, **kwargs):
     # ---------------------
     # Error Management
     # ---------------------
-    if not isinstance(file_data, str):
+    if not isinstance(file_data, (str, Path)):
         raise TypeError("data must be a string.")
 
     try:
@@ -166,6 +167,7 @@ def load_data(file_data, pandas_dataframe=False, *args, **kwargs):
     # ---------------------
     # load data
     # ---------------------
+    file_data = str(file_data)
     extension = file_data.split(".")[-1].lower()
     if extension == "mat":
         data = sio.loadmat(file_data, *args, **kwargs)

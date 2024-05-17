@@ -24,9 +24,9 @@ setup(
     version="1.0.1",
     author="Daniel Gonzalez-Duque",
     description=(
-        "Exploring the multiscale meandering characteristics of river" " transects"
+        "Exploring the multiscale meandering characteristics of river transects"
     ),
     license="GNUv3",
     packages=["WigglyRivers"],
-    pyhon_requires=">=3.7",
+    pyhon_requires=">=3.10",
 )
