@@ -120,9 +120,9 @@ def wavelet(Y, dt, pad=0, dj=-1, s0=-1, J1=-1, mother=-1, param=-1, freq=None):
     n = len(x)
 
     # construct wavenumber array used in transform [Eqn(5)]
-    kplus = np.arange(1, int(n / 2) + 1)
+    kplus = np.arange(1, int(n / 2) + 1).astype(np.int64)
     kplus = (kplus * 2 * np.pi / (n * dt))
-    kminus = np.arange(1, int((n - 1) / 2) + 1)
+    kminus = np.arange(1, int((n - 1) / 2) + 1).astype(np.int64)
     kminus = np.sort((-kminus * 2 * np.pi / (n * dt)))
     k = np.concatenate(([0.], kplus, kminus))
 
@@ -175,8 +175,8 @@ def wavelet(Y, dt, pad=0, dj=-1, s0=-1, J1=-1, mother=-1, param=-1, freq=None):
 
     # COI [Sec.3g]
     coi = coi * dt * np.concatenate((
-        np.insert(np.arange(int((n1 + 1) / 2) - 1), [0], [1E-5]),
-        np.insert(np.flipud(np.arange(0, int(n1 / 2) - 1)), [-1], [1E-5])))
+        np.insert(np.arange(int((n1 + 1) / 2) - 1).astype(np.int64), [0], [1E-5]),
+        np.insert(np.flipud(np.arange(0, int(n1 / 2) - 1).astype(np.int64)), [-1], [1E-5])))
     wave = wave[:, :n1]  # get rid of padding before returning
 
     # Save parameters in dictionary
@@ -237,7 +237,7 @@ def wave_bases(mother, k, scale, param):
         m = param
         # calc psi_0(s omega) from Table 1
         expnt = -scale * k * kplus
-        norm_bottom = np.sqrt(m * np.prod(np.arange(1, (2 * m))))
+        norm_bottom = np.sqrt(m * np.prod(np.arange(1, (2 * m)).astype(np.int64)))
         norm = np.sqrt(scale * k[1]) * (2 ** m / norm_bottom) * np.sqrt(n)
         daughter = norm * ((scale * k) ** m) * np.exp(expnt) * kplus
         fourier_factor = 4 * np.pi / (2 * m + 1)
@@ -544,7 +544,7 @@ def iwavelet(Y, dt, scale, scale_indices=None, mother='MORLET', param=None):
 
     # Filtering over scales
     if scale_indices is None:
-        scale_indices = np.arange(len(scale))
+        scale_indices = np.arange(len(scale)).astype(np.int64)
 
     new_wave = wave[scale_indices, :]
     new_scale = scale[scale_indices]

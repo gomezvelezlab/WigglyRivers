@@ -668,7 +668,7 @@ def scale_space_tree(cwt_matrix):
     # ===========================================
     # Find zero crossing location in spectrum
     # ===========================================
-    zcr = np.diff((wave > 0).astype(int), n=1, axis=1)
+    zcr = np.diff((wave > 0).astype(np.int64), n=1, axis=1)
     zcr = np.hstack((zcr, zcr[:, 0].reshape((-1, 1))*0))
 
     # Create Boundaries in the spectrum
