@@ -1,6 +1,6 @@
 # WigglyRivers
 
-Sinuous channels are ubiquitous features along river networks. Their complex patterns span scales and influence morphodynamic processes, landscape evolution, and ecosystem services. Identifying and characterizing meandering features along river transects has challenged traditional curvature-based algorithms. Here, we present _WigglyRivers_, a Python package that builds on existing work using wavelet-based methods to create an unsupervised identification tool. This tool allows the characterization of the multiscale nature of river transects and the identification of individual meandering features. The package uses any set of river coordinates and calculates the curvature and direction-angle to perform the characterization, and also leverages the use of the High-Resolution National Hydrography Dataset (NHDPlus HR) to assess river transects at a catchment scale. Additionally, the _WigglyRivers_ package contains a supervised river identification tool that allows the visual selection of individual meandering features with satellite imagery in the background. Here, we provide examples in idealized river transects and show the capabilities of the \emph{WigglyRivers} package at a catchment scale. We also use the supervised identification tool to validate the unsupervised identification on river transects across the US. The package presented here can provide crucial data that represents an essential step toward understanding the multiscale characteristics of river networks and the link between river geomorphology and river corridor connectivity.
+Sinuous channels are ubiquitous features along river networks. Their complex patterns span scales and influence morphodynamic processes, landscape evolution, and ecosystem services. Identifying and characterizing meandering features along river transects has challenged traditional curvature-based algorithms. Here, we present _WigglyRivers_, a Python package that builds on existing work using wavelet-based methods to create an unsupervised identification tool. This tool allows the characterization of the multiscale nature of river transects and the identification of individual meandering features. The package uses any set of river coordinates and calculates the curvature and direction-angle to perform the characterization, and also leverages the use of the High-Resolution National Hydrography Dataset (NHDPlus HR) to assess river transects at a catchment scale. Additionally, the _WigglyRivers_ package contains a supervised river identification tool that allows the visual selection of individual meandering features with satellite imagery in the background. Here, we provide examples in idealized river transects and show the capabilities of the _WigglyRivers_ package at a catchment scale. We also use the supervised identification tool to validate the unsupervised identification on river transects across the US. The package presented here can provide crucial data that represents an essential step toward understanding the multiscale characteristics of river networks and the link between river geomorphology and river corridor connectivity.
 
 ## Installation
 
@@ -29,14 +29,14 @@ pip install meanderpy
 pip install circle-fit
 ```
 
-The package uses `anytree` to store the information of the meanders. To plot the tree, please install [graphviz](https://graphviz.org/download/).
+The package uses `anytree` to store the information of the meanders.
 
 For interactive plots
 ```bash
 pip install ipympl
 ```
 
-If you are using `.env` files remember to also install
+If you are using `.env` files, remember to also install
 
 ```bash
 pip install python-dotenv
@@ -110,11 +110,16 @@ Some known incompatible dependencies are addressed in the troubleshooting sectio
 
 # Workflows
 
+The workflows can be found in the [examples/new_user_workflow/](https://github.com/gomezvelezlab/WigglyRivers/tree/stable/examples/new_user_workflow) folder. You can see examples of synthetic river transects and natural river transects using the NHDPlus High-Resolution dataset.
 
 # License
 [License](https://github.com/gomezvelezlab/WigglyRivers/blob/stable/LICENSE)
 
 # How to cite
 
+If you use this package, please cite the following paper:
 
-# Reference
+Gonzalez-Duque, D., & Gomez-Velez, J. D. (2024). WigglyRivers: Characterizing the Multiscale Nature of Meandering Channels [Submitted]. Environmental Modelling & Software.
+
+
+
