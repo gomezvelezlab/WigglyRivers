@@ -1,6 +1,16 @@
-# WigglyRivers
+<p align="center">
+<img src="docs/repo_figures/title_fig.png" alt="drawing" width="300"/>
+</p>
 
-Sinuous channels are ubiquitous features along river networks. Their complex patterns span scales and influence morphodynamic processes, landscape evolution, and ecosystem services. Identifying and characterizing meandering features along river transects has challenged traditional curvature-based algorithms. Here, we present _WigglyRivers_, a Python package that builds on existing work using wavelet-based methods to create an unsupervised identification tool. This tool allows the characterization of the multiscale nature of river transects and the identification of individual meandering features. The package uses any set of river coordinates and calculates the curvature and direction-angle to perform the characterization, and also leverages the use of the High-Resolution National Hydrography Dataset (NHDPlus HR) to assess river transects at a catchment scale. Additionally, the _WigglyRivers_ package contains a supervised river identification tool that allows the visual selection of individual meandering features with satellite imagery in the background. Here, we provide examples in idealized river transects and show the capabilities of the _WigglyRivers_ package at a catchment scale. We also use the supervised identification tool to validate the unsupervised identification on river transects across the US. The package presented here can provide crucial data that represents an essential step toward understanding the multiscale characteristics of river networks and the link between river geomorphology and river corridor connectivity.
+# _WigglyRivers_
+
+_WigglyRivers_ is a Python package that builds on existing work using wavelet-based methods to create supervised and unsupervised meander identification tools. This tool allows the characterization of the multiscale nature of river transects and the identification of individual meandering features. The package uses any set of river coordinates and calculates the curvature and direction-angle to perform the characterization, and also leverages the use of the High-Resolution National Hydrography Dataset (NHDPlus HR) to assess river transects at a catchment scale. Additionally, the _WigglyRivers_ package contains a supervised river identification tool that allows the visual selection of individual meandering features with satellite imagery in the background.
+
+## Example Workflows
+
+You can find examples of how to use this package as examples workflows for synthetic and natural river transects in the [examples/new_user_workflow/](https://github.com/gomezvelezlab/WigglyRivers/tree/stable/examples/new_user_workflow) folder.
+
+The synthetic river transect examples are generated using idealized Kinoshita-type curves, implemented in the code, and using the [`meanderpy`](https://github.com/zsylvester/meanderpy) package coded by Sylvester, Durkin, and Covault (2019). The natural river transect example uses the information from the [High-Resolution National Hydrography Dataset (NHDPlus HR)](https://www.usgs.gov/core-science-systems/ngp/national-hydrography/nhdplus-high-resolution) to extract the river transects and assess the meandering features.
 
 ## Installation
 
@@ -32,6 +42,7 @@ pip install circle-fit
 The package uses `anytree` to store the information of the meanders.
 
 For interactive plots
+
 ```bash
 pip install ipympl
 ```
@@ -49,18 +60,15 @@ To install the package you need to clone the repository and install it using `pi
 ```bash
 pip install -e .
 ```
+
 Some known incompatible dependencies are addressed in the troubleshooting section. If you have any issues not discussed in the troubleshooting section, please open an issue in the repository.
-
-### Test Installation
-
-
 
 ### Troubleshooting Package Installation
 
 - If you have problems with `geopandas` look at [this website](https://wilcoxen.maxwell.insightworks.com/pages/6373.html#:~:text=It%20has%20complex%20links%20to,between%2010%20and%2030%20minutes.).
 - `h5py` and `fiona` might have some issues when importing at the same time. Installing both of them using `conda install -c -conda-forge` solved the issue for me.
 
-- If the interactive plot with `plotly` gives you issues with `ipywidgets`  and `jupyterlab-widgets`, install the following versions  `pip install ipywidgets==7.7.1 jupyterlab-widgets==1.1.1` 
+- If the interactive plot with `plotly` gives you issues with `ipywidgets`  and `jupyterlab-widgets`, install the following versions  `pip install ipywidgets==7.7.1 jupyterlab-widgets==1.1.1`
 
 - There is a known issue with `plotly<=5.15` where plotting MAPBOX with the interactive widget will prompt the following error message:
 
@@ -108,18 +116,20 @@ Some known incompatible dependencies are addressed in the troubleshooting sectio
     fix_widget_error()
     ```
 
-# Workflows
-
-The workflows can be found in the [examples/new_user_workflow/](https://github.com/gomezvelezlab/WigglyRivers/tree/stable/examples/new_user_workflow) folder. You can see examples of synthetic river transects and natural river transects using the NHDPlus High-Resolution dataset.
-
-# License
-[License](https://github.com/gomezvelezlab/WigglyRivers/blob/stable/LICENSE)
-
-# How to cite
+## How to cite
 
 If you use this package, please cite the following paper:
 
 Gonzalez-Duque, D., & Gomez-Velez, J. D. (2024). WigglyRivers: Characterizing the Multiscale Nature of Meandering Channels [Submitted]. Environmental Modelling & Software.
 
+## Credit and Acknowledgments
 
+The Continous Wavelet Transform (CWT) computation uses an updated version of the code created by Torrence and Compo (1998) brought to Python by Evgeniya Predybaylo. Also, the unsupervised identification algorithm is based on previous work coded in Matlab by Vermeulen et al. (2016). Each code and function is adequately accredited and cited in the code.
 
+## References
+
+Sylvester, Z., Durkin, P., & Covault, J. A. (2019). High curvatures drive river meandering. Geology, 47(3), 263–266. <https://doi.org/10.1130/G45608.1>
+
+Torrence, C., & Compo, G. P. (1998). A Practical Guide to Wavelet Analysis. Bulletin of the American Meteorological Society, 79(1), 61–78. <https://doi.org/10.1175/1520-0477(1998)079><0061:APGTWA>2.0.CO;2
+
+Vermeulen, B., Hoitink, A. J. F., Zolezzi, G., Abad, J. D., & Aalto, R. (2016). Multiscale structure of meanders. Geophysical Research Letters, 2016GL068238. <https://doi.org/10.1002/2016GL068238>
