@@ -17,6 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           conda create -n wiggly_test python=3.10
+          conda init
           conda activate wiggly_test
           conda install -c conda-forge geopandas
           conda install -c conda-forge h5py
