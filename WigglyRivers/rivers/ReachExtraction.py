@@ -734,24 +734,6 @@ class CompleteReachExtraction:
             # -----------------------------
             time1 = time.time()
             z = np.zeros(x.shape) * np.nan
-            # i_cc = 0
-            # for i_c, c in enumerate(c_all):
-            #     if i_c == 0:
-            #         z_max = max_elev[i_c]
-            #     else:
-            #         # TODO: Check lengths and why this is not matching
-            #         try:
-            #             z_max = z[i_cc]
-            #         except IndexError:
-            #             break
-
-            #     z[i_cc:i_cc + lengths[i_c]] = (
-            #             z_max - (s[i_cc:i_cc + lengths[i_c]] - s[i_cc])
-            #             * slope[i_c])
-            #     i_cc += lengths[i_c] - 1
-
-            # print('including elevation')
-            # utl.toc(time1)
 
             # Store data
             time1 = time.time()

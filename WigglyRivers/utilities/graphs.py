@@ -197,10 +197,6 @@ def plot_wavelet_system(
     ax2_t = ax[2].twinx()
     im = ax2_t.pcolormesh(s_curvature, cwt_period, wave, cmap=cmap)
     im = ax[2].pcolormesh(s_curvature, scales, wave, cmap=cmap)
-    # TODO: (graphs) Solve the problem with the width in graph
-    # if w is not None:
-    #    ax[2].plot(s_curvature, w, '-k', lw=2)
-    #    ax2_t.plot(s_curvature, w, '-k', lw=2)
 
     ax[2].set_xlabel("Distance (m)")
     ax[2].set_ylabel("Scale (m)")
