@@ -21,7 +21,7 @@ keywords = ["rivers", "meandering", "geomorphology", "cwt", "wavelet"]
 dependencies = [
     "geopandas", "h5py", "simpledbf", "statsmodels", "seaborn",
     "pyarrow", "plotly", "salem", "anytree", "circle-fit",
-    "python-dotenv"
+    "python-dotenv", "tqdm"
 ]
 
 [project.urls]
@@ -29,4 +29,4 @@ Homepage = "https://github.com/username/WigglyRivers"
 
 [project.optional-dependencies]
 # Add your project development dependencies here
-dev = ["Black", "pytest"]
+dev = ["black", "pytest"]

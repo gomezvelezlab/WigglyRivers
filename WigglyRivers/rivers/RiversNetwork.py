@@ -1988,7 +1988,6 @@ class RiverTransect:
         self.gamma_w_m = self.gamma * self.w_m
         return
 
-    # TODO: Correct data_source this setter
     def set_data_source(self, data_source: str):
         """
         Description:
@@ -3254,31 +3253,6 @@ class RiverTransect:
             meander_id_prev = copy.deepcopy(meander_id)
             meander_id += 1
             ind_end_prev = ind_end
-            # Test the relationship between lambda and lambda_hm
-            # TODO: Remove these lines
-            # x_m = database_meanders['x'].iloc[i]
-            # y_m = database_meanders['y'].iloc[i]
-            # x = self.meanders[meander_id - 1].x_inf
-            # y = self.meanders[meander_id - 1].y_inf
-            # x_inf = x[self.meanders[meander_id - 1].ind_inf_st:self.meanders[meander_id - 1].ind_inf_end + 1]
-            # y_inf = y[self.meanders[meander_id - 1].ind_inf_st:self.meanders[meander_id - 1].ind_inf_end + 1]
-            # plt.figure()
-            # plt.plot(x, y, 'b', label='Extended')
-            # plt.plot(x_m, y_m, 'k', label='Original')
-            # plt.plot(x_inf, y_inf, '--r', label='Extracted')
-            # plt.legend()
-            # plt.show()
-
-            # c_m = database_meanders['c'].iloc[i]
-            # s_m = database_meanders['s'].iloc[i]
-            # c = self.meanders[meander_id - 1].c
-            # s = self.meanders[meander_id - 1].s
-            # plt.figure()
-            # plt.plot(s[1:-1], c, 'b', label='Extended')
-            # plt.plot(s_m, c_m, 'k', label='Original')
-            # plt.axhline(0, color='k', linestyle='--')
-            # plt.legend()
-            # plt.show()
 
     def prune_tree_by_gamma_width(self, gamma):
         """
