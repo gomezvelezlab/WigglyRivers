@@ -35,7 +35,6 @@ pip install pyarrow
 pip install plotly
 pip install salem
 pip install anytree
-pip install meanderpy
 pip install circle-fit
 ```
 
@@ -51,6 +50,12 @@ If you are using `.env` files, remember to also install
 
 ```bash
 pip install python-dotenv
+```
+
+To run one of the synthetic examples, you will need to install the `meanderpy` package. You can install it using the following command:
+
+```bash
+pip install meanderpy
 ```
 
 ### Install WigglyRivers

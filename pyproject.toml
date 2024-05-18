@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "WigglyRivers"
+version = "1.1.0"
+description = "Exploring the multiscale meandering characteristics of river transects"
+authors = [
+    {name = "Daniel Gonzalez-Duque", email = "gonzalez-duque.1@osu.edu"},
+    {name = "Jesus Gomez-Velez", email = "gomezvelezjd@ornl.gov"}
+]
+maintainers = [
+    {name = "Daniel Gonzalez-Duque", email = "danielgondu@gmail.com"},
+]
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["rivers", "meandering", "geomorphology", "cwt", "wavelet"]
+
+# Add your project dependencies here
+dependencies = [
+    "geopandas", "h5py", "simpledbf", "statsmodels", "seaborn",
+    "pyarrow", "plotly", "salem", "anytree", "circle-fit",
+    "python-dotenv"
+]
+
+[project.urls]
+Homepage = "https://github.com/username/WigglyRivers"
+
+[project.optional-dependencies]
+# Add your project development dependencies here
+dev = ["Black", "pytest"]
