@@ -21,7 +21,7 @@ keywords = ["rivers", "meandering", "geomorphology", "cwt", "wavelet"]
 dependencies = [
     "geopandas", "h5py", "simpledbf", "statsmodels", "seaborn",
     "pyarrow", "plotly", "salem", "anytree", "circle-fit",
-    "python-dotenv"
+    "python-dotenv", "tqdm"
 ]
 
 [project.urls]

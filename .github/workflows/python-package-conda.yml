@@ -26,6 +26,7 @@ jobs:
           pip install salem
           pip install anytree
           pip install circle-fit
+          pip install tqdm
       - name: Test with pytest
         run: |
           pip install pytest
