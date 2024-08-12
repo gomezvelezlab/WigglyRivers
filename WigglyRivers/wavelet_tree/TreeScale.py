@@ -16,21 +16,14 @@ Creation of tree scales class
 # ------------------------
 import copy
 import logging
-from typing import Any
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.path import Path
-from scipy.spatial import Delaunay
-from scipy.spatial.distance import euclidean
-from scipy import signal
 import pandas as pd
-from anytree import Node, RenderTree, PreOrderIter
+from anytree import Node, PreOrderIter
 from anytree.exporter import DotExporter
 
 
 # Package packages
 from ..utilities import utilities as utl
-from ..rivers import RiverFunctions as RF
 from ..utilities import filesManagement as FM
 
 
@@ -127,7 +120,12 @@ class RiverTreeScales:
             "sk",
         ]
         self.metrics_in_name = ["radius", "sn", "lambda_value", "peak_pwr"]
-        self.metrics_in_name_formatting = ["{:.2f}", "{:.2f}", "{:.2f}", "{:.2E}"]
+        self.metrics_in_name_formatting = [
+            "{:.2f}",
+            "{:.2f}",
+            "{:.2f}",
+            "{:.2E}",
+        ]
 
     # ---------------------
     # Core Methods
@@ -136,7 +134,7 @@ class RiverTreeScales:
         """
         This function is used to get the values of the class.
         """
-        if not (tree_id in self.tree_ids):
+        if tree_id not in self.tree_ids:
             self._logging.error(f"Tree ID {tree_id} not in the tree list")
             raise KeyError(f"Tree ID {tree_id} not in the tree list")
         return self.trees[tree_id]
@@ -289,7 +287,9 @@ class RiverTreeScales:
         ]
 
         node_name += [
-            f"{i}: {metrics[i]:.2f}\n" for i in self.metrics_in_name if i != "peak_pwr"
+            f"{i}: {metrics[i]:.2f}\n"
+            for i in self.metrics_in_name
+            if i != "peak_pwr"
         ]
         node_name += [f'peak_pwr: {metrics["peak_pwr"]:.2E}']
 
@@ -314,7 +314,9 @@ class RiverTreeScales:
         """
         Extract metrics from tree scales dictionary
         """
-        metrics_values = {i: tree_scales[i][branch_id][level] for i in self.metrics}
+        metrics_values = {
+            i: tree_scales[i][branch_id][level] for i in self.metrics
+        }
         return metrics_values
 
     def select_node(self, tree_id, node_id):
@@ -342,7 +344,8 @@ class RiverTreeScales:
         for tree_id in tree_ids:
             nodes[tree_id] = list(
                 PreOrderIter(
-                    self.trees[tree_id], filter_=lambda n: n.__dict__[key] == value
+                    self.trees[tree_id],
+                    filter_=lambda n: n.__dict__[key] == value,
                 )
             )
         return nodes
@@ -381,7 +384,8 @@ class RiverTreeScales:
                 compiled_database = self.database[tree_id]
             else:
                 compiled_database = pd.concat(
-                    [compiled_database, self.database[tree_id]], ignore_index=True
+                    [compiled_database, self.database[tree_id]],
+                    ignore_index=True,
                 )
 
         return compiled_database
@@ -501,7 +505,9 @@ class RiverTreeScales:
         """
         # Get parent node
         node_parent = node.parent
-        if (node_parent.node_id in already_extracted) or (node_parent.is_meander == 1):
+        if (node_parent.node_id in already_extracted) or (
+            node_parent.is_meander == 1
+        ):
             return
         # Look if parent has other parent nodes as children
         children_nodes = node_parent.children
@@ -512,7 +518,9 @@ class RiverTreeScales:
 
         # Get peak power of parent
         peak_pwr_parent = node_parent.__dict__[peak_power_var]
-        peak_pwr_children = [child.__dict__[peak_power_var] for child in children_nodes]
+        peak_pwr_children = [
+            child.__dict__[peak_power_var] for child in children_nodes
+        ]
         # Extract if node is pointing towards parent (1) or not (-1)
         sign_children = [child.__dict__[sign_var] for child in children_nodes]
 
@@ -523,7 +531,9 @@ class RiverTreeScales:
         )
         if peak_pwr_parent > mean_peak_pwr_children:
             cond = node_parent.is_root
-            if node_parent.__dict__[compare_var] < characteristic_length and not (cond):
+            if node_parent.__dict__[
+                compare_var
+            ] < characteristic_length and not (cond):
                 node_parent.is_meander = 1
                 for child in children_nodes:
                     if child.direction_node_to_parent == 1:

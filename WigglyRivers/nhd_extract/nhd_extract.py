@@ -19,7 +19,6 @@ ______________________________________________________________________________
 # System Management
 import logging
 import os
-import copy
 
 # Data Management
 import numpy as np
@@ -78,7 +77,12 @@ class ExtractNHDPlusHRData:
     """
 
     def __init__(
-        self, path_output, name="file", comid_name="NHDPlusID", logger=None, **kwargs
+        self,
+        path_output,
+        name="file",
+        comid_name="NHDPlusID",
+        logger=None,
+        **kwargs,
     ):
         """
         Class constructor
@@ -257,7 +261,9 @@ class ExtractNHDPlusHRData:
                 else:
                     self.logger.error(f"comid {comid} has no coordinates")
                     coords = np.zeros(6) * np.nan
-                    coords_all = {comid: [np.array([np.nan]), np.array([np.nan])]}
+                    coords_all = {
+                        comid: [np.array([np.nan]), np.array([np.nan])]
+                    }
                     return coords, coords_all
         coords = np.array(
             [
@@ -308,7 +314,7 @@ class ExtractNHDPlusHRData:
             comid_hr = comid_list
         labels = ["FType", comid, "projection", "NHDPlusID", "comid", "COMID"]
         length_hr = np.array(
-            [coords_dict[c][0].shape[0] for c in comid_hr if not (c in labels)]
+            [coords_dict[c][0].shape[0] for c in comid_hr if c not in labels]
         )
         coords_hr_all = np.zeros((2, np.sum(length_hr))) * np.nan
         comid_hr_all = np.zeros(np.sum(length_hr)) * np.nan
@@ -380,7 +386,9 @@ class ExtractNHDPlusHRData:
         ext = file_data.split(".")[-1]
         file_data = file_data.replace("\\", "/")
         if ext == "zip":
-            self.logger.warning(" WARNING: GDB in zip file, loading from zip" " file")
+            self.logger.warning(
+                " WARNING: GDB in zip file, loading from zip" " file"
+            )
             gbd_file_name = file_data.split("/")[-1].split(".")[-2]
             # get whole path of file_data
             path_data = os.path.abspath(file_data)
@@ -419,7 +427,7 @@ class ExtractNHDPlusHRData:
             comid: shapefile[comid].values,
             "FType": shapefile["FType"].values,
         }
-        self.logger.info(f" Start: Extraction of coordinates")
+        self.logger.info(" Start: Extraction of coordinates")
         coords = np.zeros((shapefile.shape[0], 6)) * np.nan
         for i in range(shapefile.shape[0]):
             try:
@@ -436,11 +444,13 @@ class ExtractNHDPlusHRData:
                     bounds_proj = shapefile_projected.geometry[i].geoms[0]
                 except TypeError:
                     bounds_proj = shapefile_projected.geometry[i][0]
-                coords_projected[i], coords_all_comid_projected = self._get_coordinates(
-                    bounds_proj, shapefile_projected[comid].values[i]
+                coords_projected[i], coords_all_comid_projected = (
+                    self._get_coordinates(
+                        bounds_proj, shapefile_projected[comid].values[i]
+                    )
                 )
                 coords_all_projected.update(coords_all_comid_projected)
-        self.logger.info(f" Done: Extraction of coordinates")
+        self.logger.info(" Done: Extraction of coordinates")
 
         # -------------------------------
         # Check NHDWaterbody
@@ -500,8 +510,12 @@ class ExtractNHDPlusHRData:
             for i_comid, id_comid in enumerate(table.index):
                 x = coords_all_projected[id_comid][0]
                 y = coords_all_projected[id_comid][1]
-                length[i_comid] = np.sum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))
-            sn = length / np.sqrt((xup_m - xdown_m) ** 2 + (yup_m - ydown_m) ** 2)
+                length[i_comid] = np.sum(
+                    np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2)
+                )
+            sn = length / np.sqrt(
+                (xup_m - xdown_m) ** 2 + (yup_m - ydown_m) ** 2
+            )
             coords_dict["sinuosity"] = sn
             coords_dict["length_m"] = length
 
@@ -512,7 +526,7 @@ class ExtractNHDPlusHRData:
         # -------------------------------
         # Merge other tables
         # -------------------------------
-        self.logger.info(f" Start: Merging Tables")
+        self.logger.info(" Start: Merging Tables")
         self.logger.debug(f"Table length: {len(table)}")
         for i_t, t in enumerate(tables):
             # Load new table
@@ -528,7 +542,7 @@ class ExtractNHDPlusHRData:
             self.logger.debug(f"Table merge length: {len(t_n)}")
             # Include NaNs if table does not exists
             if len(t_n) == 0:
-                self.logger.debug(f"Filling empty table")
+                self.logger.debug("Filling empty table")
                 # get COMIDS
                 comid_t_n = np.array(table.index)
                 # Extract columns
@@ -541,7 +555,9 @@ class ExtractNHDPlusHRData:
                     except ValueError:
                         columns_t_n.append(col)
                 # Extract data
-                data_t_n = {i: np.zeros(comid_t_n.shape) * np.nan for i in columns_t_n}
+                data_t_n = {
+                    i: np.zeros(comid_t_n.shape) * np.nan for i in columns_t_n
+                }
                 data_t_n[comid] = comid_t_n
                 t_n = pd.DataFrame.from_dict(data_t_n)
             t_n = t_n.set_index(comid)
@@ -558,7 +574,7 @@ class ExtractNHDPlusHRData:
                 self.logger.error(f"  ERROR: Could not merge {t}")
             self.logger.debug(f"Table length: {len(table)}")
 
-        self.logger.info(f" Done: Merging Tables")
+        self.logger.info(" Done: Merging Tables")
         # -------------------------------
         # Save Tables
         # -------------------------------
@@ -580,7 +596,7 @@ class ExtractNHDPlusHRData:
         name_out = f"{name}_coords_raw.hdf5"
         if self.save_format != "hdf5":
             self.logger.warning(
-                f"  WARNING: The coordinates are always saved" f" as 'hdf5'"
+                "  WARNING: The coordinates are always saved" " as 'hdf5'"
             )
         self.logger.info(f" Saving {path_output}/{name_out}")
         FM.save_data(save_data_coord, path_output, name_out)
@@ -591,7 +607,7 @@ class ExtractNHDPlusHRData:
             name_out = f'{name}_coords_p_{projection.split(":")[-1]}_raw.hdf5'
             if self.save_format != "hdf5":
                 self.logger.warning(
-                    f"  WARNING: The coordinates are always " f"saved as 'hdf5'"
+                    "  WARNING: The coordinates are always " "saved as 'hdf5'"
                 )
             self.logger.info(f" Saving {path_output}/{name_out}")
             FM.save_data(save_data_coord, path_output, name_out)
