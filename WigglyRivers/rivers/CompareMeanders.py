@@ -17,22 +17,12 @@ ______________________________________________________________________________
 # -----------
 # Libraries
 # -----------
-from typing import Union, List, Tuple, Dict, Any, Optional
-import time
 import copy
 import numpy as np
 import pandas as pd
-from scipy.interpolate import UnivariateSpline
-from scipy import interpolate
-from scipy.signal import find_peaks
-from collections import Counter
-from scipy.spatial import Delaunay
-from scipy.spatial.distance import euclidean
 
 # Package packages
-from ..utilities import general_functions as GF
 from ..utilities.classExceptions import *
-from ..utilities import filesManagement as FM
 from . import RiverFunctions as RF
 
 
@@ -71,12 +61,16 @@ def extract_closet_meanders(
     # Loop through all meanders
     for i_m in range(len(database_1)):
         try:
-            x_o = RF.convert_str_float_list_vector(database_1[link_x].values[i_m])
+            x_o = RF.convert_str_float_list_vector(
+                database_1[link_x].values[i_m]
+            )
         except AttributeError:
             x_o = database_1[link_x].values[i_m]
 
         try:
-            y_o = RF.convert_str_float_list_vector(database_1[link_y].values[i_m])
+            y_o = RF.convert_str_float_list_vector(
+                database_1[link_y].values[i_m]
+            )
         except AttributeError:
             y_o = database_1[link_y].values[i_m]
         # Save data
@@ -99,8 +93,12 @@ def extract_closet_meanders(
         # Find starting and ending points close to the manual meander
         points_st_o = np.array([x_o[0], y_o[0]])
         points_end_o = np.array([x_o[-1], y_o[-1]])
-        points_st_a = np.array([sub_df["x_start"].values, sub_df["y_start"].values]).T
-        points_end_a = np.array([sub_df["x_end"].values, sub_df["y_end"].values]).T
+        points_st_a = np.array(
+            [sub_df["x_start"].values, sub_df["y_start"].values]
+        ).T
+        points_end_a = np.array(
+            [sub_df["x_end"].values, sub_df["y_end"].values]
+        ).T
         # Calculate distance
         dist_st = np.linalg.norm(points_st_a - points_st_o, axis=1)
         dist_end = np.linalg.norm(points_end_a - points_end_o, axis=1)
@@ -111,19 +109,25 @@ def extract_closet_meanders(
 
         # pick the first meanders to compare
         pick = 2
-        i_compare = pd.unique(np.concatenate([i_sort_st[:pick], i_sort_end[:pick]]))
+        i_compare = pd.unique(
+            np.concatenate([i_sort_st[:pick], i_sort_end[:pick]])
+        )
         sub_df = sub_df.iloc[i_compare]
         # Find the meanders that intersect the most
         len_largest = 0
         selected_m = 0
         for i_sub in range(len(sub_df)):
             try:
-                x_a = RF.convert_str_float_list_vector(sub_df[link_x].values[i_sub])
+                x_a = RF.convert_str_float_list_vector(
+                    sub_df[link_x].values[i_sub]
+                )
             except AttributeError:
                 x_a = sub_df[link_x].values[i_sub]
 
             try:
-                y_a = RF.convert_str_float_list_vector(sub_df[link_y].values[i_sub])
+                y_a = RF.convert_str_float_list_vector(
+                    sub_df[link_y].values[i_sub]
+                )
             except AttributeError:
                 y_a = sub_df[link_y].values[i_sub]
 
@@ -136,14 +140,18 @@ def extract_closet_meanders(
                     selected_m = copy.deepcopy(i_sub)
 
         try:
-            x_s = RF.convert_str_float_list_vector(sub_df[link_x].values[selected_m])
+            x_s = RF.convert_str_float_list_vector(
+                sub_df[link_x].values[selected_m]
+            )
         except AttributeError:
             x_s = sub_df[link_x].values[selected_m]
         # Save the selected meander
         for i in sub_df.columns:
             data_to_save[f"{i}_2"] = [sub_df[i].values[selected_m]]
         # Perform classification
-        class_value, f_oa, f_om = classify_meanders(x_o, x_s, threshold=threshold)
+        class_value, f_oa, f_om = classify_meanders(
+            x_o, x_s, threshold=threshold
+        )
         data_to_save["Zone"] = [class_value]
         data_to_save["f_oa"] = [f_oa]
         data_to_save["f_om"] = [f_om]

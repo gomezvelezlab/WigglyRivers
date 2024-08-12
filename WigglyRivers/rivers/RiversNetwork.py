@@ -20,8 +20,7 @@ ______________________________________________________________________________
 # System
 import time
 import copy
-import re
-from typing import Union, List, Tuple, Dict, Any, Optional
+from typing import Union, List
 import inspect
 import uuid
 from joblib import Parallel, delayed
@@ -32,17 +31,13 @@ import numpy as np
 # Interpolation
 import pandas as pd
 from scipy import stats as st
-from scipy.interpolate import UnivariateSpline
-from scipy import interpolate
 from scipy.signal import find_peaks
-from circle_fit import taubinSVD
 import logging
 
 # Plots
 import matplotlib.pyplot as plt
 
 # Package packages
-from ..utilities import utilities as utl
 from .. import VersionControl as VC
 from .ReachExtraction import CompleteReachExtraction as CRE
 from . import RiverFunctions as RF
@@ -338,12 +333,12 @@ class RiverDatasets:
         self.path_data = path_data
         self.huc04 = huc04
         # self.info_file = f'{path_data}table_HUC04_{huc04}.csv'
-        if not (path_data.split(".")[-1] in ("csv", "feather")):
+        if path_data.split(".")[-1] not in ("csv", "feather"):
             self.info_file = f"{path_data}file_tables_raw.feather"
         else:
             self.info_file = f"{path_data}"
         # self.coords_file = f'{path_data}HUC04_{huc04}_coordinates_p_102003.hdf5'
-        if not (path_coords.split(".")[-1] in ("hdf5", "h5")):
+        if path_coords.split(".")[-1] not in ("hdf5", "h5"):
             self.coords_file = f"{path_coords}file_coords_p_102003_raw.hdf5"
         else:
             self.coords_file = f"{path_coords}"
@@ -506,7 +501,7 @@ class RiverDatasets:
         if path_out is not None:
             comid_network = self.reach_generator.comid_network
             FM.save_data(
-                comid_network, path_output=path_out, file_name=f"comid_network.hdf5"
+                comid_network, path_output=path_out, file_name="comid_network.hdf5"
             )
             linking_generator = copy.deepcopy(self.reach_generator.linking_network)
             linking_generator = linking_generator.reset_index()
@@ -1254,9 +1249,9 @@ class RiverDatasets:
 
             # Save CWT information
             if save_cwt_info and len(cwt_poly) > 0:
-                file_name = f"cwt_poly.p"
+                file_name = "cwt_poly.p"
                 FM.save_data(cwt_poly, path_output=path_output, file_name=file_name)
-                file_name = f"cwt_zc_lines.p"
+                file_name = "cwt_zc_lines.p"
                 FM.save_data(cwt_zc_lines, path_output=path_output, file_name=file_name)
 
             database = self.get_metric_databases()
@@ -1506,11 +1501,11 @@ class RiverDatasets:
                                     y_inf = y_inf.replace("nan", "np.nan")
                                     s_inf = s_inf.replace("nan", "np.nan")
                                     # find is separation is by comma
-                                    if not ("," in x_inf):
+                                    if "," not in x_inf:
                                         x_inf = x_inf.replace(" ", ",")
-                                    if not ("," in y_inf):
+                                    if "," not in y_inf:
                                         y_inf = y_inf.replace(" ", ",")
-                                    if not ("," in s_inf):
+                                    if "," not in s_inf:
                                         s_inf = s_inf.replace(" ", ",")
                                     x_inf = np.array(eval(x_inf))
                                     y_inf = np.array(eval(y_inf))
@@ -3185,18 +3180,18 @@ class RiverTransect:
             sk = database_meanders["sk"].iloc[i]
             fl = database_meanders["fl"].iloc[i]
             tree_id = database_meanders["tree_id"].iloc[i]
-            x_inf = database_meanders[f"x_inf"].iloc[i]
-            y_inf = database_meanders[f"y_inf"].iloc[i]
-            s_inf = database_meanders[f"s_inf"].iloc[i]
+            x_inf = database_meanders["x_inf"].iloc[i]
+            y_inf = database_meanders["y_inf"].iloc[i]
+            s_inf = database_meanders["s_inf"].iloc[i]
             wavelength = database_meanders["wavelength_c"].iloc[i]
             if inflection_flag:
                 if clip.lower() == "downstream":
                     if meander_id_prev != meander_id:
                         ind_start = np.min([ind_start, ind_end_prev])
                         if ind_start == ind_end_prev:
-                            x_inf_1 = database_meanders[f"x_inf"].iloc[i - 1][1]
-                            y_inf_1 = database_meanders[f"y_inf"].iloc[i - 1][1]
-                            s_inf_1 = database_meanders[f"s_inf"].iloc[i - 1][1]
+                            x_inf_1 = database_meanders["x_inf"].iloc[i - 1][1]
+                            y_inf_1 = database_meanders["y_inf"].iloc[i - 1][1]
+                            s_inf_1 = database_meanders["s_inf"].iloc[i - 1][1]
                             x_inf = np.array([x_inf_1, x_inf[1]])
                             y_inf = np.array([y_inf_1, y_inf[1]])
                             s_inf = np.array([s_inf_1, s_inf[1]])
@@ -3208,9 +3203,9 @@ class RiverTransect:
                         ].iloc[i + 1]
                         ind_end = np.max([ind_end, ind_pos_start])
                         if ind_end == ind_pos_start:
-                            x_inf_1 = database_meanders[f"x_inf"].iloc[i + 1][0]
-                            y_inf_1 = database_meanders[f"y_inf"].iloc[i + 1][0]
-                            s_inf_1 = database_meanders[f"s_inf"].iloc[i + 1][0]
+                            x_inf_1 = database_meanders["x_inf"].iloc[i + 1][0]
+                            y_inf_1 = database_meanders["y_inf"].iloc[i + 1][0]
+                            s_inf_1 = database_meanders["s_inf"].iloc[i + 1][0]
                             x_inf = np.array([x_inf[0], x_inf_1])
                             y_inf = np.array([y_inf[0], y_inf_1])
                             s_inf = np.array([s_inf[0], s_inf_1])

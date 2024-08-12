@@ -26,19 +26,19 @@ import matplotlib.pyplot as plt
 from matplotlib.path import Path
 from scipy.spatial import Delaunay
 from scipy.spatial.distance import euclidean
-from scipy import signal
-from scipy.signal import find_peaks
 from circle_fit import taubinSVD
 from ..rivers import RiverFunctions as RF
 from ..utilities import utilities as utl
 from ..utilities import general_functions as gf
-from anytree import Node, RenderTree, PreOrderIter, LevelOrderIter
+from anytree import Node
 
 
 # ------------------------
 # Functions
 # ------------------------
-def calculate_cwt(curvature, ds, pad=1, dj=5e-2, s0=-1, j1=-1, mother="DOG", m=2):
+def calculate_cwt(
+    curvature, ds, pad=1, dj=5e-2, s0=-1, j1=-1, mother="DOG", m=2
+):
     """
     Description:
     ------------
@@ -442,7 +442,10 @@ def find_zc_lines(cwt_matrix):
             zc_2[1] = zc_2[1][zc_2[0][0, 0] >= zc_2[1][:, 0]]
         zc = zc_2
         zc_line_pairs[i_pair] = zc
-        zc_sign_pairs[i_pair] = [zc_sign_corner[i_zc_2], zc_sign_corner[i_zc_2 + 1]]
+        zc_sign_pairs[i_pair] = [
+            zc_sign_corner[i_zc_2],
+            zc_sign_corner[i_zc_2 + 1],
+        ]
         # Set singular point as medium point between the two points
         singular_points.append(
             np.ceil(
@@ -465,7 +468,9 @@ def find_zc_lines(cwt_matrix):
     # ============================
     # Order by area
     area_sum = np.zeros(len(zc_line_pairs))
-    masks = np.zeros((len(zc_line_pairs), wave.shape[0], wave.shape[1])) * np.nan
+    masks = (
+        np.zeros((len(zc_line_pairs), wave.shape[0], wave.shape[1])) * np.nan
+    )
     for pair in list(zc_line_pairs.keys()):
         # Convert points within raster to 1
         zc = copy.deepcopy(zc_line_pairs[pair])
@@ -606,8 +611,12 @@ def find_zc_lines(cwt_matrix):
     # plt.pcolormesh(wave_mask, cmap='Greys', shading='auto', alpha=0.8)
     # plt.scatter(singular_points_p[:, 1], singular_points_p[:, 0], c='k', s=10)
 
-    plt.plot(zc_line_pairs[pair][0][:, 1], zc_line_pairs[pair][0][:, 0], "-b", lw=1)
-    plt.plot(zc_line_pairs[pair][1][:, 1], zc_line_pairs[pair][1][:, 0], "-r", lw=1)
+    plt.plot(
+        zc_line_pairs[pair][0][:, 1], zc_line_pairs[pair][0][:, 0], "-b", lw=1
+    )
+    plt.plot(
+        zc_line_pairs[pair][1][:, 1], zc_line_pairs[pair][1][:, 0], "-r", lw=1
+    )
     plt.gca().invert_yaxis()
     # for pair in list(zc_line_pairs.keys()):
     #     for i in range(2):
@@ -631,7 +640,9 @@ def recursive_tree_structure(
 
     pairs_mask = np.where(belongs_to == pair)[0]
     # Include children
-    node_c = Node(i_node, parent=parent_node, singular_point=singular_points[pair])
+    node_c = Node(
+        i_node, parent=parent_node, singular_point=singular_points[pair]
+    )
 
     for pair_c in pairs_mask:
         if pair_c == pair:
@@ -810,7 +821,9 @@ def scale_space_tree(cwt_matrix):
                 xtr_rwmin[cc] = s_p
                 xtr_colmin[cc] = loc_x[s_p, z_c]
                 xtr_colmax[cc] = loc_x[s_p, zercr_col[cn + 1]]
-                xtr_idx = int(np.round((xtr_colmin[cc] + xtr_colmax[cc] + 1) / 2))
+                xtr_idx = int(
+                    np.round((xtr_colmin[cc] + xtr_colmax[cc] + 1) / 2)
+                )
                 xtr_conn[cc] = ml_idx[xtr_idx]
                 ml_idx[int(xtr_colmin[cc]) : int(xtr_colmax[cc]) + 1] = cc
                 if xtr_conn[cc] != -1:
@@ -829,7 +842,9 @@ def scale_space_tree(cwt_matrix):
                     rline_col = np.delete(rline_col, rcond)
                     rline_rw = np.delete(rline_rw, rcond)
 
-                    rw_lines = np.hstack((lline_rw, np.flipud(rline_rw), lline_rw[0]))
+                    rw_lines = np.hstack(
+                        (lline_rw, np.flipud(rline_rw), lline_rw[0])
+                    )
                     col_lines = np.hstack(
                         (lline_col, np.flipud(rline_col), lline_col[0])
                     )
@@ -1059,7 +1074,14 @@ def hexl(inmat):
     nr, nc = inmat.shape
     assert nr > 2 and nc > 2
 
-    lat1, lat2, lat3, lat4, lat5, lat6 = inmat, inmat, inmat, inmat, inmat, inmat
+    lat1, lat2, lat3, lat4, lat5, lat6 = (
+        inmat,
+        inmat,
+        inmat,
+        inmat,
+        inmat,
+        inmat,
+    )
     lat1 = np.delete(
         np.delete(lat1, [nc - 1, nc - 2], axis=1), [nr - 1, nr - 2], axis=0
     )  # top left
@@ -1069,11 +1091,15 @@ def hexl(inmat):
     lat3 = np.delete(
         np.delete(lat3, [0, nc - 1], axis=1), [nr - 1, nr - 2], axis=0
     )  # mid left
-    lat4 = np.delete(np.delete(lat4, [0, nc - 1], axis=1), [0, 1], axis=0)  # mid right
+    lat4 = np.delete(
+        np.delete(lat4, [0, nc - 1], axis=1), [0, 1], axis=0
+    )  # mid right
     lat5 = np.delete(
         np.delete(lat5, [0, nr - 1], axis=0), [0, 1], axis=1
     )  # bottom center
-    lat6 = np.delete(np.delete(lat6, [0, 1], axis=0), [0, 1], axis=1)  # bottom right
+    lat6 = np.delete(
+        np.delete(lat6, [0, 1], axis=0), [0, 1], axis=1
+    )  # bottom right
     lat = np.concatenate(
         (
             lat1[:, :, np.newaxis],
@@ -1138,9 +1164,13 @@ def sadext(inmat):
     nan_index = np.any(np.isnan(np.dstack((inmat6, ccell))), axis=2)
     id_value[nan_index] = np.nan
     # duplicate first and last column
-    id_value = np.concatenate((id_value[:, [0]], id_value, id_value[:, [-1]]), axis=1)
+    id_value = np.concatenate(
+        (id_value[:, [0]], id_value, id_value[:, [-1]]), axis=1
+    )
     # duplicate first and last row
-    id_value = np.concatenate((id_value[[0], :], id_value, id_value[[-1], :]), axis=0)
+    id_value = np.concatenate(
+        (id_value[[0], :], id_value, id_value[[-1], :]), axis=0
+    )
 
     return id_value
 
@@ -1269,7 +1299,9 @@ def detect_meanders(wave, conn, peak_row, peak_col):
                 continue
 
             if np.any(np.isnan(peak_row[branch])):
-                raise ValueError("NaN values in peak_row, review you conn matrix")
+                raise ValueError(
+                    "NaN values in peak_row, review you conn matrix"
+                )
             rw_indices = peak_row[branch].astype(int)
             col_indices = peak_col[branch].astype(int)
 
@@ -1371,7 +1403,9 @@ def clean_tree(conn, meander_id):
         m_node = np.intersect1d(branch, meander_id)
         if len(m_node) > 0:
             m_node_idx = np.where(branch == m_node[0])[0][0]
-            frm = np.concatenate((frm, np.setdiff1d(branch[m_node_idx + 1 :], frm)))
+            frm = np.concatenate(
+                (frm, np.setdiff1d(branch[m_node_idx + 1 :], frm))
+            )
 
     if len(frm) > 0:
         conn = remove_nodes(conn, frm.astype(int))
@@ -1788,7 +1822,9 @@ def get_tree_scales_dict(
                 l.append(RF.calculate_l(x_s, y_s))
                 lambda_values.append(RF.calculate_lambda(x_s, y_s))
                 # Sinuosity
-                sn_values.append(RF.calculate_sinuosity(l[-1], lambda_values[-1]))
+                sn_values.append(
+                    RF.calculate_sinuosity(l[-1], lambda_values[-1])
+                )
 
             # Store data
             tree_scales["sn"].append(np.array(sn_values))
@@ -2063,7 +2099,9 @@ def calculate_meander_shape(
 
         # Detect Peaks
         try:
-            s_peak_idx = np.where(np.diff(np.diff(s_wave) > 0, prepend=0) == -1)[0] + 1
+            s_peak_idx = (
+                np.where(np.diff(np.diff(s_wave) > 0, prepend=0) == -1)[0] + 1
+            )
             s_peak_max = np.max(s_wave[s_peak_idx])
         except ValueError:
             s_peak_max = 0
@@ -2074,10 +2112,18 @@ def calculate_meander_shape(
         fatv = np.sin(3 * phi)
 
         sk_val[cm] = (
-            scaling * np.sum(s_wave * skv) / np.sum(skv**2) * s_peak_max / m_peak_max
+            scaling
+            * np.sum(s_wave * skv)
+            / np.sum(skv**2)
+            * s_peak_max
+            / m_peak_max
         )
         fl_val[cm] = (
-            scaling * np.sum(s_wave * fatv) / np.sum(fatv**2) * s_peak_max / m_peak_max
+            scaling
+            * np.sum(s_wave * fatv)
+            / np.sum(fatv**2)
+            * s_peak_max
+            / m_peak_max
         )
 
     return sk_val, fl_val

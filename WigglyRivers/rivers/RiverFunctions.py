@@ -17,23 +17,18 @@ ______________________________________________________________________________
 # -----------
 # Libraries
 # -----------
-from typing import Union, List, Tuple, Dict, Any, Optional
-import time
+from typing import Union
 import copy
 import numpy as np
 from scipy.interpolate import UnivariateSpline
 from scipy import interpolate
 from scipy.signal import find_peaks
-from collections import Counter
-from scipy.spatial import Delaunay
-from scipy.spatial.distance import euclidean
 from circle_fit import taubinSVD
 from scipy.interpolate import splprep, splev
 
 # Package packages
 from ..utilities import general_functions as GF
 from ..utilities.classExceptions import *
-from ..utilities import filesManagement as FM
 from ..wavelet_tree import WaveletTreeFunctions as WTFunc
 
 
@@ -766,7 +761,8 @@ def fit_splines(
         diff_s = np.mean(np.diff(s))
     else:
         raise ValueError(
-            f"method '{method} not implemented." f"Please use 'min' or 'geometric_mean'"
+            f"method '{method} not implemented."
+            f"Please use 'min' or 'geometric_mean'"
         )
     if ds > 0:
         diff_s = ds
@@ -838,7 +834,9 @@ def fit_splines(
         return s_poly, x_poly, y_poly
 
 
-def fit_splines_complete(data, method="geometric_mean", ds=0, k=3, smooth=0, ext=0):
+def fit_splines_complete(
+    data, method="geometric_mean", ds=0, k=3, smooth=0, ext=0
+):
     """
     Description:
     ------------
@@ -918,7 +916,11 @@ def fit_splines_complete(data, method="geometric_mean", ds=0, k=3, smooth=0, ext
 
     z_spl = UnivariateSpline(s, z, k=1, s=0, ext=0)
     f_comid = interpolate.interp1d(
-        s, comid, fill_value=(comid[0], comid[-1]), kind="previous", bounds_error=False
+        s,
+        comid,
+        fill_value=(comid[0], comid[-1]),
+        kind="previous",
+        bounds_error=False,
     )
     f_so = interpolate.interp1d(
         s, so, fill_value=(so[0], so[-1]), kind="previous", bounds_error=False
@@ -926,7 +928,13 @@ def fit_splines_complete(data, method="geometric_mean", ds=0, k=3, smooth=0, ext
     f_da = interpolate.interp1d(s, da, fill_value="extrapolate")
     f_w = interpolate.interp1d(s, w, fill_value="extrapolate")
     splines.update(
-        {"z_spl": z_spl, "f_comid": f_comid, "f_so": f_so, "f_da": f_da, "f_w": f_w}
+        {
+            "z_spl": z_spl,
+            "f_comid": f_comid,
+            "f_so": f_so,
+            "f_da": f_da,
+            "f_w": f_w,
+        }
     )
     # ------------------
     # Create points
