@@ -20,9 +20,6 @@ import numpy as np
 # Graphs
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter
-import seaborn as sns
-from textwrap import wrap
 from matplotlib import colors
 import pyproj
 import plotly.graph_objects as go
@@ -50,7 +47,9 @@ class MidPointLogNorm(colors.LogNorm):
             0.5,
             1,
         ]
-        return np.ma.array(np.interp(np.log(value), x, y), mask=result.mask, copy=False)
+        return np.ma.array(
+            np.interp(np.log(value), x, y), mask=result.mask, copy=False
+        )
 
 
 class MidPointNorm(colors.Normalize):
@@ -63,13 +62,19 @@ class MidPointNorm(colors.Normalize):
             0,
             1
             / 2
-            * (1 - abs((self.midpoint - self.vmin) / (self.midpoint - self.vmax))),
+            * (
+                1
+                - abs((self.midpoint - self.vmin) / (self.midpoint - self.vmax))
+            ),
         )
         normalized_max = min(
             1,
             1
             / 2
-            * (1 + abs((self.vmax - self.midpoint) / (self.midpoint - self.vmin))),
+            * (
+                1
+                + abs((self.vmax - self.midpoint) / (self.midpoint - self.vmin))
+            ),
         )
         normalized_mid = 0.5
         x, y = [self.vmin, self.midpoint, self.vmax], [
@@ -210,14 +215,20 @@ def plot_wavelet_system(
             if isinstance(z_c, int):
                 continue
             if zc_sign[czc] == 1:
-                ax2_t.plot(s_curvature[z_c[:, 1]], cwt_period[z_c[:, 0]], "-r", lw=1)
+                ax2_t.plot(
+                    s_curvature[z_c[:, 1]], cwt_period[z_c[:, 0]], "-r", lw=1
+                )
             else:
-                ax2_t.plot(s_curvature[z_c[:, 1]], cwt_period[z_c[:, 0]], "-b", lw=1)
+                ax2_t.plot(
+                    s_curvature[z_c[:, 1]], cwt_period[z_c[:, 0]], "-b", lw=1
+                )
 
     if poly is not None:
         for cpol, p in enumerate(poly):
             n_pts = p.shape[0] // 2
-            ax2_t.plot(s_curvature[p[0:n_pts, 1]], cwt_period[p[0:n_pts, 0]], "--k")
+            ax2_t.plot(
+                s_curvature[p[0:n_pts, 1]], cwt_period[p[0:n_pts, 0]], "--k"
+            )
 
     if ml_tree is not None:
         s_c_peak = np.empty_like(peak_col) * np.nan
@@ -236,7 +247,9 @@ def plot_wavelet_system(
         regions_2[:, 1] = cwt_period[regions[:, 1].astype(int)]
         regions_2[:, 2] = s_curvature[regions[:, 2].astype(int)]
         regions_2[:, 3] = s_curvature[regions[:, 3].astype(int)]
-        WTFunc.plot_regions(regions_2, ax=ax2_t, color="grey", linestyle="--", lw=0.5)
+        WTFunc.plot_regions(
+            regions_2, ax=ax2_t, color="grey", linestyle="--", lw=0.5
+        )
 
     ax[2].set_yscale("log")
     ax2_t.set_yscale("log")
@@ -359,7 +372,10 @@ def plot_river_with_plotly(
                                 name="Root Node",
                                 marker=dict(color="cyan"),
                                 hovertemplate=(
-                                    "id: " + str(cp) + "<br>pwr: " + str(peak_pwr[cp])
+                                    "id: "
+                                    + str(cp)
+                                    + "<br>pwr: "
+                                    + str(peak_pwr[cp])
                                 ),
                             ),
                             row=1,
@@ -378,7 +394,10 @@ def plot_river_with_plotly(
                             name="Node",
                             marker=dict(color="cyan"),
                             hovertemplate=(
-                                "id: " + str(cp) + "<br>pwr: " + str(peak_pwr[cp])
+                                "id: "
+                                + str(cp)
+                                + "<br>pwr: "
+                                + str(peak_pwr[cp])
                             ),
                         ),
                         row=1,
@@ -483,7 +502,11 @@ def plot_river_with_plotly(
     else:
         fig.add_trace(
             go.Scatter(
-                x=x, y=y, mode="lines", name="River", line=dict(color="blue", width=2)
+                x=x,
+                y=y,
+                mode="lines",
+                name="River",
+                line=dict(color="blue", width=2),
             ),
             row=1,
             col=1,
@@ -528,7 +551,10 @@ def plot_river_with_plotly(
                                 name="Root Node",
                                 marker=dict(color="cyan"),
                                 hovertemplate=(
-                                    "id: " + str(cp) + "<br>pwr: " + str(peak_pwr[cp])
+                                    "id: "
+                                    + str(cp)
+                                    + "<br>pwr: "
+                                    + str(peak_pwr[cp])
                                 ),
                             ),
                             row=1,
@@ -547,7 +573,10 @@ def plot_river_with_plotly(
                             name="Node",
                             marker=dict(color="cyan"),
                             hovertemplate=(
-                                "id: " + str(cp) + "<br>pwr: " + str(peak_pwr[cp])
+                                "id: "
+                                + str(cp)
+                                + "<br>pwr: "
+                                + str(peak_pwr[cp])
                             ),
                         ),
                         row=1,
@@ -622,7 +651,9 @@ def plot_rivers_plotly(
                     name=int(st_river),
                 )
             )
-            means_y[i], means_x[i] = transformer.transform(means_x[i], means_y[i])
+            means_y[i], means_x[i] = transformer.transform(
+                means_x[i], means_y[i]
+            )
 
         # set the layout
         layout = go.Layout(
@@ -652,7 +683,9 @@ def plot_rivers_plotly(
             ) = rivers[st_river]._extract_data_source()
             # x = rivers[st_river].x
             # y = rivers[st_river].y
-            traces.append(go.Scatter(x=x, y=y, mode="lines", name=int(st_river)))
+            traces.append(
+                go.Scatter(x=x, y=y, mode="lines", name=int(st_river))
+            )
 
         # set the layout
         layout = go.Layout(
@@ -756,7 +789,7 @@ def plot_tree_from_anytree(
     # -----------------
     im = ax[1].pcolormesh(s_curvature, wavelength, wave, cmap="Spectral")
     if scale_by_width:
-        ax[1].set_xlabel(f"$s^*$")
+        ax[1].set_xlabel("$s^*$")
     else:
         ax[1].set_xlabel("$s$ (m)")
     # ax[1, 1].set_ylabel('Wavelength [m]')
@@ -775,7 +808,7 @@ def plot_tree_from_anytree(
     # ax[1].invert_yaxis()
     ax[1].set_yscale("log")
     ax[1].set_yticklabels([])
-    ax[1].set_title(f"(b) CWT of Curvature with Scale Space Tree")
+    ax[1].set_title("(b) CWT of Curvature with Scale Space Tree")
 
     # Plot tree
     for tree_id in tree_ids:
@@ -790,7 +823,9 @@ def plot_tree_from_anytree(
                 continue
             # Plot in planimetry
             ax[0] = plot_node(ax[0], node, x_var="x_c", y_var="y_c", **kwargs)
-            ax[1] = plot_node(ax[1], node, x_var="s_c", y_var="wavelength_c", **kwargs)
+            ax[1] = plot_node(
+                ax[1], node, x_var="s_c", y_var="wavelength_c", **kwargs
+            )
             if node.parent is not None:
                 ax[0].plot(
                     [node.x_c, node.parent.x_c],
@@ -815,7 +850,9 @@ def plot_tree_from_anytree(
     cbar = fig.colorbar(im, cax=cbar_ax)
     # Add Label
     if scale_by_width:
-        cbar.ax.set_ylabel(r"$\log_2(|W^*_{n,c}|^2)$", rotation=270, labelpad=15)
+        cbar.ax.set_ylabel(
+            r"$\log_2(|W^*_{n,c}|^2)$", rotation=270, labelpad=15
+        )
     else:
         cbar.ax.set_ylabel(
             r"$\log_2(|W_{n,c}|^2$ (m$^{-2}))$", rotation=270, labelpad=15
@@ -848,13 +885,13 @@ def plot_tree_from_anytree(
         ax_gws.set_xlabel(r"$|\overline{W^*_{n,c,GWS}}|^2$")
         ax_gws.set_ylabel(r"$\lambda^*$")
     else:
-        ax_gws.set_xlabel(f"$|\\overline{{W_{{n,c,GWS}}}}|^2$\n(m$^{{-2}}$)")
+        ax_gws.set_xlabel("$|\\overline{W_{n,c,GWS}}|^2$\n(m$^{-2}$)")
         ax_gws.set_ylabel(r"$\lambda$ (m)")
     ax_gws.set_yscale("log")
     ax_gws.set_xscale("log")
     ax_gws.invert_xaxis()
     ax_gws.set_ylim([wavelength[-1], wavelength[0]])
-    ax_gws.set_title(f"GWS")
+    ax_gws.set_title("GWS")
 
     return
 
@@ -950,9 +987,9 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
         r"$\theta$",
         r"$s$ (m)",
         r"$|\overline{W_{n,c,GWS}}|^2$ (m$^{-2}$)",
-        f"$|\\overline{{W_{{n,c,SAWP}}}}|^2$\n(m$^{{-2}}$)",
-        f"$|\\overline{{W_{{n,\\theta,GWS}}}}|^2$\n(deg)",
-        f"$|\\overline{{W_{{n,\\theta,SAWP}}}}|^2$\n(deg)",
+        "$|\\overline{W_{n,c,SAWP}}|^2$\n(m$^{-2}$)",
+        "$|\\overline{W_{n,\\theta,GWS}}|^2$\n(deg)",
+        "$|\\overline{W_{n,\\theta,SAWP}}|^2$\n(deg)",
     ]
     if scale_by_width:
         labels = [

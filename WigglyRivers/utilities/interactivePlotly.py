@@ -14,23 +14,16 @@ Characterization App.
 # Importing Modules
 # ------------------------
 import copy
-from typing import Union, List, Tuple, Dict, Any, Optional
+from typing import Union
 
 # Data Managment
 import numpy as np
 
 # Graphs
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter
-import seaborn as sns
-from textwrap import wrap
-from matplotlib import colors
 import pyproj
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 # Personal libraries
-from . import utilities as utl
 from .classExceptions import *
 
 # from ..rivers import River
@@ -103,7 +96,11 @@ def plot_interactive_river_plain(
     else:
         traces.append(
             go.Scatter(
-                x=x, y=y, mode="lines", name="River", line=dict(color="blue", width=2)
+                x=x,
+                y=y,
+                mode="lines",
+                name="River",
+                line=dict(color="blue", width=2),
             )
         )
     f = go.FigureWidget(traces)
@@ -202,7 +199,9 @@ def plot_interactive_river_plain(
                     river_obj.add_meander(
                         meander_id, ind_start=idx_start, ind_end=idx_end
                     )
-                hover_template = create_hover_template_meander(meander_id, river_obj)
+                hover_template = create_hover_template_meander(
+                    meander_id, river_obj
+                )
 
                 if satellite:
                     x_line = x_lon[idx_start : idx_end + 1]
@@ -295,7 +294,9 @@ def load_meanders(
     # Check if River has meanders
     if len(river_obj.meanders) > 0:
         for meander_id in list(river_obj.meanders):
-            hover_template = create_hover_template_meander(meander_id, river_obj)
+            hover_template = create_hover_template_meander(
+                meander_id, river_obj
+            )
             meander = river_obj.meanders[meander_id]
             x = meander.x
             y = meander.y

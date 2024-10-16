@@ -73,7 +73,8 @@ def create_data():
             results_lambda["rivers"]["0"].x = np.concatenate(
                 (
                     results_lambda["rivers"]["0"].x[:-2],
-                    result["rivers"]["0"].x + results_lambda["rivers"]["0"].x[-1],
+                    result["rivers"]["0"].x
+                    + results_lambda["rivers"]["0"].x[-1],
                 )
             )
             results_lambda["rivers"]["0"].y = np.concatenate(
@@ -85,7 +86,8 @@ def create_data():
             results_lambda["rivers"]["0"].s = np.concatenate(
                 (
                     results_lambda["rivers"]["0"].s,
-                    result["rivers"]["0"].s + np.max(results_lambda["rivers"]["0"].s),
+                    result["rivers"]["0"].s
+                    + np.max(results_lambda["rivers"]["0"].s),
                 )
             )
 
@@ -119,7 +121,7 @@ def test_load_river_dataset():
 
     river_id = "Idealized River Transect ($\lambda=[50,100,200,500]$)"
 
-    river = rivers[river_id]
+    assert rivers[river_id]
 
 
 def test_curvature_derivatives():
