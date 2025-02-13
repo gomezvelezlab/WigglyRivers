@@ -31,6 +31,8 @@ jobs:
           pip install anytree
           pip install circle-fit
           pip install tqdm
+          pip install Sphinx
+          pip install sphinx_rtd_theme
       - name: Lint with flake8
         run: |
           conda install flake8
