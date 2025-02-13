@@ -17,7 +17,7 @@ ______________________________________________________________________________
 # -----------
 # Libraries
 # -----------
-from typing import Union
+from typing import Union, Tuple
 import copy
 import numpy as np
 from scipy.interpolate import UnivariateSpline
@@ -102,20 +102,14 @@ def kinoshita_curve_abad(
     n: int,
     m_points: int = 1000,
     ds: Union[None, float] = None,
-):
-    """
-    Description:
-    ------------
+) -> Tuple[np.ndarray, np.ndarray, dict]:
+    """Generate a Kinoshita Curve with the information related
+    to the reach generated.
+    The Kinoshita curve is based on (Kinoshita, 1961). The equations presented
+    in this function are based on the equations presented in
+    (Abad and Garcia, 2009).
 
-        Generate a Kinoshita Curve with the information related
-        to the reach generated.
-
-        The Kinoshita curve is based on (Kinoshita, 1961). The
-        equations presented in this function are based on the
-        equations presented in (Abad and Garcia, 2009).
-
-        References:
-        ------------
+    References:
         Abad, J. D., & Garcia, M. H. (2009). Experiments in a
         high-amplitude Kinoshita meandering channel: 1. Implications
         of bend orientation on mean and turbulent flow structure:
@@ -126,40 +120,34 @@ def kinoshita_curve_abad(
         deformation in Ishikari River. Report of Bureau of
         Resources, 174. Retrieved from
         https://cir.nii.ac.jp/crid/1571417124444824064
-    ____________________________________________________________________________
+
 
     Args:
-    ------------
-    :param theta_0: float,
-        Maximum angular amplitude in radians.
-    :type theta_0: float
-    :param lambda_value: float,
-        Arc wavelength.
-    :type lambda_value: float
-    :param j_s: float,
-        Skewness.
-    :type j_s: float
-    :param j_f: float,
-        Flatness.
-    :type j_f: float
-    :param n: int,
-        Number of loops.
-    :type n: int
-    :param m_points: int (default 1000),
-        Number of points that describe the meander.
-    :type m_points: int
-    :param ds: float or None (default None),
-        Delta of streamwise coordinate (s).
-    :type ds: float or None
-    :return:
-        - x (numpy.ndarray) - X coordinates.
-        - y (numpy.ndarray) - Y coordinates.
-        - data (dict) - dict with 'curve': curvature, 'theta':
-        values of theta in each iteration, 's': streamwise coordinates,
-        'lmax': maximum length, 'ymax': maximum y extent,
-        'sinuosity': sinuosity (sigma = smax/lmax).
-    :rtype: (numpy.ndarray, numpy.ndarray, py:class:dict)
+        theta_0 (float): Maximum angular amplitude in radians.
+        lambda_value (float): Arc wavelength.
+        j_s (float): Skewness.
+        j_f (float): Flatness or "fatness".
+        n (int): Number of meander loops.
+        m_points (int, optional): Number of points that describe the meander.
+            This parameter would be overwritten if ds is provided.
+            Defaults to 1000.
+        ds (Union[None, float], optional): delta of distance. If this parameter
+            is None the function will calculate the distance between points
+            using the number of pints (m_points). Defaults to None.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, dict]: X and Y coordinates and a
+            dictionary with the curvature, theta, streamwise coordinates,
+            maximum length, maximum y extent, and sinuosity. The dictionary
+            contains the following keys
+            - 'curve': curvature,
+            - 'theta': values of theta in each iteration,
+            - 's': streamwise coordinates,
+            - 'lmax': maximum length,
+            - 'ymax': maximum y extent,
+            - 'sinuosity': sinuosity (sigma = smax/lmax).
     """
+
     # Direction
     smax = n * lambda_value
     if ds is None:
