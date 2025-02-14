@@ -13,9 +13,12 @@ The functions here are used to plot Meanders
 # Importing Modules
 # ------------------------
 import copy
+from typing import Union, Tuple
+import pathlib as pl
 
 # Data Managment
 import numpy as np
+from anytree import Node
 
 # Graphs
 import matplotlib.pyplot as plt
@@ -30,6 +33,8 @@ from . import utilities as utl
 from .classExceptions import *
 from ..wavelet_tree import WaveletTreeFunctions as WTFunc
 from ..rivers import RiverFunctions as RF
+from ..rivers import RiverTransect
+from ..rivers import RiverDatasets
 
 
 # ------------------------
@@ -86,77 +91,80 @@ class MidPointNorm(colors.Normalize):
 
 
 def plot_wavelet_system(
-    x,
-    y,
-    c,
-    s_curvature,
-    cwt_matrix,
-    scales,
-    cwt_period,
-    zc_lines=None,
-    zc_sign=None,
-    poly=None,
-    ml_tree=None,
-    peak_row=None,
-    peak_col=None,
-    xc=None,
-    yc=None,
-    regions=None,
-    save=False,
-    path=None,
-    name=None,
-    cmap="Spectral",
-    meanders=None,
-    curvature_side=1,
-    w=None,
+    x: np.ndarray,
+    y: np.ndarray,
+    c: np.ndarray,
+    s_curvature: np.ndarray,
+    cwt_matrix: np.ndarray,
+    scales: np.ndarray,
+    cwt_period: np.ndarray,
+    zc_lines: Union[np.ndarray, None] = None,
+    zc_sign: Union[np.ndarray, None] = None,
+    poly: Union[np.ndarray, None] = None,
+    ml_tree: Union[np.ndarray, None] = None,
+    peak_row: Union[np.ndarray, None] = None,
+    peak_col: Union[np.ndarray, None] = None,
+    xc: Union[np.ndarray, None] = None,
+    yc: Union[np.ndarray, None] = None,
+    regions: Union[np.ndarray, list, None] = None,
+    save: bool = False,
+    path: Union[str, pl.Path, None] = None,
+    name: Union[str, None] = None,
+    cmap: Union[str] = "Spectral",
+    meanders: Union[np.ndarray, list, None] = None,
+    curvature_side: int = 1,
     **kwargs,
-):
-    """
-    Description:
-    ------------
-        This function plots the river, the curvature, the wavelet response.
-        It will also plot the zero-crossings and the peaks of the wavelet
-        response, and the tree that shows the location of the meanders.
+) -> Tuple[plt.Figure, plt.Axes]:
+    """This function plots the river, the curvature, and the wavelet response.
+    It will also plot the zero-crossings and the peaks of the wavelet response,
+    and the tree that shows the location of the meanders with dots.
 
-    :param x: np.ndarray,
-        x coordinates of the river.
-    :param y: np.ndarray,
-        y coordinates of the river.
-    :param c: np.ndarray,
-        Curvature of the river.
-    :param s_curvature: np.ndarray,
-        Arc length of the river.
-    :param cwt_matrix: np.ndarray,
-        Wavelet response of the river.
-    :param scales: np.ndarray,
-        Scales of the wavelet response.
-    :param zc_lines: np.ndarray,
-        Zero-crossing lines of the wavelet response.
-    :param zc_sign: np.ndarray,
-        Zero-crossing sign of the wavelet response.
-    :param poly: np.ndarray,
-        Polygon that delimits the regions in the wavelet response.
-    :param ml_tree: np.ndarray,
-        connection between the nodes of the tree.
-    :param peak_row: np.ndarray,
-        Row of the peaks of the wavelet response for each polygon region.
-    :param peak_col: np.ndarray,
-        Column of the peaks of the wavelet response for each polygon region.
-    :param xc: np.ndarray,
-        x coordinates of the nodes of the tree in the planimetry.
-    :param yc: np.ndarray,
-        y coordinates of the nodes of the tree in the planimetry.
-    :param regions: np.ndarray,
-        Regions of the wavelet response.
-    :param save: bool,
-        If True, the figure will be saved.
-    :param path: str,
-        Path where the figure will be saved.
-    :param name: str,
-        Name of the figure.
-    :param kwargs: dict,
-        Additional arguments for the plot_tree function.
-    :return:
+    Args:
+        x (np.ndarray): x coordinates of the river.
+        y (np.ndarray): y coordinates of the river.
+        c (np.ndarray): Curvature of the river.
+        s_curvature (np.ndarray): Arc length of the river.
+        cwt_matrix (np.ndarray): Wavelet response of the river.
+        scales (np.ndarray): Scales of the wavelet response.
+        cwt_period (np.ndarray): Period of the wavelet response.
+        zc_lines (Union[np.ndarray, None], optional): zero-crossing lines of
+            the wavelet response. If None this lines will not be plotted.
+            Defaults to None.
+        zc_sign (Union[np.ndarray, None], optional): sign of the zero-crossing
+            lines of the wavelet response. If None this lines will not be
+            plotted. Defaults to None.
+        poly (Union[np.ndarray, None], optional): Polygons that delimits the
+            region in the wavelet response. If None this regions will not be
+            plotted. Defaults to None.
+        ml_tree (Union[np.ndarray, None], optional): Connection between the
+            nodes of the tree. If None this nodes will not be plotted.
+            Defaults to None.
+        peak_row (Union[np.ndarray, None], optional): Row of the peaks of the
+            wavelet response for each polygon region. Defaults to None.
+        peak_col (Union[np.ndarray, None], optional): Columns of the peaks of
+            the wavelet response for each plygon region. Defaults to None.
+        xc (Union[np.ndarray, None], optional): x coordinates of the tree nodes
+            projected to the planimetry. Defaults to None.
+        yc (Union[np.ndarray, None], optional): y coordinated of the tree nodes
+            projected to the planimetry. Defaults to None.
+        regions (Union[np.ndarray, list, None], optional): regions of the
+            wavelet response. Defaults to None.
+        save (bool, optional): flag to save the figure. If False the figure will
+            not be saved. Defaults to False.
+        path (Union[str, pl.Path, None], optional): path to save the figure.
+            This parameter will only be used if save is True. Defaults to None.
+        name (Union[str, None], optional): name of the figure.
+            This parameter will only be used if save is True. Defaults to None.
+        cmap (Union[str], optional): color map of the wavelet response function.
+            Defaults to "Spectral".
+        meanders (Union[np.ndarray, list, None], optional): meander x and y
+            coordinates. Defaults to None.
+        curvature_side (int, optional): side of the curvature to plot. This
+            parameter will only be used if meanders is not None. The parameter
+            can be 1 or -1. Defaults to 1.
+
+    Returns:
+        Tuple[plt.Figure, plt.Axes]: figure and axes of the plot.
     """
     # Prepare cwt_data
     wave = np.log2(cwt_matrix**2)
@@ -198,7 +206,7 @@ def plot_wavelet_system(
     ax[1].set_xlabel("Distance (m)")
     ax[1].set_ylabel("Curvature (m$^{-1}$)")
     # Wavelet
-    norm = MidPointNorm(midpoint=0)
+    # norm = MidPointNorm(midpoint=0)
     ax2_t = ax[2].twinx()
     im = ax2_t.pcolormesh(s_curvature, cwt_period, wave, cmap=cmap)
     im = ax[2].pcolormesh(s_curvature, scales, wave, cmap=cmap)
@@ -266,19 +274,38 @@ def plot_wavelet_system(
     else:
         plt.show()
 
-    return
+    return fig, ax
 
 
 def plot_river_with_plotly(
-    river,
-    tree=False,
-    meanders=False,
-    curvature_side=1,
-    so=0,
-    mapbox_token=None,
-    projection="esri:102003",
-    data_source="original",
-):
+    river: RiverTransect,
+    tree: bool = False,
+    meanders: bool = False,
+    curvature_side: int = 1,
+    so: int = 0,
+    mapbox_token: Union[str, None] = None,
+    projection: str = "esri:102003",
+    data_source: str = "original",
+) -> None:
+    """plot the river transect with the meanders and the tree using plotly.
+
+    Args:
+        river (RiverTransect): River transect object.
+        tree (bool, optional): flag to plot the tree. Defaults to False.
+        meanders (bool, optional): flag to plot meanders. Defaults to False.
+        curvature_side (int, optional): curveture side of meanders to plot.
+            This parameter can be 1 or -1. Defaults to 1.
+        so (int, optional): Stream order to plot. Only used if data_source is
+            'smooth'. If 0 all stream orders will be plotted. Defaults to 0.
+        mapbox_token (Union[str, None], optional): mapbox token. This will
+            allow to plot the figure with the satellite image at the background.
+            Defaults to None.
+        projection (str, optional): projection of the current data. This is
+            needed to convert the data to WGS84 for mapbox plotting.
+            Defaults to "esri:102003".
+        data_source (str, optional): data source use for plotting.
+            Defaults to "original".
+    """
 
     if mapbox_token is not None:
         satellite = True
@@ -305,8 +332,8 @@ def plot_river_with_plotly(
         ml_tree = copy.deepcopy(river.cwt_ml_tree[so])
         planimetry_coords = river.cwt_planimetry_coords[so]
         peak_pwr = river.cwt_peak_pwr[so]
-        peak_row = river.cwt_peak_row[so]
-        peak_col = river.cwt_peak_col[so]
+        # peak_row = river.cwt_peak_row[so]
+        # peak_col = river.cwt_peak_col[so]
         ml_tree = WTFunc.check_conn(ml_tree)
         nc = WTFunc.n_child(ml_tree)
 
@@ -701,7 +728,27 @@ def plot_rivers_plotly(
     return fig
 
 
-def plot_rivers_matplotlib(rivers, comids, data_source="resample", **kwargs):
+def plot_rivers_matplotlib(
+    rivers: RiverDatasets,
+    comids: Union[str, list, np.ndarray],
+    data_source: str = "resample",
+    **kwargs,
+) -> Tuple[plt.Figure, plt.Axes]:
+    """plot the rivers using matplotlib.
+
+    Args:
+        rivers (RiverDatasets): RiverDatasets object.
+        comids (Union[str, list, np.ndarray]): list of comids to be plotted.
+        data_source (str, optional): data source of the coordinates.
+            The options are 'original' and 'resample'. Defaults to "resample".
+        **kwargs: additional arguments to be passed to the ax.plot.
+
+    Returns:
+        Tuple[plt.Figure, plt.Axes]: figure and axes of the plot.
+    """
+    if isinstance(comids, str):
+        comids = [comids]
+
     fig, ax = plt.subplots()
     # Extracting Info
     x_all = []
@@ -730,31 +777,59 @@ def plot_rivers_matplotlib(rivers, comids, data_source="resample", **kwargs):
 
 
 def plot_tree_from_anytree(
-    x,
-    y,
-    s_curvature,
-    wavelength,
-    wave,
-    tree_scales,
-    gws,
-    peaks_gws,
-    id_river,
-    coi=None,
-    tree_ids=None,
-    node_ids=None,
-    min_s=None,
-    include_removed=False,
-    scale_by_width=False,
-    title=None,
+    x: np.ndarray,
+    y: np.ndarray,
+    s_curvature: np.ndarray,
+    wavelength: np.ndarray,
+    wave: np.ndarray,
+    tree_scales: dict,
+    gws: np.ndarray,
+    peaks_gws: np.ndarray,
+    id_river: Union[int, float, str],
+    coi: Union[np.ndarray, None] = None,
+    tree_ids: Union[list, None] = None,
+    node_ids: Union[int, None] = None,
+    min_s: Union[np.ndarray, None] = None,
+    include_removed: bool = False,
+    scale_by_width: bool = False,
+    title: Union[str, None] = None,
     **kwargs,
-):
-    """
-    Description:
-    ------------
-        Plot the tree from the anytree data.
-    ____________________________________________________________________________
+) -> Tuple[plt.Figure, plt.Axes]:
+    """plot the river, the curvature, and the wavelet response using anytree
+    tree.
 
+    Args:
+        x (np.ndarray): x coordinates of the river.
+        y (np.ndarray): y coordinates of the river.
+        s_curvature (np.ndarray): Arc length of the river.
+        wavelength (np.ndarray): Wavelength of the wavelet response.
+        wave (np.ndarray): power of the wavelet response.
+        tree_scales (dict): treescales object.
+        gws (np.ndarray): generalized wavelet spectrum.
+        peaks_gws (np.ndarray): peaks of the generalized wavelet spectrum.
+        id_river (Union[int, float, str]): river id.
+        coi (Union[np.ndarray, None], optional): cone of influence.
+            Defaults to None.
+        tree_ids (Union[list, None], optional): tree ids to plot.
+            Defaults to None.
+        node_ids (Union[int, None], optional): node ids to plot.
+            Defaults to None.
+        min_s (Union[np.ndarray, None], optional): cut in this spectrum.
+            Defaults to None.
+        include_removed (bool, optional): include removed branches.
+            Defaults to False.
+        scale_by_width (bool, optional): scale distance by width.
+            Defaults to False.
+        title (Union[str, None], optional): title of the figure.
+            Defaults to None.
+
+    Raises:
+        ValueError: node_ids must be None if more than one tree_id
+
+    Returns:
+        Tuple[plt.Figure, plt.Axes]: figure and Axes of the plot.
     """
+
     if tree_ids is not None:
         all_trees = False
         if isinstance(tree_ids, int) or isinstance(tree_ids, np.int64):
@@ -762,10 +837,10 @@ def plot_tree_from_anytree(
     else:
         tree_ids = list(tree_scales.trees)
         all_trees = True
-    if node_ids is not None and len(tree_id) == 1:
+    if node_ids is not None and len(tree_ids) == 1:
         if isinstance(node_ids, int) or isinstance(node_ids, np.int64):
             node_ids = [node_ids]
-    elif node_ids is not None and len(tree_id) > 1:
+    elif node_ids is not None and len(tree_ids) > 1:
         raise ValueError("node_ids must be None if more than one tree_id")
 
     # ========================
@@ -819,7 +894,7 @@ def plot_tree_from_anytree(
             nodes = node_ids
         for node in nodes:
             removed_meander = node.is_leaf and not (node.is_meander)
-            if include_removed == False and removed_meander:
+            if not include_removed and removed_meander:
                 continue
             # Plot in planimetry
             ax[0] = plot_node(ax[0], node, x_var="x_c", y_var="y_c", **kwargs)
@@ -893,14 +968,22 @@ def plot_tree_from_anytree(
     ax_gws.set_ylim([wavelength[-1], wavelength[0]])
     ax_gws.set_title("GWS")
 
-    return
+    return fig, ax
 
 
-def plot_node(ax, node, x_var, y_var, **kwargs):
-    """
-    Description
-    ------------
-        Plot the node in system.
+def plot_node(
+    ax: plt.Axes, node: Node, x_var: str, y_var: str, **kwargs
+) -> plt.Axes:
+    """plot node in the planimetry.
+
+    Args:
+        ax (plt.Axes): axes of the plot.
+        node (Node): Node object.
+        x_var (str): variable name of the x coordinate.
+        y_var (str): variable name of the y coordinate.
+
+    Returns:
+        plt.Axes: Axes of the plot.
     """
 
     x = node.__dict__[x_var]
@@ -919,22 +1002,23 @@ def plot_node(ax, node, x_var, y_var, **kwargs):
     return ax
 
 
-def plot_meander_matplotlib(x_river, y_river, x_meander, y_meander):
-    """
-    Description:
-    ------------
-        Plot the meander in matplotlib.
-    ____________________________________________________________________________
-
+def plot_meander_matplotlib(
+    x_river: np.ndarray,
+    y_river: np.ndarray,
+    x_meander: np.ndarray,
+    y_meander: np.ndarray,
+) -> plt.Figure:
+    """plot meander in the river.
 
     Args:
-    -----
-    :param x_river: np.ndarray,
-        x coordinates of the river.
-    :param y_river: np.ndarray,
-        y coordinates of the river.
-    :param x_meander: np.ndarray,
-        x coordinates of the meander.
+        x_river (np.ndarray): x coordinates of the river.
+        y_river (np.ndarray): y coordinates of the river.
+        x_meander (np.ndarray): x coordinates of the meander.
+        y_meander (np.ndarray): y coordinates of the meander.
+        **kwargs: additional arguments to be passed to the ax.plot.
+
+    Returns:
+        plt.Figure: Figure of the plot.
     """
     f = plt.figure(figsize=(5, 5))
     plt.plot(x_river, y_river, "-k")
@@ -958,12 +1042,28 @@ def plot_meander_matplotlib(x_river, y_river, x_meander, y_meander):
     return f
 
 
-def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
+def plot_river_spectrum_compiled(
+    river: RiverTransect,
+    only_significant: bool = True,
+    idx_data: Union[np.ndarray, None] = None,
+) -> Union[plt.Figure, plt.Axes]:
+    """plot river spectrum.
+
+    Args:
+        river (RiverTransect): RiverTransect object.
+        only_significant (bool, optional): flag to show only significant
+            meanders. Defaults to True.
+        idx_data (Union[np.ndarray, None], optional): index data to plot.
+            Defaults to None.
+
+    Returns:
+        Union[plt.Figure, plt.Axes]: Figure and Axes of the plot.
+    """
     fs = 10
     mpl.rcParams["font.size"] = fs
     # Extract Information
     cmap = "YlGnBu"
-    id_river = river.id_value
+    # id_river = river.id_value
     x = river.x
     y = river.y
     s = river.s
@@ -1051,7 +1151,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     # Power Curvature
     # ------------------------
     i_d = 2
-    im_c = ax[i_d].pcolormesh(s, wavelen_c, power_c, shading="auto", cmap=cmap)
+    ax[i_d].pcolormesh(s, wavelen_c, power_c, shading="auto", cmap=cmap)
     if idx_data is not None:
         for idx in idx_data:
             ax[i_d].axvline(s[idx], color="r", linestyle="--")
@@ -1104,9 +1204,7 @@ def plot_river_spectrum_compiled(river, only_significant=True, idx_data=None):
     # Power Angle
     # ------------------------
     i_d = 5
-    im_angle = ax[i_d].pcolormesh(
-        s, wavelen_angle, power_angle, shading="auto", cmap=cmap
-    )
+    ax[i_d].pcolormesh(s, wavelen_angle, power_angle, shading="auto", cmap=cmap)
     if idx_data is not None:
         for idx in idx_data:
             ax[i_d].axvline(s[idx], color="r", linestyle="--")

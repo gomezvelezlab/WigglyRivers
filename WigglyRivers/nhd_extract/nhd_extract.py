@@ -401,7 +401,7 @@ class ExtractNHDPlusHRData:
 
         # Load the flowlines
         self.logger.info(" Start: Load Shapefile")
-        shapefile = FM.read_gbd(file_data, layer=flowlines)
+        shapefile = FM.read_gdb(file_data, layer=flowlines)
         shapefile[comid] = shapefile[comid].astype("int64")
         shapefile[comid] = shapefile[comid].astype(str)
         self.logger.info(" Done: Load Shapefile")
@@ -456,7 +456,7 @@ class ExtractNHDPlusHRData:
         # Check NHDWaterbody
         # -------------------------------
         # Extract NHDWaterbody
-        shapefile_wb = FM.read_gbd(file_data, layer="NHDWaterbody")
+        shapefile_wb = FM.read_gdb(file_data, layer="NHDWaterbody")
         shapefile_wb[comid] = shapefile_wb[comid].astype("int64")
         shapefile_wb[comid] = shapefile_wb[comid].astype(str)
         join_left_intersects_df = shapefile.sjoin(
@@ -532,7 +532,7 @@ class ExtractNHDPlusHRData:
             # Load new table
             self.logger.info(f"  Merging {t}")
             try:
-                t_n = FM.read_gbd(file_data, layer=t)
+                t_n = FM.read_gdb(file_data, layer=t)
                 t_n[comid] = t_n[comid].astype("int64")
                 t_n[comid] = t_n[comid].astype(str)
             except KeyError:

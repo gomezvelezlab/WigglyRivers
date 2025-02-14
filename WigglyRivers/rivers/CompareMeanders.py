@@ -22,7 +22,6 @@ import numpy as np
 import pandas as pd
 
 # Package packages
-from ..utilities.classExceptions import *
 from . import RiverFunctions as RF
 
 
