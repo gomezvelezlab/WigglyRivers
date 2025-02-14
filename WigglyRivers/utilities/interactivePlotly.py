@@ -24,7 +24,6 @@ import pyproj
 import plotly.graph_objects as go
 
 # Personal libraries
-from ..rivers import RiverTransect
 
 
 # ------------------------
@@ -35,7 +34,7 @@ def plot_interactive_river_plain(
     y: Union[list, np.ndarray],
     clicked_points: list = [],
     meander_ids: list = [],
-    river_obj: Union[RiverTransect, None] = None,
+    river_obj=None,
     inflection_flag: bool = False,
     mapbox_token: Union[bool, None] = None,
     current_crs: str = "epsg:4326",
@@ -263,7 +262,7 @@ def check_meander_id(meander_ids: list) -> int:
 
 def load_meanders(
     f: go.FigureWidget,
-    river_obj: RiverTransect,
+    river_obj,
     mapbox_token: str = None,
     current_crs: str = "epsg:4326",
 ) -> go.FigureWidget:
@@ -375,9 +374,7 @@ def load_meanders(
     return f
 
 
-def create_hover_template_meander(
-    meander_id: int, river_obj=Union[None, RiverTransect]
-) -> str:
+def create_hover_template_meander(meander_id: int, river_obj=None) -> str:
     """create hover template for meanders.
 
     Args:

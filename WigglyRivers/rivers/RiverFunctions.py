@@ -585,37 +585,56 @@ def translate(p, p1):
     return p - p1
 
 
-def rotate(p, p1, p2, theta=None):
-    """
-    Description:
-    ------------
+def rotate(
+    p: np.ndarray,
+    p1: Union[np.ndarray, None] = None,
+    p2: Union[np.ndarray, None] = None,
+    theta: Union[float, None] = None,
+) -> Tuple[np.ndarray, float]:
+    """rotate points (p) an angle theta or rotate the points such that p1 and
+    p2 are aligned with the x-axis. The angle theta is calculated from the
+    points p1 and p2. The rotation is done with the following matrix:
 
-        Rotate points.
-    ____________________________________________________________________________
+    .. math::
+        \\begin{bmatrix}
+            \\cos(\\theta) & \\sin(\\theta) \\\\
+            -\\sin(\\theta) & \\cos(\\theta)
+        \\end{bmatrix}
+
+    example:
+
+    .. code-block:: python
+    
+        # Rotate points based on p1 and p2
+        p = np.array([[1, 1], [1, 2], [2, 2]])
+        p1 = np.array([1, 1])
+        p2 = np.array([2, 2])
+        p_rot, theta = rotate(p, p1, p2)
+        print(p_rot)
+        print(theta)
+
+        # Rotate points based on theta
+        p = np.array([[1, 1], [1, 2], [2, 2]])
+        p_rot, theta = rotate(p, theta=np.pi/2)
+        print(p_rot)
 
     Args:
-    ------------
-    :param p: np.ndarray,
-        Original coordinates as (n_points, n_variables)
-    :type p: np.ndarray
-    :param p1: np.ndarray
-        Initial coordinates as (n_points, n_variables).
-    :type p1: np.ndarray
-    :param p2: np.ndarray,
-        Ending coordinates as (n_points, n_variables).
-    :type p2: np.ndarray
-    :param theta: float (default, None),
-        Rotating angle in radians. If None, the code will calculate
-        the angle from p1 and p2
-    :type theta: float
-    :return: (np.ndarray, float),
-        rotation_matrix: np.ndarray, Rotated points.
-        theta: float, Angle of rotation.
+        p (np.ndarray): original coordinates as (n_points, n_variables)
+        p1 (Union[np.ndarray, None], option): initial coordinates as
+            (1, n_variables). Defaults to None.
+        p2 (Union[np.ndarray, None], option): ending coordinates as
+            (1, n_variables). Defaults to None. 
+        theta (Union[float, None], optional): Angle of rotation. If None the
+            code will calculate the angle from p1 and p2 and rotate the points
+            such that p1 and p2 are aligned with the x-axis.
+            If theta is provided, the code will rotate the points with theta.
+            Defaults to None.
+
+    Returns:
+        Tuple[np.ndarray, float]: _description_
     """
+
     if theta is None:
-        # p2p1 = p2 - p1
-        # p2p1_norm = np.sqrt(p2p1[0] ** 2 + p2p1[1] ** 2)
-        # theta = np.arcsin((np.dot(p2 - p1, np.array([0, 1]))) / p2p1_norm)
         delta_x = p1[0] - p2[0]
         delta_y = p1[-1] - p2[-1]
         theta = np.arctan(delta_y / delta_x)
