@@ -33,8 +33,9 @@ from . import utilities as utl
 from .classExceptions import *
 from ..wavelet_tree import WaveletTreeFunctions as WTFunc
 from ..rivers import RiverFunctions as RF
-from ..rivers import RiverTransect
-from ..rivers import RiverDatasets
+
+# from ..rivers import RiverTransect
+# from ..rivers import RiverDatasets
 
 
 # ------------------------
@@ -278,7 +279,7 @@ def plot_wavelet_system(
 
 
 def plot_river_with_plotly(
-    river: RiverTransect,
+    river,
     tree: bool = False,
     meanders: bool = False,
     curvature_side: int = 1,
@@ -729,7 +730,7 @@ def plot_rivers_plotly(
 
 
 def plot_rivers_matplotlib(
-    rivers: RiverDatasets,
+    rivers,
     comids: Union[str, list, np.ndarray],
     data_source: str = "resample",
     **kwargs,
@@ -1043,7 +1044,7 @@ def plot_meander_matplotlib(
 
 
 def plot_river_spectrum_compiled(
-    river: RiverTransect,
+    river,
     only_significant: bool = True,
     idx_data: Union[np.ndarray, None] = None,
 ) -> Union[plt.Figure, plt.Axes]:
