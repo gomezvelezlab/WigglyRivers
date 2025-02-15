@@ -3,16 +3,12 @@
 # _____________________________________________________________________________
 #
 #                       Coded by Daniel Gonzalez Duque
-#                           Last revised 2023-11-19
+#                           Last revised 2024-02-14
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 
 """
-______________________________________________________________________________
-
- DESCRIPTION:
-   Functions related to meander creation and fitting.
-______________________________________________________________________________
+    Functions related to meander creation and fitting.
 """
 # -----------
 # Libraries
@@ -35,21 +31,21 @@ from ..wavelet_tree import WaveletTreeFunctions as WTFunc
 # -----------
 # Functions
 # -----------
-def convert_str_float_list_vector(x_val):
-    """
-    Description:
-    ------------
-        Convert a string with a list of values to a list of floats.
-    ____________________________________________________________________________
+def convert_str_float_list_vector(x_val: str) -> np.ndarray:
+    """Convert string to float vector
+
+    example:
+    .. code-block:: python
+        x_val = '[1, 2, 3, 4]'
+        x_val = convert_str_float_list_vector(x_val)
 
     Args:
-    ------------
-    :param x_val: str,
-        String with the list of values.
-    :type x_val: str
-    :return:
-        x_val: np.ndarray, List of floats.
+        x_val (str): String with the values separated by commas.
+
+    Returns:
+        np.ndarray: Vector with the values.
     """
+
     x_val = (
         x_val.replace("[", "")
         .replace("]", "")
@@ -61,22 +57,26 @@ def convert_str_float_list_vector(x_val):
     return x_val
 
 
-def line_intersection(line1, line2):
-    """
-    Description:
-    ------------
-        Finds line intersection.
-    ____________________________________________________________________________
+def line_intersection(
+    line1: np.ndarray, line2: np.ndarray
+) -> Tuple[float, float]:
+    """find the intersection of two lines.
+
+    example:
+    .. code-block:: python
+        line1 = np.array([[0, 0], [1, 1]])
+        line2 = np.array([[1, 0], [0, 1]])
+        x, y = line_intersection(line1, line2)
 
     Args:
-    ------------
-    :param line1: np.ndarray,
-        Line 1.
-    :param line2: np.ndarray,
-        Line 2.
-    :return:
-        x: float, Location where it intersects in x.
-        y: float, Location where it intersects in y.
+        line1 (np.ndarray): Vector with the coordinates of the first line.
+        line2 (np.ndarray): Vector with the coordinates of the second line.
+
+    Raises:
+        Exception: Handle the case when the lines do not intersect.
+
+    Returns:
+        Tuple[float, float]: x and y coordinates of the intersection.
     """
     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
     ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
@@ -108,6 +108,22 @@ def kinoshita_curve_abad(
     The Kinoshita curve is based on (Kinoshita, 1961). The equations presented
     in this function are based on the equations presented in
     (Abad and Garcia, 2009).
+
+    Equation:
+    .. math::
+        \\theta(s) = \\theta_0 \\sin(k s) + \\theta_0^3 (j_s \\cos(3 k s) - j_f \\sin(3 k s))
+
+    example:
+    .. code-block:: python
+        x, y, data = kinoshita_curve_abad(
+            theta_0=110*np.pi/180,
+            lambda_value=100,
+            j_s=0.020,
+            j_f=0,
+            n=3,
+            m_points=1000,
+            ds=None
+        )
 
     References:
         Abad, J. D., & Garcia, M. H. (2009). Experiments in a
@@ -201,64 +217,68 @@ def kinoshita_curve_zolezzi(
     n: int,
     m_points: int = 1000,
     ds: Union[None, float] = None,
-):
-    """
-    Description:
-    ------------
+) -> Tuple[np.ndarray, np.ndarray, dict]:
+    """Generate a Kinoshita Curve with the information related to reach
+    generated.
 
-        Generate a Kinoshita Curve with the information related
-        to the reach generated.
+    The Kinoshita curve is based on (Kinoshita, 1961). The
+    equations presented in this function are based on the
+    equations presented in (Zolezzi and Güneralp, 2016).
 
-        The Kinoshita curve is based on (Kinoshita, 1961). The
-        equations presented in this function are based on the
-        equations presented in (Zolezzi and Güneralp, 2016).
+    Equation:
+    .. math::
+        \\theta(s) = \\theta_0 \\cos(k s) + \\theta_s \\sin(3 k s) + \\theta_f \\cos(3 k s)
 
-        References:
-        ------------
-        Kinoshita, R. (1961). Investigation of channel
-        deformation in Ishikari River. Report of Bureau of
-        Resources, 174. Retrieved from
-        https://cir.nii.ac.jp/crid/1571417124444824064
+    example:
+    .. code-block:: python
+        x, y, data = kinoshita_curve_zolezzi(
+            theta_0=110*np.pi/180,
+            lambda_value=100,
+            theta_s=0.344,
+            theta_f=0.031,
+            n=3,
+            m_points=1000,
+            ds=None
+        )
 
-        Zolezzi, G., & Güneralp, I. (2016). Continuous wavelet
-        characterization of the wavelengths and regularity of
-        meandering rivers. Geomorphology, 252, 98–111.
-        https://doi.org/10.1016/j.geomorph.2015.07.029
+    References:
 
-    ____________________________________________________________________________
+    Kinoshita, R. (1961). Investigation of channel
+    deformation in Ishikari River. Report of Bureau of
+    Resources, 174. Retrieved from
+    https://cir.nii.ac.jp/crid/1571417124444824064
+
+    Zolezzi, G., & Güneralp, I. (2016). Continuous wavelet
+    characterization of the wavelengths and regularity of
+    meandering rivers. Geomorphology, 252, 98–111.
+    https://doi.org/10.1016/j.geomorph.2015.07.029
 
     Args:
-    ------------
-    :param theta_0: float,
-        Maximum angular amplitude in radians.
-    :type theta_0: float
-    :param lambda_value: float,
-        Arc wavelength.
-    :type lambda_value: float
-    :param theta_s: float,
-        coefficient for Skewness in radians.
-    :type theta_s: float
-    :param theta_f: float,
-        coefficient for Fatness in radians.
-    :type theta_f: float
-    :param n: int,
-        Number of loops.
-    :type n: int
-    :param m_points: int (default 1000),
-        Number of points that describe the meander.
-    :type m_points: int
-    :param ds: float or None (default None),
-        Delta of streamwise coordinate (s).
-    :type ds: float or None
-    :return:
-        - x (numpy.ndarray) - X coordinates.
-        - y (numpy.ndarray) - Y coordinates.
-        - data (dict) - dict with 'curve': curvature, 'theta':
-        values of theta in each iteration, 's': streamwise coordinates,
-        'lmax': maximum length, 'ymax': maximum y extent,
-        'sinuosity': sinuosity (sigma = smax/lmax).
-    :rtype: (numpy.ndarray, numpy.ndarray, py:class:dict)
+        theta_0 (float): Maximum angular amplitude in radians.
+        lambda_value (float): Arc wavelength.
+        theta_s (float): coefficient for Skewness in radians.
+        theta_f (float): coefficient for Fatness in radians.
+        n (int): Number of loops.
+        m_points (int, optional): Number of points that describe the meander.
+            This parameter would be overwritten if ds is provided.
+            Defaults to 1000.
+        ds (Union[None, float], optional): delta of distance. If this parameter
+            is None the function will calculate the distance between points
+            using the number of pints (m_points). Defaults to None.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, dict]: X and Y coordinates and a
+            dictionary with the curvature, theta, streamwise coordinates,
+            maximum length, maximum y extent, and sinuosity. The dictionary
+            contains the following keys
+            - 'curve': curvature,
+            - 'theta': values of theta in each iteration,
+            - 's': streamwise coordinates,
+            - 'lmax': maximum length,
+            - 'ymax': maximum y extent,
+            - 'sinuosity': sinuosity (sigma = smax/lmax).
     """
+
     # Direction
     smax = n * lambda_value
     if ds is None:
@@ -306,26 +326,18 @@ def kinoshita_curve_zolezzi(
     return x, y, data
 
 
-def rle(in_array):
-    """
-    Description:
-    ------------
-
-    Run length encoding. Partial credit to R rle function.
+def rle(in_array: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Run length encoding. Partial credit to R rle function.
     Multi datatype arrays catered for including non Numpy.
 
-    ___________________________________________________________________________
-
     Args:
-    ------------
+        in_array (np.ndarray): Array with values
 
-    :param in_array:
-        Array with values
-    :type in_array: list
-    :return:
-        z: np.ndarray, run lengths.
-        p: np.ndarray, start positions.
-        ia: np.ndarray, values.
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: return
+            z: np.ndarray, run lengths.
+            p: np.ndarray, start positions.
+            ia: np.ndarray, values.
     """
     ia = np.asarray(in_array)  # force numpy
     n = len(ia)
@@ -339,42 +351,55 @@ def rle(in_array):
         return z, p, ia[i]
 
 
-def calculate_curvature(ss, xs, ys, derivatives=None):
-    """
-    Description:
-    ------------
+def calculate_curvature(
+    ss: np.ndarray,
+    xs: np.ndarray,
+    ys: np.ndarray,
+    derivatives: Union[dict, None] = None,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Calculate curvature and the direction angle from the coordinates and
+    the arc-length of the river transect.
 
-        Calculate curvature and the direction angle from the coordinates and
-        the arc-length of the river transect.
+    The equation for curvature and direction angle are based on the
+    equations presented in (Güneralp and Rhoads, 2008).
 
-        The equation for curvature and direction angle are based on the
-        equations presented in (Güneralp and Rhoads, 2008).
+    If the derivatives are not provided, the function will calculate them
+    using the np.gradient function.
 
-        If the derivatives are not provided, the function will calculate them
-        using the np.gradient function.
+    Equation:
+    .. math::
+        c = \\frac{dx}{ds} \\frac{d^2y}{ds^2} - \\frac{dy}{ds} \\frac{d^2x}{ds^2}
 
-        References:
-        ------------
-        Güneralp, İ., & Rhoads, B. L. (2008). Continuous Characterization of the
-        Planform Geometry and Curvature of Meandering Rivers. Geographical
-        Analysis, 40(1), 1–25. https://doi.org/10.1111/j.0016-7363.2007.00711.x
-    ________________________________________________________________
+    example:
+    .. code-block:: python
+        ss = np.linspace(0, 100, 100)
+        xs = np.sin(ss)
+        ys = np.cos(ss)
+        r, c, theta = calculate_curvature(ss, xs, ys)
+
+    References:
+
+    Güneralp, İ., & Rhoads, B. L. (2008). Continuous Characterization of the
+    Planform Geometry and Curvature of Meandering Rivers. Geographical
+    Analysis, 40(1), 1–25. https://doi.org/10.1111/j.0016-7363.2007.00711.x
 
     Args:
-    ------------
-    :param ss: np.ndarray
-        Sreamwise coordinates
-    :type ss: np.ndarray
-    :param xs:
-        X coordinates.
-    :type xs: np.ndarray
-    :param ys:
-        Y coordinates.
-    :type ys: np.ndarray
-    :return:
-        - r: np.ndarray, Radius of curvature.
-        - c: np.ndarray, Curvature.
-        - theta: np.ndarray, direction angle
+        ss (np.ndarray): streamwise coordinates.
+        xs (np.ndarray): x coordinates.
+        ys (np.ndarray): y coordinates.
+        derivatives (Union[dict, None], optional): derivatives of the
+            coordinates. If None the function will calculate them using
+            np.gradient function. The dictionary must contain the following
+            keys:
+            - 'dxds': derivative of x with respect to s.
+            - 'dyds': derivative of y with respect to s.
+            - 'd2xds2': second derivative of x with respect to s.
+            - 'd2yds2': second derivative of y with respect to s
+            Defaults to None.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: curvature, radius of
+            curvature, and direction angle.
     """
     if derivatives is None:
         dx = np.gradient(xs, ss)
@@ -416,28 +441,27 @@ def calculate_curvature(ss, xs, ys, derivatives=None):
     return r, c, theta
 
 
-def get_inflection_points(s, c):
-    """
+def get_inflection_points(
+    s: np.ndarray, c: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Obtain the inflection points from the curvature.
 
-    Description:
-    ------------
-
-        Obtain the inflection points from the curvature.
-
-    ________________________________________________________________
+    example:
+    .. code-block:: python
+        s = np.linspace(0, 100, 100)
+        c = np.sin(s)
+        s_inf, c_inf = get_inflection_points(s, c)
 
     Args:
-    ------------
-    :param c:
-        Curvature.
-    :type c: np.ndarray
-    :param s_curve: np.ndarray,
-        Streamwise coordinates with the same dimensions of c
-    :type s_curve: np.ndarray
-    :return:
-        s_inf: np.ndarray, Streamwise inflection point.
-        c_inf: np.ndarray, Curvature inflection point.
+        s (np.ndarray): streamwise coordinates.
+        c (np.ndarray): Curvature.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: streamwise coordinates, curvature,
+            left curvature inflection point, and right curvature inflection
+            point.
     """
+
     # Find inflexion points
     # condition_c = (c >= 0)
     condition_c = c > 0
@@ -458,7 +482,28 @@ def get_inflection_points(s, c):
     return s_inf, c_inf, ind_l, ind_r
 
 
-def calculate_direction_angle(ss, xs, ys, derivatives=None):
+def calculate_direction_angle(
+    ss: np.ndarray,
+    xs: np.ndarray,
+    ys: np.ndarray,
+    derivatives: Union[dict, None] = None,
+) -> np.ndarray:
+    """Calculate the direction angle from the coordinates and the arc-length.
+    Keep in mind that this calculation would not work if the river direction
+    is in the second and third cartesian quadrants from the start of the river.
+
+    To have a better estimate of the direction angle use the function
+    :func:`RiverFunctions.calculate_curvature`.
+
+    Args:
+        ss (np.ndarray): _description_
+        xs (np.ndarray): _description_
+        ys (np.ndarray): _description_
+        derivatives (Union[dict, None], optional): _description_. Defaults to None.
+
+    Returns:
+        np.ndarray: _description_
+    """
     """
     Description:
     ------------
@@ -481,6 +526,7 @@ def calculate_direction_angle(ss, xs, ys, derivatives=None):
     :return:
         theta: np.ndarray, Direction angle.
     """
+
     if derivatives is None:
         dxds = np.gradient(xs, ss)
         dyds = np.gradient(ys, ss)
