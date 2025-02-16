@@ -47,7 +47,7 @@ def calculate_cwt(
         and Compo (1998).
 
         References:
-        ------------
+
         Torrence, C., & Compo, G. P. (1998). A Practical Guide to Wavelet
         Analysis. Bulletin of the American Meteorological Society, 79(1), 61–78.
         https://doi.org/10.1175/1520-0477(1998)079<0061:APGTWA>2.0.CO;2
@@ -117,7 +117,7 @@ def find_wave_significance(
         and Compo (1998).
 
         References:
-        ------------
+        
         Torrence, C., & Compo, G. P. (1998). A Practical Guide to Wavelet
         Analysis. Bulletin of the American Meteorological Society, 79(1), 61–78.
         https://doi.org/10.1175/1520-0477(1998)079<0061:APGTWA>2.0.CO;2
@@ -133,27 +133,18 @@ def find_wave_significance(
         Scales of the wavelet.
     :param sigtest: int,
         perform significance test, 0, 1, or 2. Default is 0.
-            If 0 (default), then just do a regulat chi-square test,
-                i.e., Eqn (18) from Torrence and Compo (1998).
-            If 1, then do a "time-average" test, i.e., Eqn (23).
-                In this case, DOF should be set to np.nan, the number of
-                local wavelet spectra that were averaged together.
-                For the Global Wavelet Spectrum, this would be NA=N,
-                where N is the number of points in the time series.
-            If 2, then do a "scale-average" test, i.e., Eqn (25)-(28).
-                In this case, DOF should be set to a two-element vector
-                [S1,S2], which gives the scale range that were averaged
-                together. For example, if the average between scales
-                2 and 8 was taken, then DOF=[2,8].
+        If 0 (default), then just do a regulat chi-square test, i.e., Eqn (18) from Torrence and Compo (1998).
+        If 1, then do a "time-average" test, i.e., Eqn (23).  In this case, DOF should be set to np.nan, the number of local wavelet spectra that were averaged together.  For the Global Wavelet Spectrum, this would be NA=N, where N is the number of points in the time series.
+        If 2, then do a "scale-average" test, i.e., Eqn (25)-(28).  In this case, DOF should be set to a two-element vector [S1,S2], which gives the scale range that were averaged together.  For example, if the average between scales 2 and 8 was taken, then DOF=[2,8].
     :param lag1: int,
         lag-1 autocorrelation, used for signif levels. Default is 0.
     :param siglvl: float,
         significance level to use. Default is 0.95.
     :param dof: int,
         degrees of freedom for significance test.
-            If sigtest=0, then (automatically) set to 2 (or 1 for mother='DOG').
-            If sigtest=1, then set to DOF=np.nan, the number if times averaged.
-            If sigtest=2, then set to DOF=[S1,S2], the range of scales averaged.
+        If sigtest=0, then (automatically) set to 2 (or 1 for mother='DOG').
+        If sigtest=1, then set to DOF=np.nan, the number if times averaged.
+        If sigtest=2, then set to DOF=[S1,S2], the range of scales averaged.
     :param mother: str,
         mother wavelet function, can be 'DOG', 'MORLET', or 'PAUL'.
     :param param: float,
@@ -192,6 +183,8 @@ def find_zc_lines(cwt_matrix):
 
         Based on Vermeulen et al. (2016) Meander tree generation
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -665,6 +658,8 @@ def scale_space_tree(cwt_matrix):
 
         Based on Vermeulen et al. (2016) Meander tree generation
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -914,6 +909,8 @@ def get_zcline(zcr, rw_start, col_start):
 
         Based on Vermeulen et al. (2016) Meander tree generation
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1005,6 +1002,8 @@ def inpolygon(x, y, xv, yv):
 
         Based on Vermeulen et al. (2016) Meander tree generation
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1054,6 +1053,8 @@ def hexl(inmat):
         This function was coded in MATLAB initially on Vermulen et al. (2016),
         and is based on Kuijper (2004).
 
+        References:
+        
         Kuijper, A. (2004), On detecting all saddle points in 2D images, Pattern
            Recogn. Lett., 25 (15), 1665-1672, doi:10.1016/j.patrec.2004.06.017
 
@@ -1131,8 +1132,11 @@ def sadext(inmat):
 
         This function requires the hexl function to build the hexagonal lattice.
 
+        References:
+        
         Kuijper, A. (2004), On detecting all saddle points in 2D images, Pattern
-           Recogn. Lett., 25 (15), 1665-1672, doi:10.1016/j.patrec.2004.06.017
+        Recogn. Lett., 25 (15), 1665-1672, doi:10.1016/j.patrec.2004.06.017
+
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1217,6 +1221,8 @@ def remove_peak_from_nodes(frm, peak_row, peak_col, peak_pwr):
 
         This function was coded in MATLAB initially on Vermulen et al. (2016).
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1254,6 +1260,8 @@ def detect_meanders(wave, conn, peak_row, peak_col):
 
         This function was coded in MATLAB initially on Vermulen et al. (2016).
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1326,6 +1334,8 @@ def meander_bounds(poly, meander_id, peak_row, include_all=False):
 
         This function was coded in MATLAB initially on Vermulen et al. (2016).
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1374,6 +1384,8 @@ def clean_tree(conn, meander_id):
 
         This function was coded in MATLAB initially on Vermulen et al. (2016).
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1420,6 +1432,8 @@ def get_branch(cp, conn):
 
         This function was coded in MATLAB initially on Vermulen et al. (2016).
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1463,6 +1477,8 @@ def get_centers(
 
         This function was coded in MATLAB initially on Vermulen et al. (2016).
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1894,6 +1910,8 @@ def n_child(conn):
 
         This function was coded in MATLAB initially on Vermulen et al. (2016).
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1925,6 +1943,8 @@ def check_conn(conn):
 
         This function was coded in MATLAB initially on Vermulen et al. (2016).
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1955,10 +1975,13 @@ def plot_regions(regions, ax=None, **kwargs):
         Plot tree regions as done by Witkin 1984 based on the matlab code
         by Vermulen et al. (2016)
 
+        References:
+        
         Witkin, A. P. (1984), Scale-space filtering: A new approach to
         multi-scale description, in Acoustics, Speech, and Signal Processing,
         IEEE International Conference on ICASSP ’84, vol. 9, pp. 150–153,
         IEEE, doi:10.1109/ICASSP.1984.1172729.
+
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -1995,6 +2018,8 @@ def plot_tree(conn, x, y, ax=None, **kwargs):
 
         This function was coded in MATLAB initially on Vermulen et al. (2016).
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
@@ -2052,27 +2077,31 @@ def calculate_meander_shape(
 
         This function is based on the matlab code by Vermulen et al. (2016)
 
+        References:
+        
         Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
         (2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
         doi:10.1002/2016GL068238.
-    ____________________________________________________________________________
-    :param wave: np.ndarray,
-        Waveform array.
-    :param wavelength: np.ndarray,
-        Period array.
-    :param peak_row: np.ndarray,
-        Peak row array.
-    :param peak_col: np.ndarray,
-        Peak column array.
-    :param meander_id: np.ndarray,
-        Meander id array.
-    :param bounds: np.ndarray,
-        Bounds array.
-    :param scale: np.ndarray,
-        Scale array.
-    :param ds: float,
-        Sampling distance.
-    :return: sk_val, fl_val
+
+    Args:
+    ------
+        :param wave: np.ndarray,
+            Waveform array.
+        :param wavelength: np.ndarray,
+            Period array.
+        :param peak_row: np.ndarray,
+            Peak row array.
+        :param peak_col: np.ndarray,
+            Peak column array.
+        :param meander_id: np.ndarray,
+            Meander id array.
+        :param bounds: np.ndarray,
+            Bounds array.
+        :param scale: np.ndarray,
+            Scale array.
+        :param ds: float,
+            Sampling distance.
+        :return: sk_val, fl_val
     """
 
     sk_val = np.zeros(len(meander_id)) * np.nan

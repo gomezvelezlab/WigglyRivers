@@ -3,15 +3,11 @@
 # _____________________________________________________________________________
 #
 #                       Coded by: Daniel Gonzalez-Duque
-#                               Last revised 2023-11-28
+#                               Last revised 2025-02-16
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 """
-______________________________________________________________________________
-
- DESCRIPTION:
    This class extracts the complete reaches obtained with the model
-______________________________________________________________________________
 """
 # -----------
 # Libraries
@@ -74,20 +70,19 @@ class CompleteReachExtraction:
 
     The following are the methods of the class.
 
-    ===================== =====================================================
-    Methods               Description
-    ===================== =====================================================
-    load_coords           Load coordinates from file.
-    map_complete_network  Map comid network from the headwaters to the terminal
-                          nodes.
+    ============================= =====================================================
+    Methods                       Description
+    ============================= =====================================================
+    load_coords                   Load coordinates from file.
+    map_complete_network          Map comid network from the headwaters to the terminal
+                                  nodes.
     map_complete_network_down_up  Map the entire database. It will do
                                   exploration from the terminal nodes to the
-                                  headwaters. Saving the information in each
-                                  reach.
-    map_complete_network  Map comid network from the headwaters to the terminal
-    map_complete_reach    Map individual comid network from starting comid to
-    map_coordinates       Extract coordinates from the comid list.
-    ===================== =====================================================
+                                  headwaters. Saving the information in each reach.
+    map_complete_network          Map comid network from the headwaters to the terminal
+    map_complete_reach            Map individual comid network from starting comid to
+    map_coordinates               Extract coordinates from the comid list.
+    ============================= =====================================================
     """
 
     def __init__(self, data, comid_id="nhdplusid", logger=None, **kwargs):
@@ -207,9 +202,12 @@ class CompleteReachExtraction:
     def load_coords(self, path_coords: str) -> None:
         """
         DESCRIPTION:
+        ------------
             Load coordinates from a file.
-        _______________________________________________________________________
-        INPUT:
+        ________________________________________________________________________
+
+        Args:
+        ------------
             :param path_coords: str
                 Path to the coordinates file.
         """
@@ -228,9 +226,12 @@ class CompleteReachExtraction:
     ) -> None:
         """
         DESCRIPTION:
+        ------------
             Map comid network from the headwaters to the terminal nodes.
-        _______________________________________________________________________
-        INPUT:
+        ________________________________________________________________________
+
+        Args:
+        ------------
             :param start_comids: list, np.ndarray, Default None
                 List of comids to be extracted.
             :param huc_number: int, Default 4
@@ -293,16 +294,21 @@ class CompleteReachExtraction:
         self.comid_network["comid_start"] = list(np.array(c)[arg_sort_l])
         return
 
-    def map_complete_network_down_up(self, huc_number: int = 4):
+    def map_complete_network_down_up(
+        self, start_comids: list = None, huc_number: int = 4
+    ):
         """
         DESCRIPTION:
-            Map the entire database. It will do exploration from the terminal
-            nodes to the headwaters. Saving the information in each reach.
-        _______________________________________________________________________
-            INPUT:
+        ------------
+            Map comid network from the headwaters to the terminal nodes.
+        ________________________________________________________________________
+
+        Args:
+        ------------
+            :param start_comids: list, np.ndarray, Default None
+                List of comids to be extracted.
             :param huc_number: int, Default 4
                 HUC number to be extracted.
-
         """
         # Extract headwaters
         data_term = self.data_info[self.data_info["terminalfl"] == 1]
@@ -428,11 +434,14 @@ class CompleteReachExtraction:
     ):
         """
         DESCRIPTION:
+        ------------
             Recursive exploration of the upstream comids.
-        _______________________________________________________________________
-        INPUT:
-            :param start_comids: list, np.ndarray, Default None
-                List of comids to be extracted.
+        ________________________________________________________________________
+
+        Args:
+        ------------
+            :param start_comid: int
+                Starting comid to be extracted.
             :param comid_table: pd.DataFrame,
                 Dataframe with the comid table.
             :param comid_network: dict, Default None
@@ -440,9 +449,6 @@ class CompleteReachExtraction:
             :param huc_number: int, Default 4
                 HUC number to be extracted.
         """
-
-        comid_network[start_comid] = [start_comid]
-        c_comid_pos = start_comid
         c_comid = start_comid
         # if huc_number == 12:
         #     ini_huc = comid_table.loc[c_comid, 'reachcode']
@@ -511,23 +517,27 @@ class CompleteReachExtraction:
         return comid_network
 
     def map_complete_reach(
-        self, start_comid: str, huc_number: int = 4, do_not_overlap: bool = True
+        self,
+        start_comid: str,
+        huc_number: int = 4,
+        do_not_overlap: bool = True,
     ) -> Tuple[Union[list, np.ndarray], list]:
         """
         DESCRIPTION:
+        ------------
             Separate complete reach comid from the ToNode and FromNode
             values
-        _______________________________________________________________________
-        INPUT:
+        ________________________________________________________________________
+
+        Args:
+        ------------
             :param start_comid: str,
                 Start comid value.
-            :param path: int, Default 4
+            :param huc_number: int, Default 4
                 Path of the current reach.
             :param do_not_overlap: bool, Default True
                 If True, the reach extracted will not overlap with existing
                 reaches extracted previously.
-        _______________________________________________________________________
-        OUTPUT:
             :return reach: list,
                 List of comids for the values
             :rtype reach: Union[list, np.ndarray]
@@ -597,15 +607,16 @@ class CompleteReachExtraction:
     def map_coordinates(self, comid_list, file_coords):
         """
         DESCRIPTION:
+        ------------
             Map Coordinates and additional data to the comid_list
-        _______________________________________________________________________
-        INPUT:
+        ________________________________________________________________________  
+
+        Args:
+        ------------
             :param comid_list: list,
                 List with comid values
             :param file_coords: str,
                 File name where the coordiantes will be saved.
-        _______________________________________________________________________
-        OUTPUT:
         """
         timeg = time.time()
         comid_list = np.array(comid_list)

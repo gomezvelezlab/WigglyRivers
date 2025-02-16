@@ -519,7 +519,7 @@ def iwavelet(Y, dt, scale, scale_indices=None, mother="MORLET", param=None):
 
         Created by Daniel Gonzalez-Duque on 07/02/2023
 
-    Input:
+    Args:
     ------
 
     :param Y: np.ndarray,
@@ -599,17 +599,19 @@ def calculate_global_wavelet_spectrum(wave):
         Created by Daniel Gonzalez-Duque on 11/19/2023.
 
         References:
-        -----------
+        
         Torrence, C., and G. P. Compo, 1998: A Practical Guide to Wavelet
         Analysis. Bull. Amer. Meteor. Soc., 79, 61–78,
         https://doi.org/10.1175/1520-0477(1998)079<0061:APGTWA>2.0.CO;2
-    ____________________________________________________________________________
 
     Args:
     -----
         :param wave: np.ndarray,
             Wavelet transform.
-        :return
+        :return: gws: np.ndarray,
+            Global wavelet spectrum.
+            peaks: np.ndarray,
+            Indices for the peaks in the GWS.
     """
     gws = np.nanmean(np.abs(wave) ** 2, axis=1)
     # find peaks in the gws
@@ -628,13 +630,11 @@ def calculate_scale_averaged_wavelet_power(wave, scales, ds, dj, c_delta):
         Created by Daniel Gonzalez-Duque on 11/19/2023.
 
         References:
-        ------------
+        
         Zolezzi, G., & Güneralp, I. (2016). Continuous wavelet
         characterization of the wavelengths and regularity of
         meandering rivers. Geomorphology, 252, 98–111.
         https://doi.org/10.1016/j.geomorph.2015.07.029
-
-    ____________________________________________________________________________
 
     Args:
     -----
@@ -648,7 +648,8 @@ def calculate_scale_averaged_wavelet_power(wave, scales, ds, dj, c_delta):
             Scale increment.
         :param c_delta: float,
             Reconstruction factor.
-        :return
+        :return:
+            Scale-averaged wavelet power.
     """
     power = np.abs(wave) ** 2
     scales_p = np.tile(scales, (power.shape[1], 1)).T

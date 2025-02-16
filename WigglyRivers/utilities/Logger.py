@@ -36,7 +36,6 @@ logging.basicConfig(handlers=[logging.NullHandler()])
 # Class
 # ------------------
 class Logger:
-    """Class to create a logger for the different classes in the package."""
 
     def __init__(
         self,

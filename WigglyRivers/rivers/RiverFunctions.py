@@ -36,7 +36,9 @@ def convert_str_float_list_vector(x_val: str) -> np.ndarray:
     """Convert string to float vector
 
     example:
+
     .. code-block:: python
+
         x_val = '[1, 2, 3, 4]'
         x_val = convert_str_float_list_vector(x_val)
 
@@ -64,7 +66,9 @@ def line_intersection(
     """find the intersection of two lines.
 
     example:
+
     .. code-block:: python
+
         line1 = np.array([[0, 0], [1, 1]])
         line2 = np.array([[1, 0], [0, 1]])
         x, y = line_intersection(line1, line2)
@@ -111,11 +115,14 @@ def kinoshita_curve_abad(
     (Abad and Garcia, 2009).
 
     Equation:
+
     .. math::
         \\theta(s) = \\theta_0 \\sin(k s) + \\theta_0^3 (j_s \\cos(3 k s) - j_f \\sin(3 k s))
 
     example:
+
     .. code-block:: python
+
         x, y, data = kinoshita_curve_abad(
             theta_0=110*np.pi/180,
             lambda_value=100,
@@ -227,11 +234,14 @@ def kinoshita_curve_zolezzi(
     equations presented in (Zolezzi and Güneralp, 2016).
 
     Equation:
+
     .. math::
         \\theta(s) = \\theta_0 \\cos(k s) + \\theta_s \\sin(3 k s) + \\theta_f \\cos(3 k s)
 
     example:
+
     .. code-block:: python
+
         x, y, data = kinoshita_curve_zolezzi(
             theta_0=110*np.pi/180,
             lambda_value=100,
@@ -368,11 +378,15 @@ def calculate_curvature(
     using the np.gradient function.
 
     Equation:
+
     .. math::
+
         C = \\frac{x'y''-y'x''}{[(x')^2+(y')^2]^{3/2}}
 
     example:
+
     .. code-block:: python
+
         ss = np.linspace(0, 100, 100)
         xs = np.sin(ss)
         ys = np.cos(ss)
@@ -448,10 +462,12 @@ def get_inflection_points(
     """Obtain the inflection points from the curvature.
 
     example:
+
     .. code-block:: python
-        s = np.linspace(0, 100, 100)
-        c = np.sin(s)
-        s_inf, c_inf = get_inflection_points(s, c)
+
+        s = np.linspace(0, 100, 100)\\
+        c = np.sin(s)\\
+        s_inf, c_inf = get_inflection_points(s, c)\\
 
     Args:
         s (np.ndarray): streamwise coordinates.
@@ -497,7 +513,9 @@ def calculate_direction_angle(
     :func:`RiverFunctions.calculate_curvature`.
 
     Equation:
+
     .. math::
+
         \\theta = \\theta_0 + \\int_{s=0}^{s=s_n}Cds
 
     .. code-block:: python
@@ -562,15 +580,15 @@ def calculate_direction_azimuth(
     :func:`RiverFunctions.calculate_curvature`.
 
     Equation:
+
     .. math::
-        \theta = \tan^{-1}\left(\frac{y'}{x'}\right)
-    where:
-    \theta: direction azimuth
-    x': derivative of x with respect to the arc-length
-    y': derivative of y with respect to the arc-length
+
+        \\theta = \\tan^{-1}\left(\\frac{y'}{x'}\\right)
 
     example:
+
     .. code-block:: python
+
         ss = np.linspace(0, 100, 100)
         xs = np.sin(ss)
         ys = np.cos(ss)
@@ -621,7 +639,9 @@ def translate(p: np.ndarray, p1: np.ndarray) -> np.ndarray:
     """translate points (p) with respect to p1.
 
     example:
+
     .. code-block:: python
+
         p = np.array([[1, 1], [1, 2], [2, 2]])
         p1 = np.array([1, 1])
         p_trans = translate(p, p1)
@@ -745,6 +765,7 @@ def get_reach_distances(x_coord: np.ndarray) -> np.ndarray:
     river transect using the coordinates.
 
     example:
+
     .. code-block:: python
 
         x_coord = np.array([[1, 1], [1, 2], [2, 2]])
@@ -779,6 +800,7 @@ def fit_splines(
     of the river.
 
     example:
+
     .. code-block:: python
 
         s = np.linspace(0, 100, 100)
@@ -878,6 +900,7 @@ def fit_splines_complete(
     """function to fit splines to the data of the River class.
 
     example:
+
     .. code-block:: python
 
         data = {
@@ -1016,7 +1039,9 @@ def smooth_data(
     """smooth the data using savgol and gaussian filters.
 
     example:
+
     .. code-block:: python
+
         x = np.linspace(0, 100, 100)
         y = np.sin(x)
         s = np.linspace(0, 100, 100)
@@ -1080,11 +1105,15 @@ def calculate_lambda(x: np.ndarray, y: np.ndarray) -> float:
     """calculate the lenth of the meander.
 
     Equation:
+
     .. math::
+    
         \\lambda = \\sum_{i=j}^k\\sqrt{(x_{i+1}-x_{i})^2+(y_{i+1}-y_{i})^2}
 
     example:
+
     .. code-block:: python
+
         x = np.linspace(0, 100, 100)
         y = np.sin(x)
         l = calculate_lambda(x, y)
@@ -1106,11 +1135,15 @@ def calculate_l(x: np.ndarray, y: np.ndarray) -> float:
     """Calculate valley length.
 
     Equation:
+
     .. math::
+
         l = \\sqrt{(x_{end}-x_{start})^2+(y_{end}-y_{start})^2}
 
     example:
+
     .. code-block:: python
+
         x = np.linspace(0, 100, 100)
         y = np.sin(x)
         l = calculate_l(x, y)
@@ -1130,11 +1163,15 @@ def calculate_sinuosity(l: float, lambda_value: float) -> float:
     """Calculate the sinuosity.
 
     Equation:
+
     .. math::
+
         sinuosity = \\frac{\\lambda}{l}
 
     example:
+
     .. code-block:: python
+
         l = calculate_l(x, y)
         lambda_value = calculate_lambda(x, y)
         sinuosity = calculate_sinuosity(l, lambda_value)
@@ -1161,11 +1198,15 @@ def calculate_radius_of_curvature(
     to the half-meander section and using the wavelength as the arc length.
 
     Equation:
+
     .. math::
+
         \\frac{1}{R} = \\frac{\\lambda}{2 \\pi w}
 
     example:
+
     .. code-block:: python
+
         x = np.linspace(0, 100, 100)
         y = np.sin(x)
         wavelength = 100
@@ -1212,11 +1253,15 @@ def calculate_asymetry(
     left is upstream and right is downstream.
 
     Equation:
+
     .. math::
+
         a = \\frac{\lambda_u - \lambda_d}{\lambda}
 
     example:
+
     .. code-block:: python
+
         x = np.linspace(0, 100, 100)
         y = np.sin(x)
         c = calculate_curvature(x, y)
@@ -1368,11 +1413,18 @@ def calculate_coordinates_from_curvature(
     the angle between the initial direction.
 
     Equation:
-    .. math:: x = x_0 + \int_0^{s_n} C ds
-    .. math:: y = y_0 + \int_0^{s_n} C ds
+
+    .. math:: 
+        x = x_0 + \\int_0^{s_n} C ds
+
+    .. math::
+
+        y = y_0 + \\int_0^{s_n} C ds
 
     example:
+
     .. code-block:: python
+
         s_curvature = np.linspace(0, 100, 100)
         c = np.sin(s_curvature)
         x = np.cos(s_curvature)
@@ -1431,7 +1483,9 @@ def calculate_channel_width(da: np.ndarray) -> np.ndarray:
     This function uses equation (15) presented in Wilkerson et al. (2014).
 
     example:
+
     .. code-block:: python
+
         da = 100
         w = calculate_channel_width(da)
 
@@ -1473,7 +1527,9 @@ def calculate_spectrum_cuts(
     """Calculate the spectrum cuts of the curvature.
 
     example:
+
     .. code-block:: python
+
         s = np.linspace(0, 100, 100)
         c = np.sin(s)
         peaks_min, min_s = calculate_spectrum_cuts(s, c)
@@ -1523,7 +1579,9 @@ def calculate_amplitude(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     .. math:: A = \\max(y) - \\min(y)
 
     example:
+
     .. code-block:: python
+
         x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         y = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         amplitude = calculate_amplitude(x, y)
@@ -1565,10 +1623,13 @@ def calculate_funneling_factor(
     the inflection points.
 
     Equation:
+
     .. math:: FF = \\frac{L_l}{L_n}
 
-    Example:
+    example:
+
     .. code-block:: python
+
         x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         y = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         s = np.linspace(0, 100, 100)

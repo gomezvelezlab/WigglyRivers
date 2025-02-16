@@ -112,27 +112,27 @@ class RiverDatasets:
 
     The following are the methods of the class.
 
-    ===================== =====================================================
-    Methods               Description
-    ===================== =====================================================
-    add_river             Add river network
-    add_files             Add path to NHD files and HUC 04 of the network.
-                          These files have to be created beforehand with the
-                          pyDatAPros package.
-    map_network           Map the complete network from a list of start comids.
-    load_linking_network  Load the linking network from a file.
+    =============================== =====================================================
+    Methods                         Description
+    =============================== =====================================================
+    add_river                       Add river network
+    add_files                       Add path to NHD files and HUC 04 of the network.
+                                    These files have to be created beforehand with the
+                                    pyDatAPros package.
+    map_network                     Map the complete network from a list of start comids.
+    load_linking_network            Load the linking network from a file.
     load_extracted_in_comid_network Load the comid extracted in order to map
                                     the complete network.
-    get_reaches_from_network Get reach coordinates from the comid network
-                             dictionary.
-    get_reach             Extract coordinates of a complete reach from the NHD
-                          dataset.
-    get_metric_database   Extract the meander metrics.
-    save_databases_meanders Save meander metric database.
-    save_rivers           Save river files.
-    load_rivers_network   Load rivers dataset.
-    plot_rivers           Plot river network.
-    ===================== =====================================================
+    get_reaches_from_network        Get reach coordinates from the comid network
+                                    dictionary.
+    get_reach                       Extract coordinates of a complete reach from the NHD
+                                    dataset.
+    get_metric_database             Extract the meander metrics.
+    save_databases_meanders         Save meander metric database.
+    save_rivers                     Save river files.
+    load_rivers_network             Load rivers dataset.
+    plot_rivers                     Plot river network.
+    =============================== =====================================================
     """
 
     def __init__(self, scale=1, translate=False, logger=None):
@@ -222,7 +222,7 @@ class RiverDatasets:
     ):
         """
         Description:
-        ------------
+        -------------
             Add river into the class
         ________________________________________________________________________
 
@@ -428,7 +428,7 @@ class RiverDatasets:
     ) -> None:
         """
         Description:
-        -----------
+        -------------
             Map the complete network from a list of start comids. Two lists
             will be created within the reach_generator object. One with the
             complete network as a dictionary and the other with the linking
@@ -515,7 +515,7 @@ class RiverDatasets:
     def load_linking_network(self, path_file: str) -> None:
         """
         Description:
-        -----------
+        ------------
             Load the linking network from a file.
         ________________________________________________________________________
 
@@ -549,7 +549,7 @@ class RiverDatasets:
     def load_huc_list_in_comid_network(self, path_file: str) -> list:
         """
         Description:
-        -----------
+        -------------
             Load the comid extracted in order to map the complete network.
 
         ________________________________________________________________________
@@ -573,7 +573,7 @@ class RiverDatasets:
     def load_extracted_in_comid_network(self, path_file: str, huc=None) -> list:
         """
         Description:
-        -----------
+        -------------
             Load the comid extracted in order to map the complete network.
 
         ________________________________________________________________________
@@ -632,7 +632,7 @@ class RiverDatasets:
     ) -> None:
         """
         Description:
-        -----------
+        -------------
             Get reach coordinates from the comid network dictionary.
         ________________________________________________________________________
 
@@ -859,7 +859,7 @@ class RiverDatasets:
     ):
         """
         Description:
-        ------------
+        -------------
             Get complete reach.
         ________________________________________________________________________
 
@@ -1279,7 +1279,7 @@ class RiverDatasets:
     ) -> None:
         """
         Description:
-        -----------
+        -------------
             Load the river network from an hdf5 file.
         ________________________________________________________________________
 
@@ -1561,7 +1561,7 @@ class RiverDatasets:
     ):
         """
         Description:
-        -----------
+        -------------
             Plot rivers from the river network.
         ________________________________________________________________________
 
@@ -1665,37 +1665,36 @@ class RiverTransect:
 
     The following are the methods of the class.
 
-    ====================== =====================================================
-    Methods                Description
-    ====================== =====================================================
-    set_gamma_width        Set value of gamma threshold for width for the CWT.
-    set_data_source        Set data source to extract data from
-    extract_data_to_save   Extract data to save in a file.
-    set_planimetry_derivatives Set planimetry derivatives.
-    set_splines            Set splines of the x and y coordinates of the river.
-    eval_splines           Evaluate splines of the x and y coordinates of the
-                           river.
-    scale_coordinates      Scale coordinates by a given value
-    translate_xy_start     Translate coordinates to xy start
-    calculate_spline       Calculate spline of the river
-    calculate_smooth       Smooth the planimetry of the river.
-    calculate_curvature    Calculate curvature of the river.
-    extract_cwt_tree       Extract CWT and tree of the river
-    extract_meanders       Extract meanders from the river with CWT process.
-    get_cwt_curvature      Get CWT of the curvature of the river.
-    get_cwt_angle          Get CWT of the angle of the river.
-    extract_tree           Extract tree from the cwt of the river.
-    find_peaks_in_poly     Find peaks in the polygons of the cwt.
-    detect_meander_from_cwt Detect meander from the cwt.
+    =================================== =====================================================
+    Methods                             Description
+    =================================== =====================================================
+    set_gamma_width                     Set value of gamma threshold for width for the CWT.
+    set_data_source                     Set data source to extract data from
+    extract_data_to_save                Extract data to save in a file.
+    set_planimetry_derivatives          Set planimetry derivatives.
+    set_splines                         Set splines of the x and y coordinates of the river.
+    eval_splines                        Evaluate splines of the x and y coordinates of the river.
+    scale_coordinates                   Scale coordinates by a given value
+    translate_xy_start                  Translate coordinates to xy start
+    calculate_spline                    Calculate spline of the river
+    calculate_smooth                    Smooth the planimetry of the river.
+    calculate_curvature                 Calculate curvature of the river.
+    extract_cwt_tree                    Extract CWT and tree of the river
+    extract_meanders                    Extract meanders from the river with CWT process.
+    get_cwt_curvature                   Get CWT of the curvature of the river.
+    get_cwt_angle                       Get CWT of the angle of the river.
+    extract_tree                        Extract tree from the cwt of the river.
+    find_peaks_in_poly                  Find peaks in the polygons of the cwt.
+    detect_meander_from_cwt             Detect meander from the cwt.
     get_tree_center_points_in_planimtry Get center points of the tree.
-    update_tree_scales     Update tree scales object
-    get_meander_bounds_from_cwt Get meander bounds from the cwt.
-    add_meanders_from_bounds Add meanders from captured bounds comming from cwt.
-    plot_cwt               Plot cwt tree of the river.
-    add_meander            Add meander to the river.
-    report_meander_metrics Report meander Metrics.
-    remove_meander         Remove meander from list.
-    ====================== =====================================================
+    update_tree_scales                  Update tree scales object
+    get_meander_bounds_from_cwt         Get meander bounds from the cwt.
+    add_meanders_from_bounds            Add meanders from captured bounds comming from cwt.
+    plot_cwt                            Plot cwt tree of the river.
+    add_meander                         Add meander to the river.
+    report_meander_metrics              Report meander Metrics.
+    remove_meander                      Remove meander from list.
+    =================================== =====================================================
     """
 
     def __init__(
@@ -1997,7 +1996,7 @@ class RiverTransect:
                 'original': Original data
                 'resample': Resampled data
                 'smooth': Smoothed data
-        :type data_source: float, int, None
+        :type data_source: str
         """
         if data_source.lower() not in ("original", "resample", "smooth"):
             self.logger.warning("Data source not recognized, " "setting to resample")
@@ -4124,13 +4123,6 @@ class Meander:
         self.ind_start_o = ind_start_o
         self.ind_end_o = ind_end_o
 
-        # Test
-        # plt.figure()
-        # plt.plot(self.x, self.y, 'k')
-        # plt.gca().set_aspect('equal', adjustable='box')
-        # plt.show()
-        # aaa
-
         # Calculate curvature
         if c is None:
             r, c, theta = RF.calculate_curvature(s, x, y)
@@ -4199,16 +4191,6 @@ class Meander:
         self.x_c_max = x[self.argmax_c]
         self.y_c_max = y[self.argmax_c]
 
-        # plt.figure()
-        # plt.plot(self.x, self.y, 'k')
-        # plt.plot(self.x_c_max, self.y_c_max, 'ro')
-
-        # plt.figure()
-        # plt.plot(s, c)
-        # plt.plot(self.s_c_max, self.c_max, 'ro')
-        # plt.show()
-        # aaa
-
         # ----------------------
         # Perform Calculations
         # ----------------------
@@ -4235,6 +4217,7 @@ class Meander:
     def get_infection_points(self):
         """
         Description:
+        -------------
             Have an estimate of the inflection points of the meander. This
             function calculates the curvature of the meander and then smooths
             the planimetry until it obtains the two inflection.
