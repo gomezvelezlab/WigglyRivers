@@ -3,7 +3,7 @@
 # _____________________________________________________________________________
 #
 #                       Coded by Daniel Gonzalez Duque
-#                           Last revised 2024-02-14
+#                           Last revised 2025-02-16
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 
@@ -25,7 +25,7 @@ from anytree import Node
 
 # Package packages
 from ..utilities import general_functions as GF
-from ..utilities.classExceptions import *
+# from ..utilities.classExceptions import *
 from ..wavelet_tree import WaveletTreeFunctions as WTFunc
 
 
