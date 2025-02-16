@@ -33,10 +33,14 @@ jobs:
           pip install tqdm
           pip install Sphinx
           pip install sphinx_rtd_theme
+          pip install ghp-import
       - name: Build documentation
         run: |
           cd docs
           make html
+      - name: Run ghp-import
+        run: | 
+          ghp-import -n -p -f docs/_build/html
       - name: Lint with flake8
         run: |
           conda install flake8

@@ -10,7 +10,7 @@ WigglyRivers documentation
 *WigglyRivers* is a Python package that builds on existing work using wavelet-based methods to create supervised and unsupervised meander identification tools. This tool allows the characterization of the multiscale nature of river transects and the identification of individual meandering features. The package uses any set of river coordinates and calculates the curvature and direction-angle to perform the characterization, and also leverages the use of the High-Resolution National Hydrography Dataset (NHDPlus HR) to assess river transects at a catchment scale. Additionally, the *WigglyRivers* package contains a supervised river identification tool that allows the visual selection of individual meandering features with satellite imagery in the background.
 
 Example Notebooks
-----------------
+------------------
 
 You can find examples of how to use this package as examples workflows for synthetic and natural river transects in the `examples/new_user_workflow/ <https://github.com/gomezvelezlab/WigglyRivers/tree/stable/examples/new_user_workflow>`_ folder.
 
@@ -19,7 +19,7 @@ The synthetic river transect examples are generated using idealized Kinoshita-ty
 The package includes several Jupyter notebooks that demonstrate its functionality:
 
 Synthetic Rivers
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
 
 1. **Kinoshita Examples** (`Kinoshita_Examples.ipynb`): 
    Demonstrates how to generate and analyze synthetic river transects using Kinoshita curves. This notebook shows:
@@ -37,7 +37,7 @@ Synthetic Rivers
    - Compare with Kinoshita curves
 
 Natural Rivers
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 
 3. **NHDPlus HR Data Extraction** (`Extract_NHDPlus_HR_Data.ipynb`):
    Demonstrates how to:
