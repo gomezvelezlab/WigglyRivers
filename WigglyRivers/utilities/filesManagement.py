@@ -4,7 +4,7 @@
 #
 #                       Coded by: Daniel Gonzalez-Duque
 #
-#                               Last revised 2021-01-25
+#                               Last revised 2025-02-13
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 """
@@ -18,11 +18,11 @@ formats
 import os
 import copy
 from pathlib import Path
+from typing import Union
 
 # Data Managment
 import geopandas as gpd
 from shapely import LineString
-import fiona
 import pickle
 import scipy.io as sio
 import pandas as pd
@@ -52,32 +52,49 @@ class NpEncoder(json.JSONEncoder):
 
 
 def get_save_formats():
-    return ["p", "pickle", "mat", "json", "txt", "csv", "shp", "hdf5", "feather"]
+    return [
+        "p",
+        "pickle",
+        "mat",
+        "json",
+        "txt",
+        "csv",
+        "shp",
+        "hdf5",
+        "feather",
+    ]
 
 
 def get_load_formats():
-    return ["p", "pickle", "mat", "json", "txt", "csv", "shp", "dbf", "hdf5", "feather"]
+    return [
+        "p",
+        "pickle",
+        "mat",
+        "json",
+        "txt",
+        "csv",
+        "shp",
+        "dbf",
+        "hdf5",
+        "feather",
+    ]
 
 
-def save_data(data, path_output, file_name, *args, **kwargs):
-    """
-    DESCRIPTION:
-        Saves data depending on the format. It can save files in pickle,
-        matlab, cvs, and txt.
-    _______________________________________________________________________
-    INPUT:
-        :param data: dict,
-            Dictionary with the data to be saved.
-        :type data: dict or gpd.read_file() or pd.DataFrame
-        :param path_output: str,
-            Directory to be saved, the directory will be created.
-        :type path_output: str
-        :param file_name: str,
-            Name of the file, it must include the extension.
-        :type file_name: str
-    _______________________________________________________________________
-    OUTPUT:
-        Saves the data.
+def save_data(
+    data: dict, path_output: Union[Path, str], file_name: str, *args, **kwargs
+):
+    """Save data in any of the following formats:
+        .p, .pickle, .mat, .json, .txt, .csv, .shp, .hdf5, .feather
+
+    Args:
+        data (dict): Data to be saved in dictionary format.
+        path_output (Union[Path, str]): Path where the data will be saved.
+        file_name (str): File name.
+        *args: Additional arguments for each saving function.
+        **kwargs: Additional keyword arguments for each saving function.
+
+    Raises:
+        CE.FormatError: Format not implemented.
     """
     # ---------------------
     # Error Management
@@ -93,7 +110,9 @@ def save_data(data, path_output, file_name, *args, **kwargs):
     # ---------------------
     # Save data
     # ---------------------
-    name_out = os.path.join(path_output, file_name)  # f'{path_output}{file_name}'
+    name_out = os.path.join(
+        path_output, file_name
+    )  # f'{path_output}{file_name}'
     extension = file_name.split(".")[-1]
 
     dataframe = copy.deepcopy(data)
@@ -135,75 +154,75 @@ def save_data(data, path_output, file_name, *args, **kwargs):
         )
 
 
-def load_data(file_data, pandas_dataframe=False, *args, **kwargs):
-    """
-    DESCRIPTION:
-        Loads data depending on the format and returns a dictionary.
+def load_data(
+    file_path: Union[Path, str], pandas_dataframe: bool = False, *args, **kwargs
+) -> Union[dict, pd.DataFrame]:
+    """Load data in any of the following formats:
+        .p, .pickle, .mat, .json, .txt, .csv, .shp, .dbf, .hdf5, .feather
 
-        The data can be loaded from pickle, matlab, csv, or txt.
-    _______________________________________________________________________
-    INPUT:
-        :param file_data: str,
-            Data file
-        :param pandas_dataframe: boolean,
-            If true returns a pandas dataframe instead of a dictionary.
 
-    _______________________________________________________________________
-    OUTPUT:
-        :return data: dict,
-            Dictionary or pandas dataframe with the data in the file.
+    Args:
+        file_path (Union[Path, str]): file to be loaded.
+        pandas_dataframe (bool, optional): Load the data as PandasDataframe.
+            If False, the data will be loaded as a dictionary. Defaults to False.
+        *args: Additional arguments for each loading function.
+        **kwargs: Additional keyword arguments for each loading function.
+
+    Raises:
+        TypeError: file_path must be a string or Path.
+        CE.FormatError: format not implemented.
+
+    Returns:
+        Union[dict, pd.DataFrame]: Loaded data.
     """
+
     # ---------------------
     # Error Management
     # ---------------------
-    if not isinstance(file_data, (str, Path)):
+    if not isinstance(file_path, (str, Path)):
         raise TypeError("data must be a string.")
 
     try:
         keys = kwargs["keys"]
-    except:
+    except KeyError:
         keys = None
 
     # ---------------------
     # load data
     # ---------------------
-    file_data = str(file_data)
-    extension = file_data.split(".")[-1].lower()
+    file_path = str(file_path)
+    extension = file_path.split(".")[-1].lower()
     if extension == "mat":
-        data = sio.loadmat(file_data, *args, **kwargs)
+        data = sio.loadmat(file_path, *args, **kwargs)
     elif extension in ("txt", "csv"):
-        dataframe = pd.read_csv(file_data, *args, **kwargs)
+        dataframe = pd.read_csv(file_path, *args, **kwargs)
         data = {}
         for i in dataframe.columns:
             data[i] = dataframe[i].values
     elif extension == "feather":
-        dataframe = pd.read_feather(file_data, *args, **kwargs)
+        dataframe = pd.read_feather(file_path, *args, **kwargs)
         data = {}
         for i in dataframe.columns:
             data[i] = dataframe[i].values
     elif extension in ("p", "pickle"):
-        file_open = open(file_data, "rb")
+        file_open = open(file_path, "rb")
         data = pickle.load(file_open)
         file_open.close()
     elif extension == "json":
-        with open(file_data) as f:
+        with open(file_path) as f:
             data = json.load(f)
     elif extension == "shp":
-        data = gpd.read_file(file_data)
+        data = gpd.read_file(file_path)
     elif extension == "dbf":
         from simpledbf import Dbf5
 
-        dbf = Dbf5(file_data)
+        dbf = Dbf5(file_path)
         df = dbf.to_dataframe()
         data = {}
         for i in df.columns:
             data[i] = df[i].values
     elif extension == "hdf5":
-        data = load_dict_from_hdf5(file_data, key_c=keys)
-        # with h5py.File(file_data, 'r') as f:
-        #     if keys is None:
-        #         keys = list(f.keys())
-        #     data = {key: np.array(f[key]) for key in keys}
+        data = load_dict_from_hdf5(file_path, key_c=keys)
     else:
         raise CE.FormatError(
             f"format .{extension} not implemented. "
@@ -214,37 +233,29 @@ def load_data(file_data, pandas_dataframe=False, *args, **kwargs):
     return data
 
 
-def readGDB(file_data, layer):
-    """
-    DESCRIPTION:
-        Loads data from a geodatabase (GDB).
-    _______________________________________________________________________
-    INPUT:
-        :param file_data: str,
-            Data file
-        :param layer: str,
-            Layer that will be loaded from the GDB.
-    """
-    layers = fiona.listlayers(file_data)
-    try:
-        layers.index(layer)
-    except ValueError:
-        raise KeyError(f"{layer} is not present in the GDB")
-    shapefile = gpd.read_file(file_data, driver="FileGDB", layer=layer)
-    return shapefile
+def save_dict_to_hdf5(dic: dict, file_name: str):
+    """save dictionary to hdf5 file
 
-
-def save_dict_to_hdf5(dic, filename):
+    Args:
+        dic (dict): Dictionary to be saved.
+        file_name (str): Complete path to the file.
     """
-    ....
-    """
-    with h5py.File(filename, "w") as h5file:
+    with h5py.File(file_name, "w") as h5file:
         recursively_save_dict_contents_to_group(h5file, "/", dic)
 
 
-def recursively_save_dict_contents_to_group(h5file, path, dic):
-    """
-    ....
+def recursively_save_dict_contents_to_group(
+    h5file: h5py.File, path: str, dic: dict
+):
+    """recursively save dictionary to hdf5 file
+
+    Args:
+        h5file (h5py.File): h5py file object.
+        path (str): path to variable.
+        dic (dict): dictionary to be saved.
+
+    Raises:
+        ValueError: save type not implemented.
     """
     types = (
         np.ndarray,
@@ -282,24 +293,49 @@ def recursively_save_dict_contents_to_group(h5file, path, dic):
                 h5file[path + str(key)] = item2
 
         elif isinstance(item, dict):
-            recursively_save_dict_contents_to_group(h5file, path + key + "/", item)
+            recursively_save_dict_contents_to_group(
+                h5file, path + key + "/", item
+            )
         else:
             raise ValueError("Cannot save %s type" % type(item))
 
 
-def load_dict_from_hdf5(filename, key_c=None):
+def load_dict_from_hdf5(
+    file_name: Union[Path, str], key_c: Union[str, None] = None
+) -> dict:
+    """load dictionary from hdf5 file.
+
+    Args:
+        file_name (Union[Path, str]): complete path to the file.
+        key_c (Union[str, None], optional): specific key to be loaded from the
+            hdf5 file. If key_c is None, all the keys will be loaded.
+            Defaults to None.
+
+    Returns:
+        dict: loaded dictionary.
     """
-    ....
-    """
-    with h5py.File(filename, "r") as h5file:
-        dataset = recursively_load_dict_contents_from_group(h5file, "/", key_c=key_c)
+    with h5py.File(file_name, "r") as h5file:
+        dataset = recursively_load_dict_contents_from_group(
+            h5file, "/", key_c=key_c
+        )
         h5file.close()
         return dataset
 
 
-def recursively_load_dict_contents_from_group(h5file, path, key_c=None):
-    """
-    ....
+def recursively_load_dict_contents_from_group(
+    h5file: h5py.File, path: str, key_c: Union[str, None] = None
+) -> dict:
+    """recursively load dictionary from hdf5 file.
+
+    Args:
+        h5file (h5py.File): h5py file object.
+        path (str): path to variable.
+        key_c (Union[str, None], optional): specific key to be loaded from the
+            hdf5 file. If key_c is None, all the keys will be loaded.
+            Defaults to None.
+
+    Returns:
+        dict: Loaded dictionary
     """
     ans = {}
     for key, item in h5file[path].items():
@@ -330,22 +366,27 @@ def recursively_load_dict_contents_from_group(h5file, path, key_c=None):
 
 
 def create_geopandas_dataframe(
-    pandas_df, geometry_columns, shape_type="line", crs="EPSG:4326"
-):
-    """
-    Description:
-        Creates a geopandas dataframe from a pandas dataframe.
-    ____________________________________________________________________________
+    pandas_df: pd.DataFrame,
+    geometry_columns: list,
+    shape_type: str = "line",
+    crs: str = "EPSG:4326",
+) -> gpd.GeoDataFrame:
+    """Create geopandas dataframe from a pandas dataframe.
 
     Args:
-    -----
-    :param pandas_df: pandas dataframe,
-        pandas dataframe with the data.
-    :param geometry_columns: list,
-        List of the columns that will be used to create the geometry.
-    :param type_shape: str,
-        Type of geometry that will be created. Options: 'line', 'point'.
+        pandas_df (pd.DataFrame): Pandas dataframe.
+        geometry_columns (list): list of columns that hold the geometry.
+        shape_type (str, optional): geometry type. The options are "point" or
+            "line". Defaults to "line".
+        crs (str, optional): projection. Defaults to "EPSG:4326".
+
+    Raises:
+        ValueError: geometry type not implemented.
+
+    Returns:
+        gpd.GeoDataFrame: geopandas dataframe.
     """
+
     # Create geometry
     if shape_type.lower() == "point":
         geometry = gpd.points_from_xy(
@@ -373,16 +414,20 @@ def create_geopandas_dataframe(
     return gdf
 
 
-def read_gbd(file_data, layer, **kwargs):
+def read_gdb(
+    file_path: Union[Path, str], layer: str, **kwargs
+) -> gpd.GeoDataFrame:
+    """Read a layer from a geodatabase.
+
+    Args:
+        file_path (Union[Path, str]): Path to the geodatabase.
+        layer (str): layer to be read.
+
+    Returns:
+        gpd.GeoDataFrame: geopandas dataframe.
     """
-    DESCRIPTION:
-        Loads data from a geodatabase (GDB).
-    _______________________________________________________________________
-    INPUT:
-        :param file_data: str,
-            Data file
-        :param layer: str,
-            Layer that will be loaded from the GDB.
-    """
-    shapefile = gpd.read_file(file_data, driver="FileGDB", layer=layer, **kwargs)
+
+    shapefile = gpd.read_file(
+        file_path, driver="FileGDB", layer=layer, **kwargs
+    )
     return shapefile

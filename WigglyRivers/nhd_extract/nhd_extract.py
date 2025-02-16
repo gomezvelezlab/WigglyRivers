@@ -7,11 +7,7 @@
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 """
-______________________________________________________________________________
-
- DESCRIPTION:
    This class open the data and do preprocessing of the data.
-______________________________________________________________________________
 """
 # -----------
 # Libraries
@@ -217,7 +213,7 @@ class ExtractNHDPlusHRData:
         Description:
         --------------
             Get starting and ending coordinates from shapefile Line.
-        _______________________________________________________________________
+        ________________________________________________________________________
 
         Args:
         -----
@@ -347,7 +343,7 @@ class ExtractNHDPlusHRData:
         Description:
         ------------
             Get table data from the NHD GBD.
-        _______________________________________________________________________
+        ________________________________________________________________________
 
         Args:
         ------
@@ -401,7 +397,7 @@ class ExtractNHDPlusHRData:
 
         # Load the flowlines
         self.logger.info(" Start: Load Shapefile")
-        shapefile = FM.read_gbd(file_data, layer=flowlines)
+        shapefile = FM.read_gdb(file_data, layer=flowlines)
         shapefile[comid] = shapefile[comid].astype("int64")
         shapefile[comid] = shapefile[comid].astype(str)
         self.logger.info(" Done: Load Shapefile")
@@ -456,7 +452,7 @@ class ExtractNHDPlusHRData:
         # Check NHDWaterbody
         # -------------------------------
         # Extract NHDWaterbody
-        shapefile_wb = FM.read_gbd(file_data, layer="NHDWaterbody")
+        shapefile_wb = FM.read_gdb(file_data, layer="NHDWaterbody")
         shapefile_wb[comid] = shapefile_wb[comid].astype("int64")
         shapefile_wb[comid] = shapefile_wb[comid].astype(str)
         join_left_intersects_df = shapefile.sjoin(
@@ -532,7 +528,7 @@ class ExtractNHDPlusHRData:
             # Load new table
             self.logger.info(f"  Merging {t}")
             try:
-                t_n = FM.read_gbd(file_data, layer=t)
+                t_n = FM.read_gdb(file_data, layer=t)
                 t_n[comid] = t_n[comid].astype("int64")
                 t_n[comid] = t_n[comid].astype(str)
             except KeyError:
@@ -622,13 +618,13 @@ class ExtractNHDPlusHRData:
         """
         DESCRIPTION:
             Get table data from the NHD GBD.
-        _______________________________________________________________________
+        ________________________________________________________________________
         INPUT:
             :param data_table: str,
                 Raw data table.
             :param data_coords: str,
                 Coordiantes in the pickle file.
-        _______________________________________________________________________
+        ________________________________________________________________________
         OUTPUT:
             :return loaded_data: dict,
                 dictionary with new data.

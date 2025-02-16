@@ -2,8 +2,8 @@
 # ______________________________________________________________________________
 # ______________________________________________________________________________
 #
-#                       Coded by Daniel González Duque
-#                           Last revised 2023-07-24
+#                       Coded by Daniel Gonzalez-Duque
+#                           Last revised 2025-02-13
 # ______________________________________________________________________________
 # ______________________________________________________________________________
 """
@@ -24,9 +24,6 @@ import pyproj
 import plotly.graph_objects as go
 
 # Personal libraries
-from .classExceptions import *
-
-# from ..rivers import River
 
 
 # ------------------------
@@ -38,34 +35,36 @@ def plot_interactive_river_plain(
     clicked_points: list = [],
     meander_ids: list = [],
     river_obj=None,
-    inflection_flag=False,
-    mapbox_token=None,
-    current_crs="epsg:4326",
-    zoom=5,
-):
-    """
-    Description:
-    ------------
-        This function plots an interactive plot to detect meanders in a river
-        planform. This function can only be used in a Jupyter Notebook.
-    ____________________________________________________________________________
+    inflection_flag: bool = False,
+    mapbox_token: Union[bool, None] = None,
+    current_crs: str = "epsg:4326",
+    zoom: int = 5,
+) -> go.FigureWidget:
+    """This function plots an interactive plot to detect meanders in a river
+    planform. This function can only be used in a Jupyter Notebook.
 
     Args:
-    -----
-    :param x: list, np.ndarray
-        X coordinates of the river.
-    :param y: list, np.ndarray
-        Y coordinates of the river.
-    :param clicked_points: list, optional ([])
-        List of points that have been clicked.
-    :param meander_ids: list, optional ([])
-        List of meander ids.
-    :param river_obj: River, optional (None)
-        River object to save the meanders.
-    :return: go.FigureWidget
-        Figure widget of the interactive plot.
-    """
+        x (Union[list, np.ndarray]): x coordinates of the river.
+        y (Union[list, np.ndarray]): y coordinates of the river.
+        clicked_points (list, optional): list of clicked points. Defaults to [].
+        meander_ids (list, optional): meander ids for the clicked points.
+            Defaults to [].
+        river_obj (Union[RiverTransect, None], optional): RiverTransect object.
+            Defaults to None.
+        inflection_flag (bool, optional): flag to plot infection points.
+            Defaults to False.
+        mapbox_token (Union[bool, None], optional): mapbox token. This is needed
+            to have the satellite image in the background. If None the plot will
+            have a white background. Defaults to None.
+        current_crs (str, optional): Current projection of the data. This is
+            needed to reproject the data a WGS84 for mapbox plotting.
+            Defaults to "epsg:4326".
+        zoom (int, optional): Zoom of the plot. Defaults to 5.
 
+    Returns:
+        go.FigureWidget: Figure widget of the interactive plot.
+    """
+    # Check if mapbox token is not None
     if mapbox_token is not None:
         satellite = True
         if current_crs != "epsg:4326":
@@ -242,26 +241,16 @@ def plot_interactive_river_plain(
 
     scatter.on_click(update_point)
     return f
-    # if satellite:
-    #     return f
-    # else:
-    #     config = {'scrollZoom': True, 'responsive': False}
-    #     f.show(config=config)
-    #     return
 
 
-def check_meander_id(meander_ids: list):
-    """
-    Description:
-    ------------
-        This function checks the meander id to be used.
-    ____________________________________________________________________________
+def check_meander_id(meander_ids: list) -> int:
+    """Check meander ids.
 
     Args:
-    -----
-    :param meander_ids: list
-        List of meander ids.
-    :return: int
+        meander_ids (list): Meander IDs.
+
+    Returns:
+        int: new meander id.
     """
     meander_id = 0
     if len(meander_ids) != 0:
@@ -276,20 +265,21 @@ def load_meanders(
     river_obj,
     mapbox_token: str = None,
     current_crs: str = "epsg:4326",
-):
-    """
-    Description:
-    ------------
-        This function loads the meanders in the interactive plot using the
-        River object.
-    ____________________________________________________________________________
+) -> go.FigureWidget:
+    """load current selection of meanders.
 
     Args:
-    -----
-    :param f: go.FigureWidget
-        Figure widget of the interactive plot.
-    :param river_obj: River
-        River object to save the meanders.
+        f (go.FigureWidget): plotly figure widget.
+        river_obj (RiverTransect): RiverTransect object.
+        mapbox_token (Union[bool, None], optional): mapbox token. This is needed
+            to have the satellite image in the background. If None the plot will
+            have a white background. Defaults to None.
+        current_crs (str, optional): Current projection of the data. This is
+            needed to reproject the data a WGS84 for mapbox plotting.
+            Defaults to "epsg:4326".
+
+    Returns:
+        go.FigureWidget: Figure widget of the interactive plot.
     """
     # Check if River has meanders
     if len(river_obj.meanders) > 0:
@@ -384,22 +374,16 @@ def load_meanders(
     return f
 
 
-def create_hover_template_meander(meander_id: int, river_obj=None):
-    """
-    Description:
-    ------------
-        This function creates the hover data for the interactive plot.
-    ____________________________________________________________________________
+def create_hover_template_meander(meander_id: int, river_obj=None) -> str:
+    """create hover template for meanders.
 
     Args:
-    -----
-    :param meander_id: int
-        Meander id.
-    :param river_obj: River, optional (None)
-        River object to save the meanders.
-    :return:
-        hover_data, dict
-            Dictionary with the hover data.
+        meander_id (int): Meander ID
+        river_obj (Union[None, RiverTransect], optional): RiverTransect object.
+            Defaults to Union[None, RiverTransect].
+
+    Returns:
+        str: hover template.
     """
     hover_template = f"<b>Meander ID: {meander_id}</b>"
     if river_obj is not None:

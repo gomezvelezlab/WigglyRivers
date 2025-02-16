@@ -19,27 +19,16 @@ functions from the computer.
 # System
 import os
 import time
+import pathlib as pl
+from typing import Union
 
 
-def unzip_file(zip_file, path_output):
-    """
-
-    Description:
-    ---------------
-        Function to Unzip files.
-
-    _______________________________________________________________________
+def unzip_file(zip_file: Union[pl.Path, str], path_output: Union[pl.Path, str]):
+    """unzip a file to a specific path.
 
     Args:
-    ------
-    :param zip_file: str
-        file to be unzipped.
-    :type zip_file: str
-    :param path_output: str
-        Path where it will be unzipped
-    :type path_output: str
-    :return: None
-    :rtype: None
+        zip_file (Union[pl.Path, str]): Path to the zip file.
+        path_output (Union[pl.Path, str]): Path to extract the zip file.
     """
     import zipfile
 
@@ -47,54 +36,36 @@ def unzip_file(zip_file, path_output):
         zip_ref.extractall(path_output)
 
 
-def cr_folder(path):
-    """
-    DESCRIPTION:
+def cr_folder(path: Union[pl.Path, str]):
+    """Create a folder in a specific path.
 
-        This function creates a folder in the given path, if the path does
-        not exist then it creates the path itself
-    _______________________________________________________________________
-
-    INPUT:
-        :param path: A str, Path that needs to be created.
-    _______________________________________________________________________
-    OUTPUT:
-        :return: This function create all the given path.
+    Args:
+        path (Union[pl.Path, str]): Path to create the folder.
     """
+
     if path != "":
         # Verify if the path already exists
         if not os.path.exists(path):
             os.makedirs(path)
 
 
-def get_folders(path):
-    """
-    DESCRIPTION:
+def get_folders(path: Union[pl.Path, str]) -> list:
+    """get folders in a specific path.
 
-        This function gets the folders and documents inside a
-        specific folder.
-    _______________________________________________________________________
+    Args:
+        path (Union[pl.Path, str]): get folders in a specific path.
 
-    INPUT:
-        :param path: A str, Path where the data would be taken.
-    _______________________________________________________________________
-    OUTPUT:
-        :return: A List, List with the folders and files inside
-                 the path.
+    Returns:
+        list: list of folders in the path.
     """
     return next(os.walk(path))[1]
 
 
-def toc(time1):
-    """
-    DESCRIPTION:
-        Print the time pased over the period selected
-    _______________________________________________________________________
+def toc(time1: float):
+    """print the time of execution.
 
-    INPUT:
-        :param time1: A time.time, time.time() instance.
-    _______________________________________________________________________
-    OUTPUT:
+    Args:
+        time1 (float): time when execution started given by time.time().
     """
     dif = time.time() - time1
     if dif >= 3600 * 24:
@@ -117,7 +88,9 @@ def fix_widget_error():
     import shutil
     import pkg_resources
 
-    pkg_dir = os.path.dirname(pkg_resources.resource_filename("plotly", "plotly.py"))
+    pkg_dir = os.path.dirname(
+        pkg_resources.resource_filename("plotly", "plotly.py")
+    )
 
     basedatatypesPath = os.path.join(pkg_dir, "basedatatypes.py")
 
@@ -134,7 +107,9 @@ def fix_widget_error():
     with open(basedatatypesPath, "r") as f:
         lines = f.read()
 
-    find = "if not BaseFigure._is_key_path_compatible(key_path_str, self.layout):"
+    find = (
+        "if not BaseFigure._is_key_path_compatible(key_path_str, self.layout):"
+    )
 
     replace = """if not BaseFigure._is_key_path_compatible(key_path_str, self.layout):
                 if key_path_str == "mapbox._derived":

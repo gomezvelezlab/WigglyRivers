@@ -7,9 +7,6 @@
 # _____________________________________________________________________________
 
 """
-
-This package searches from meanders within the NHD-HR data.
-____________________________________________________________________________
 """
 from .rivers import *
 from .utilities import *

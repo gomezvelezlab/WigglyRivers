@@ -4,9 +4,9 @@
 #
 #                       Coded by: Daniel Gonzalez-Duque and
 #                                 Jesus Gomez-Velez
-#                                 
 #
-#                               Last revised 2022-01-17
+#
+#                               Last revised 2025-02-13
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 """
@@ -20,8 +20,10 @@ ______________________________________________________________________________
 # Libraries
 # -----------
 # System Management
+from typing import Union
 import os
 import logging
+import pathlib as pl
 
 # ------------------
 # Logging
@@ -34,45 +36,26 @@ logging.basicConfig(handlers=[logging.NullHandler()])
 # Class
 # ------------------
 class Logger:
-    """
-    This class is to perform the logging of the package for debugging
-    or information.
-
-    ===================== =====================================================
-    Attribute             Description
-    ===================== =====================================================
-    console               Boolean, show logger information in the terminal
-                          prompt
-    file                  Export a file with the log information.
-    level                 Level of logger, the levels are
-    format                Format to present the logging results.
-    ===================== =====================================================
-
-    The following are the methods of the class.
-
-    ===================== =====================================================
-    Methods               Description
-    ===================== =====================================================
-    set_logger            Set the logger
-    ===================== =====================================================
-
-
-    Examples
-    -------------------
-    :Set Logger: ::
-
-    >>> logger = Logger(console=True)
-    """
 
     def __init__(
         self,
-        console=False,
-        file=None,
-        level="DEBUG",
-        format="%(asctime)s[%(levelname)s] %(funcName)s: %(message)s",
+        console: bool = False,
+        file: Union[str, pl.Path, None] = None,
+        level: Union[int, str] = "DEBUG",
+        format: str = "%(asctime)s[%(levelname)s] %(funcName)s: %(message)s",
     ):
-        """
-        Class constructor
+        """Logger constructor.
+
+        Args:
+            console (bool, optional): show logger information in the terminal.
+                Defaults to False.
+            file (Union[str, pl.Path, None], optional): Export logger
+                information to file. If None no file will be created.
+                Defaults to None.
+            level (Union[int, str], optional): level of logger, the levels are:
+                DEBUG, CRITICAL, ERROR, WARNING, INFO, NOTSET. Defaults to "DEBUG".
+            format (str, optional): format for logger message.
+                Defaults to "%(asctime)s[%(levelname)s] %(funcName)s: %(message)s".
         """
         # ------------------------
         # Create logger
@@ -113,12 +96,40 @@ class Logger:
     # --------------------------
     def set_logger(
         self,
-        console=False,
-        file=None,
-        level=logging.DEBUG,
-        format="%(asctime)s[%(levelname)s] %(funcName)s: %(message)s",
+        console: bool = False,
+        file: Union[str, pl.Path, None] = None,
+        level: Union[int, str] = logging.DEBUG,
+        format: str = "%(asctime)s[%(levelname)s] %(funcName)s: %(message)s",
     ):
-        """set logger handlers"""
+        """Setting logging
+
+        Args:
+            console (bool, optional): show logger information in the terminal.
+                Defaults to False.
+            file (Union[str, pl.Path, None], optional): Export logger
+                information to file. If None no file will be created.
+                Defaults to None.
+            level (Union[int, str], optional): level of logger, the levels are:
+                DEBUG, CRITICAL, ERROR, WARNING, INFO, NOTSET. Defaults to "DEBUG".
+            format (str, optional): format for logger message.
+                Defaults to "%(asctime)s[%(levelname)s] %(funcName)s: %(message)s".
+        """
+        # ------------------------
+        # Select level
+        # ------------------------
+        if isinstance(level, str):
+            if level.upper() == "DEBUG":
+                level = logging.DEBUG
+            elif level.upper() == "CRITICAL":
+                level = logging.CRITICAL
+            elif level.upper() == "ERROR":
+                level = logging.ERROR
+            elif level.upper() == "WARNING":
+                level = logging.WARNING
+            elif level.upper() == "INFO":
+                level = logging.INFO
+            elif level.upper() == "NOTSET":
+                level = logging.NOTSET
         formatter = logging.Formatter(format)
         if console:
             console_handler = logging.StreamHandler()
@@ -133,7 +144,7 @@ class Logger:
             file_handler.setLevel(level)
             file_handler.setFormatter(formatter)
             self._logging.addHandler(file_handler)
-        self._logging.info(f"Starting log")
+        self._logging.info("Starting log")
         if file is not None:
             self._logging.info(f"Log will be saved in {file}")
 
@@ -149,22 +160,47 @@ class Logger:
     # --------------------------
     # Print values
     # --------------------------
-    def info(self, msg):
+    def info(self, msg: str):
+        """Logger message
+
+        Args:
+            msg (str): message
+        """
         self.logger.info(msg)
         return
 
-    def warning(self, msg):
+    def warning(self, msg: str):
+        """Logger message
+
+        Args:
+            msg (str): message
+        """
         self.logger.warning(msg)
         return
 
-    def error(self, msg):
+    def error(self, msg: str):
+        """Logger message
+
+        Args:
+            msg (str): message
+        """
         self.logger.error(msg)
         return
 
-    def critical(self, msg):
+    def critical(self, msg: str):
+        """Logger message
+
+        Args:
+            msg (str): message
+        """
         self.logger.critical(msg)
         return
 
-    def debug(self, msg):
+    def debug(self, msg: str):
+        """Logger message
+
+        Args:
+            msg (str): message
+        """
         self.logger.debug(msg)
         return

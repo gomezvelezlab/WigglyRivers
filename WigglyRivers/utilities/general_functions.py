@@ -16,10 +16,12 @@ functions from the computer.
 # ------------------------
 # Importing Modules
 # ------------------------
+from typing import Union
 import numpy as np
 from scipy import optimize
 from scipy import integrate
 from scipy import signal
+from scipy.spatial import Delaunay
 
 
 # ------------------------
@@ -27,10 +29,11 @@ from scipy import signal
 # ------------------------
 
 
-def savgol_filter(x, ds, order, savgol_window, kernel):
-    """
+def savgol_filter(
+    x: np.ndarray, ds: float, order: int, savgol_window: int, kernel: np.ndarray
+) -> np.ndarray:
+    """This function performs the savitzky golay filter with a Gaussian filter.
 
-    This function performs the savgol filter with a Gaussian filter.
     It is based in the functions presented in the pynumdiff package, created
     by Van Breugel et al. (2022).
 
@@ -39,31 +42,26 @@ def savgol_filter(x, ds, order, savgol_window, kernel):
     time-series data. Journal of Open Source Software, 7(71), 4078.
     https://doi.org/10.21105/joss.04078
 
+    Args:
+        x (np.ndarray): coordinates to filter.
+        ds (float): delta in distance.
+        order (int): order of the polynomial in the savgol filter.
+        savgol_window (int): savgol filter window. It has to be an odd number
+            if an even number is given the function will sum one to the value.
+        kernel (np.ndarray): Gaussian kernel to apply additional smoothing to
+            the function.
 
-    :param x: np.array,
-        Coordinates to filter
-    :type x: np.ndarray
-    :param ds: float,
-        Difference in distance.
-    :type ds: float
-    :param order: int,
-        Polynomial order in the savgol filter
-    :type order: int
-    :param savgol_window: int,
-        Savgol filter window. It has to be an odd number if an even number
-        is given the function will sum one to the value.
-    :type savgol_window: int
-    :param kernel: np.array,
-        Gaussian kernel to apply additional smoothing to the function.
-    :type kernel: np.ndarray
-    :return: x_smooth: smoothed function
-    :rtype:
+    Raises:
+        ValueError: if savgol_window is smaller than order.
+
+    Returns:
+        np.ndarray: smoothed values of the coordinates.
     """
     # -----------------
     # Apply Filter
     # -----------------
     if savgol_window < order:
-        raise ValueError(f"savgol_window must be larger than poly_order")
+        raise ValueError("savgol_window must be larger than poly_order")
     dxds = signal.savgol_filter(x, savgol_window, order, deriv=1) / ds
 
     # ------------------------
@@ -91,14 +89,32 @@ def savgol_filter(x, ds, order, savgol_window, kernel):
     return x_smooth
 
 
-def gaussian_function(t, sigma):
-    result = 1 / np.sqrt(2 * np.pi * sigma**2) * np.exp(-(t**2) / (2 * sigma**2))
+def gaussian_function(
+    t: Union[float, np.ndarray], sigma: Union[np.ndarray, float]
+) -> Union[float, np.ndarray]:
+    """Gaussian function
+
+    Args:
+        t (Union[float, np.ndarray]): array of values to evaluate the function.
+        sigma (Union[np.ndarray, float]): array of values of the standard
+            deviation.
+
+    Returns:
+        Union[float, np.ndarray]: array of values of the gaussian function.
+    """
+
+    result = (
+        1 / np.sqrt(2 * np.pi * sigma**2) * np.exp(-(t**2) / (2 * sigma**2))
+    )
     return result
 
 
-def convolution_smoother(x, kernel, iter):
-    """
-    Calculates a mean smoothing by convolution, This function is based
+def convolution_smoother(
+    x: np.ndarray, kernel: np.ndarray, iter: int
+) -> np.ndarray:
+    """Calculates a mean smoothing by convolution.
+
+    This function is based
     on the __convolution_smoother__ of pynumdiff, created by
     Van Breugel et al. (2022).
 
@@ -107,19 +123,13 @@ def convolution_smoother(x, kernel, iter):
     time-series data. Journal of Open Source Software, 7(71), 4078.
     https://doi.org/10.21105/joss.04078
 
+    Args:
+        x (np.ndarray): 1xN, Coordinates to differentiate
+        kernel (np.ndarray): 1xwindow_size, Kernel used in the convolution.
+        iter (int): Number of iterations >= 1.
 
-    :param x: np.array 1xN,
-        Coordinates to differentiate
-    :type x: np.ndarray
-    :param kernel: np.array (1xwindow_size),
-        Kernel used in the convolution
-    :type kernel: np.ndarray
-    :param iter: int,
-        Number of iterations >= 1
-    :type iter: int
-    :return: x_smooth:
-            Smoothed x
-    :rtype: ndarray
+    Returns:
+        np.ndarray: coordinates smoothed.
     """
     x_smooth = np.hstack((x[::-1], x, x[::-1]))
     for _ in range(iter):
@@ -133,23 +143,16 @@ def convolution_smoother(x, kernel, iter):
     return x_smooth[len(x) : len(x) * 2]
 
 
-def circumcenter(tri):
-    """
-    Description:
-    ------------
-        Compute the circumcenter of a triangle. The point where the
-        perpendicular bisectors of the sides of the triangle intersect.
-    ____________________________________________________________________________
+def circumcenter(tri: Delaunay) -> np.ndarray:
+    """Compute the circumcenter of a triangle. The point where the
+    perpendicular bisectors of the sides of the triangle intersect.
 
     Args:
-    -----
-    :param tri:
-        delaunay triangulation
-    :type tri:
-    :return:
-    :rtype:
-    """
+        tri (Delaunay): Delaunay triangulation.
 
+    Returns:
+        np.ndarray: circumcenter of the triangle.
+    """
     # Get the indices of the vertices that form the triangle
     tri_indices = tri.simplices[0]
 
