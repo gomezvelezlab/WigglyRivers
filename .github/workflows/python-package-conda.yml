@@ -33,6 +33,10 @@ jobs:
           pip install tqdm
           pip install Sphinx
           pip install sphinx_rtd_theme
+      - name: Build documentation
+        run: |
+          cd docs
+          make html
       - name: Lint with flake8
         run: |
           conda install flake8
