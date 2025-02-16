@@ -125,7 +125,7 @@ Some known incompatible dependencies are addressed in the troubleshooting sectio
 
 If you use this package, please cite the following paper:
 
-Gonzalez-Duque, D., & Gomez-Velez, J. D. (2024). WigglyRivers: Characterizing the Multiscale Nature of Meandering Channels [Submitted]. Environmental Modelling & Software.
+Gonzalez-Duque, D., & Gomez-Velez, J. D. (2025). WigglyRivers: Characterizing the Multiscale Nature of Meandering Channels [Submitted]. Environmental Modelling & Software.
 
 ## Credit and Acknowledgments
 
