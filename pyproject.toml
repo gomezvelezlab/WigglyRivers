@@ -1,5 +1,6 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0", "wheel", "build"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "WigglyRivers"
@@ -25,7 +26,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/username/WigglyRivers"
+Homepage = "https://github.com/gomezvelezlab/WigglyRivers"
+Documentation = "https://gomezvelezlab.github.io/WigglyRivers"
+Repository = "https://github.com/gomezvelezlab/WigglyRivers"
 
 [project.optional-dependencies]
 # Add your project development dependencies here

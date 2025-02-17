@@ -1,6 +1,12 @@
 name: Python Package using Conda
 
-on: [push]
+on:
+  push:
+    branches:
+      - stable
+  pull_request:
+    branches:
+      - stable
 
 jobs:
   build-linux:
@@ -25,32 +31,10 @@ jobs:
         run: |
           conda install -c conda-forge geopandas
           conda install -c conda-forge h5py
-          pip install simpledbf
-          pip install statsmodels
-          pip install seaborn
-          pip install pyarrow
-          pip install plotly
-          pip install salem
-          pip install anytree
-          pip install circle-fit
-          pip install tqdm
-          pip install Sphinx
-          pip install sphinx_rtd_theme
-          pip install ghp-import
+          pip install simpledbf statsmodels seaborn pyarrow plotly salem
+          pip install anytree circle-fit tqdm Sphinx sphinx_rtd_theme ghp-import
           # Install your package in editable mode
           pip install -e .
-      - name: Build documentation
-        run: |
-          cd docs
-          make html
-          # Check if the build was successful
-          if [ ! -f _build/html/index.html ]; then
-            echo "Documentation build failed!"
-            exit 1
-          fi
-      - name: Deploy to GitHub Pages
-        run: |
-          ghp-import -n -p -f docs/_build/html
       - name: Lint with flake8
         run: |
           conda install flake8
@@ -62,3 +46,15 @@ jobs:
         run: |
           conda install pytest
           pytest
+      - name: Build and Deploy Documentation
+        # Only run this step when pushing to stable branch (not on pull requests)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/stable'
+        run: |
+          cd docs
+          make html
+          # Check if the build was successful
+          if [ ! -f _build/html/index.html ]; then
+            echo "Documentation build failed!"
+            exit 1
+          fi
+          ghp-import -n -p -f _build/html
