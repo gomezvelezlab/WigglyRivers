@@ -25,6 +25,7 @@ from anytree import Node
 
 # Package packages
 from ..utilities import general_functions as GF
+
 # from ..utilities.classExceptions import *
 from ..wavelet_tree import WaveletTreeFunctions as WTFunc
 
@@ -519,7 +520,7 @@ def calculate_direction_angle(
         \\theta = \\theta_0 + \\int_{s=0}^{s=s_n}Cds
 
     .. code-block:: python
-    
+
         # Calculate direction angle
         ss = np.linspace(0, 100, 100)
         xs = np.sin(ss)
@@ -790,12 +791,12 @@ def fit_splines(
     x: np.ndarray,
     y: np.ndarray,
     method: str = "geometric_mean",
-    ds: float  = 0,
+    ds: float = 0,
     k: int = 3,
     smooth: int = 0,
     ext: int = 0,
     return_derivatives: bool = True,
-)-> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """This function fits a spline to the coordinates with the minimum distance
     of the river.
 
@@ -891,11 +892,11 @@ def fit_splines(
 
 def fit_splines_complete(
     data: dict,
-    method: str="geometric_mean",
-    ds: float=0,
-    k: int=3,
-    smooth: float=0,
-    ext: int=0
+    method: str = "geometric_mean",
+    ds: float = 0,
+    k: int = 3,
+    smooth: float = 0,
+    ext: int = 0,
 ) -> dict:
     """function to fit splines to the data of the River class.
 
@@ -1107,7 +1108,7 @@ def calculate_lambda(x: np.ndarray, y: np.ndarray) -> float:
     Equation:
 
     .. math::
-    
+
         \\lambda = \\sum_{i=j}^k\\sqrt{(x_{i+1}-x_{i})^2+(y_{i+1}-y_{i})^2}
 
     example:
@@ -1408,13 +1409,13 @@ def calculate_coordinates_from_curvature(
     x: np.ndarray,
     y: np.ndarray,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Calculate the coordinates from the curvature of the river. The 
+    """Calculate the coordinates from the curvature of the river. The
     coordinates are calculated using a numerical integration method. Using
     the angle between the initial direction.
 
     Equation:
 
-    .. math:: 
+    .. math::
         x = x_0 + \\int_0^{s_n} C ds
 
     .. math::
@@ -1439,7 +1440,7 @@ def calculate_coordinates_from_curvature(
 
     Returns:
         Tuple[np.ndarray, np.ndarray]: x and y reconstructed coordinates.
-    """ 
+    """
     initial_coords = np.array([x[0], y[0]])
     known_point = np.array([x[1], y[1]])
     segments_length = np.diff(s_curvature)
@@ -1573,10 +1574,18 @@ def calculate_spectrum_cuts(
 
 
 def calculate_amplitude(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    """Calculate amplitude of the meanders.
+    """Calculate amplitude of the meanders. This funcion rotates the meanders
+    and calculates the distance between the maximum and minimum y values.
+
+    Additionally, it calculates the dimensionless coordinate of the meanders
+    $x^*$ that depends on the angle between the starting point of the meander
+    and each point within the meander.
 
     Equation:
+
     .. math:: A = \\max(y) - \\min(y)
+
+    .. math:: x^* = \\frac{\\beta}{\\pi} - 0.5
 
     example:
 
@@ -1597,7 +1606,7 @@ def calculate_amplitude(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     coords = np.vstack((x, y)).T
     index_initial = 0
     index_final = len(coords) - 1
-    rotated_points, _ = translate_rotate(
+    rotated_points, theta = translate_rotate(
         coords, index_initial=index_initial, index_final=index_final
     )
     # --------------------------
@@ -1608,7 +1617,43 @@ def calculate_amplitude(x: np.ndarray, y: np.ndarray) -> np.ndarray:
         y_rot = -y_rot
     amplitude = np.max(y_rot) - np.min(y_rot)
 
-    return amplitude
+    # ------------------------------------------------------------
+    # Calculate the dimensionless coordinate
+    # ------------------------------------------------------------
+    x_apex = rotated_points[np.argmax(y_rot), 0]
+    # translate the points to the origin
+    rotated_points[:, 0] -= x_apex
+    # Locate center point
+    y_center = 0.0
+    x_center = 0.0
+
+    # Calculate the angle between the start and each point
+    # angle_st_all = np.arctan2(rotated_points[:, 1], rotated_points[:, 0])
+    angle_st_all = np.zeros_like(rotated_points[:, 0])
+    for i in range(len(rotated_points)):
+        if rotated_points[i, 0] == 0:
+            angle_st_all[i] = np.arctan(np.inf)
+        else:
+            angle_st_all[i] = np.arctan(
+                rotated_points[i, 1] / rotated_points[i, 0]
+            )
+
+    # Correct angles
+    apex_idx = np.argmax(y_rot)
+    angle_st_all[:apex_idx] = np.pi - angle_st_all[:apex_idx]
+
+    # Calculate the dimensionless coordinate
+    x_star = (angle_st_all / np.pi) - 0.5
+
+    # find center point in the original coordinates
+    center_point = np.array([x_center, y_center])
+    # translate the center point to the origin
+    center_point[0] += x_apex
+    # Translate to the original coordinates
+    center_point += coords[index_initial]
+    coords_apex = coords[apex_idx]
+
+    return amplitude, x_star, center_point, coords_apex
 
 
 def calculate_funneling_factor(
