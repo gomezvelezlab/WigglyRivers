@@ -356,7 +356,9 @@ class RiverDatasets:
             )
         except TypeError:
             # Adding HUCs to the dataframe
-            self.data_info_df = FM.load_data(self.info_file, pandas_dataframe=True)
+            self.data_info_df = FM.load_data(
+                self.info_file, pandas_dataframe=True
+            )
             data_huc4 = copy.deepcopy(self.data_info_df)
             huc_02 = [i[:2] for i in data_huc4["ReachCode"]]
             huc_04 = [i[:4] for i in data_huc4["ReachCode"]]
@@ -372,7 +374,9 @@ class RiverDatasets:
             self.data_info_df = data_huc4
 
         # Cheange headers to lower case
-        self.data_info_df.columns = [i.lower() for i in self.data_info_df.columns]
+        self.data_info_df.columns = [
+            i.lower() for i in self.data_info_df.columns
+        ]
         # Clean dataset
         self._clean_nhd_data()
         # Create reach generator
@@ -386,7 +390,9 @@ class RiverDatasets:
 
     def _clean_nhd_data(self):
         # Pick small divergence
-        self.data_info_df = self.data_info_df[self.data_info_df["divergence"] <= 1]
+        self.data_info_df = self.data_info_df[
+            self.data_info_df["divergence"] <= 1
+        ]
         # Remove FCodes that are not streams
         try:
             for fcode_remove in self.f_codes_to_remove:
@@ -399,7 +405,8 @@ class RiverDatasets:
         #   order
         try:
             self.data_info_df = self.data_info_df[
-                self.data_info_df["streamorde"] == self.data_info_df["streamcalc"]
+                self.data_info_df["streamorde"]
+                == self.data_info_df["streamcalc"]
             ]
         except KeyError:
             print("No stream order calc in the dataframe")
@@ -501,9 +508,13 @@ class RiverDatasets:
         if path_out is not None:
             comid_network = self.reach_generator.comid_network
             FM.save_data(
-                comid_network, path_output=path_out, file_name="comid_network.hdf5"
+                comid_network,
+                path_output=path_out,
+                file_name="comid_network.hdf5",
             )
-            linking_generator = copy.deepcopy(self.reach_generator.linking_network)
+            linking_generator = copy.deepcopy(
+                self.reach_generator.linking_network
+            )
             linking_generator = linking_generator.reset_index()
             FM.save_data(
                 linking_generator,
@@ -541,7 +552,9 @@ class RiverDatasets:
         self.reach_generator.linking_network.set_index(comid_id, inplace=True)
         linking_network = self.reach_generator.linking_network
         headwaters_comid = linking_network[linking_network["startflag"] == 1]
-        headwaters_comid = headwaters_comid[headwaters_comid["extracted_comid"] == 1]
+        headwaters_comid = headwaters_comid[
+            headwaters_comid["extracted_comid"] == 1
+        ]
         headwaters_comid = headwaters_comid.index.values
         self.reach_generator.exteracted_comids = headwaters_comid
         return
@@ -697,7 +710,9 @@ class RiverDatasets:
             )
 
         try:
-            comid_network = copy.deepcopy(self.reach_generator.comid_network[huc])
+            comid_network = copy.deepcopy(
+                self.reach_generator.comid_network[huc]
+            )
         except KeyError:
             raise KeyError(f"HUC {huc} not found in the comid network.")
         # Check for headwaters comids
@@ -709,7 +724,8 @@ class RiverDatasets:
         time1 = time.time()
         data_to_save = {
             str(hw): {
-                key: [] for key in keys + ["huc04", "huc_n", "start_comid", "uid"]
+                key: []
+                for key in keys + ["huc04", "huc_n", "start_comid", "uid"]
             }
             for hw in headwaters_comid
         }
@@ -754,7 +770,9 @@ class RiverDatasets:
                 FM.save_data(data_to_save, path_out, file_name=file_name)
             else:
                 FM.save_data(
-                    data_to_save, path_out, file_name=f"river_network_huc_{huc}.hdf5"
+                    data_to_save,
+                    path_out,
+                    file_name=f"river_network_huc_{huc}.hdf5",
                 )
         else:
             return data_to_save
@@ -773,7 +791,17 @@ class RiverDatasets:
         # --------------------------
         # keys
         # --------------------------
-        keys = ["s", "x", "y", "z", "comid", "so", "da_sqkm", "w_m", "within_waterbody"]
+        keys = [
+            "s",
+            "x",
+            "y",
+            "z",
+            "comid",
+            "so",
+            "da_sqkm",
+            "w_m",
+            "within_waterbody",
+        ]
         keys_lab = {i: f"{i}_o" for i in keys}
         # Loading from file
         time1 = time.time()
@@ -786,13 +814,17 @@ class RiverDatasets:
         # --------------------------
         # Verify reach length
         # --------------------------
-        lengthkm = self.reach_generator.data_info.loc[comid_list, "lengthkm"].values
+        lengthkm = self.reach_generator.data_info.loc[
+            comid_list, "lengthkm"
+        ].values
         total_length = np.sum(lengthkm)
         remove = 0
         i_rep = 0
         cut = 10
         while total_length * 1000 < min_distance:
-            additional_comid = linking_network.loc[comid_list[-1], "linking_comid"]
+            additional_comid = linking_network.loc[
+                comid_list[-1], "linking_comid"
+            ]
             # print(i_rep, additional_comid)
             if (
                 additional_comid == 0
@@ -803,7 +835,9 @@ class RiverDatasets:
                 remove = 1
                 break
             comid_list.append(additional_comid)
-            lengthkm = self.reach_generator.data_info.loc[comid_list, "lengthkm"].values
+            lengthkm = self.reach_generator.data_info.loc[
+                comid_list, "lengthkm"
+            ].values
             total_length = np.sum(lengthkm)
             i_rep += 1
         # print('Extending reach')
@@ -904,11 +938,14 @@ class RiverDatasets:
         # Generate Reach
         # --------------------------
         if start_comid is None and comid_list is None:
-            raise ValueError("Either start_comid or comid_list must be" " provided")
+            raise ValueError(
+                "Either start_comid or comid_list must be" " provided"
+            )
         reach_generator = self.reach_generator
         if reach_generator is None:
             raise ValueError(
-                "No reach generator defined." " Please run self.add_files() first"
+                "No reach generator defined."
+                " Please run self.add_files() first"
             )
         # Get COMID network
         self.logger.info("Getting COMID network")
@@ -1035,7 +1072,9 @@ class RiverDatasets:
             # Only save trees with information
             if tree_scale is not None:
                 tree_scales[str(key)] = self.rivers[key].tree_scales.trees
-                tree_scales_database[key] = self.rivers[key].tree_scales_database
+                tree_scales_database[key] = self.rivers[
+                    key
+                ].tree_scales_database
             else:
                 self.logger.info(f"{key} No tree scales extracted")
                 # print('No tree scales extracted')
@@ -1043,10 +1082,14 @@ class RiverDatasets:
 
         # Save tree scales
         if len(tree_scales) > 0:
-            FM.save_data(tree_scales, path_output=path_output, file_name=fn_tree_scales)
+            FM.save_data(
+                tree_scales, path_output=path_output, file_name=fn_tree_scales
+            )
             database = self._compile_database(tree_scales_database)
             FM.save_data(
-                database, path_output=path_output, file_name=fn_tree_scales_database
+                database,
+                path_output=path_output,
+                file_name=fn_tree_scales_database,
             )
         return
 
@@ -1187,7 +1230,9 @@ class RiverDatasets:
         extension = file_name.split(".")[-1]
         if extension in ("pickle", "p"):
             data_save = self.rivers
-            FM.save_data(data_save, path_output=path_output, file_name=file_name)
+            FM.save_data(
+                data_save, path_output=path_output, file_name=file_name
+            )
         elif extension in ("hdf5", "h5"):
             data_save = {}
             cwt_poly = {}
@@ -1233,26 +1278,38 @@ class RiverDatasets:
                 # Only save trees with information
                 if tree_scale is not None:
                     tree_scales[str(key)] = self.rivers[key].tree_scales.trees
-                    tree_scales_database[key] = self.rivers[key].tree_scales_database
+                    tree_scales_database[key] = self.rivers[
+                        key
+                    ].tree_scales_database
 
             # Save Information
-            FM.save_data(data_save, path_output=path_output, file_name=file_name)
+            FM.save_data(
+                data_save, path_output=path_output, file_name=file_name
+            )
             # Save tree scales
             if len(tree_scales) > 0:
                 FM.save_data(
-                    tree_scales, path_output=path_output, file_name=fn_tree_scales
+                    tree_scales,
+                    path_output=path_output,
+                    file_name=fn_tree_scales,
                 )
                 database = self._compile_database(tree_scales_database)
                 FM.save_data(
-                    database, path_output=path_output, file_name=fn_tree_scales_database
+                    database,
+                    path_output=path_output,
+                    file_name=fn_tree_scales_database,
                 )
 
             # Save CWT information
             if save_cwt_info and len(cwt_poly) > 0:
                 file_name = "cwt_poly.p"
-                FM.save_data(cwt_poly, path_output=path_output, file_name=file_name)
+                FM.save_data(
+                    cwt_poly, path_output=path_output, file_name=file_name
+                )
                 file_name = "cwt_zc_lines.p"
-                FM.save_data(cwt_zc_lines, path_output=path_output, file_name=file_name)
+                FM.save_data(
+                    cwt_zc_lines, path_output=path_output, file_name=file_name
+                )
 
             database = self.get_metric_databases()
             if len(database) > 0:
@@ -1453,7 +1510,9 @@ class RiverDatasets:
 
             self.rivers[hw_r].id_meanders = []
             if fn_meanders_database is not None:
-                database = meanders_database[meanders_database["start_comid"] == hw_r]
+                database = meanders_database[
+                    meanders_database["start_comid"] == hw_r
+                ]
 
                 if len(database) == 0:
                     database = meanders_database[
@@ -1492,7 +1551,11 @@ class RiverDatasets:
 
                             # Change values from string to lists
                             if isinstance(x_inf, str):
-                                if x_inf == "" or x_inf == "nan" or x_inf == "None":
+                                if (
+                                    x_inf == ""
+                                    or x_inf == "nan"
+                                    or x_inf == "None"
+                                ):
                                     x_inf = None
                                     y_inf = None
                                     s_inf = None
@@ -1582,7 +1645,9 @@ class RiverDatasets:
             comids = self.rivers["id_values"]
 
         if engine == "matplotlib":
-            fig, ax = graphs.plot_rivers_matplotlib(self, comids, data_source, **kwargs)
+            fig, ax = graphs.plot_rivers_matplotlib(
+                self, comids, data_source, **kwargs
+            )
         elif engine == "plotly":
             fig = graphs.plot_rivers_plotly(self, comids, data_source, **kwargs)
         return fig
@@ -1762,7 +1827,9 @@ class RiverTransect:
         if da_sqkm is None:
             self.da_sqkm_o = np.array([np.nan for _ in self.x_o])
         else:
-            assert len(da_sqkm) == len(x), "da_sqkm must have the same length as x"
+            assert len(da_sqkm) == len(
+                x
+            ), "da_sqkm must have the same length as x"
             self.da_sqkm_o = da_sqkm
         if w_m is None:
             self.w_m_o = np.array([np.nan for _ in self.x_o])
@@ -1999,7 +2066,9 @@ class RiverTransect:
         :type data_source: str
         """
         if data_source.lower() not in ("original", "resample", "smooth"):
-            self.logger.warning("Data source not recognized, " "setting to resample")
+            self.logger.warning(
+                "Data source not recognized, " "setting to resample"
+            )
             self.data_source = "resample"
         else:
             self.data_source = data_source.lower()
@@ -2014,7 +2083,9 @@ class RiverTransect:
         ------------
             Extract data to save.
         """
-        attributes = inspect.getmembers(self, lambda a: not (inspect.isroutine(a)))
+        attributes = inspect.getmembers(
+            self, lambda a: not (inspect.isroutine(a))
+        )
 
         no_core_attributes = [
             a
@@ -2024,7 +2095,9 @@ class RiverTransect:
             and not (a[0].startswith("_"))
         ]
 
-        dict_general = {a[0]: a[1] for a in no_core_attributes if a[1] is not None}
+        dict_general = {
+            a[0]: a[1] for a in no_core_attributes if a[1] is not None
+        }
         dict_to_save = {}
         for a in dict_general.items():
             a = list(a)
@@ -2203,7 +2276,9 @@ class RiverTransect:
         self.y -= self.xy_start[1]
         return
 
-    def calculate_spline(self, function=RF.fit_splines_complete, *args, **kwargs):
+    def calculate_spline(
+        self, function=RF.fit_splines_complete, *args, **kwargs
+    ):
         """
         Description:
         ------------
@@ -2263,7 +2338,10 @@ class RiverTransect:
         return
 
     def calculate_smooth(
-        self, poly_order: int = 2, savgol_window: int = 3, gaussian_window: int = 1
+        self,
+        poly_order: int = 2,
+        savgol_window: int = 3,
+        gaussian_window: int = 1,
     ):
         """
         Description:
@@ -2312,7 +2390,9 @@ class RiverTransect:
         self.set_data_source(data_source)
         x, y, s, add_data = self._extract_data_source(give_add_data=True)
         # Calculate the curvature
-        r, c, angle = RF.calculate_curvature(s, x, y, self.planimetry_derivatives)
+        r, c, angle = RF.calculate_curvature(
+            s, x, y, self.planimetry_derivatives
+        )
         # convert angle to degrees
         angle = angle * 180 / np.pi
         # angle = RF.calculate_direction_angle(s, x, y, self.planimetry_derivatives)
@@ -2453,7 +2533,9 @@ class RiverTransect:
             wave_sig95[cond, i] = 0
 
         # Recalculate GWS and SAWP
-        gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(wave_sig95)
+        gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
+            wave_sig95
+        )
         # peak_periods_sig95 = period[peaks]
 
         # Find SAWP (Spectral-Average Wave Period) using Zolezzi and Guneralp (2016)
@@ -2540,7 +2622,9 @@ class RiverTransect:
             wave_sig95[cond, i] = 0
 
         # Recalculate GWS and SAWP
-        gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(wave_sig95)
+        gws_sig95, peaks = cwt_func.calculate_global_wavelet_spectrum(
+            wave_sig95
+        )
         # peak_periods_sig95 = period[peaks]
 
         # Find SAWP (Spectral-Average Wave Period) using Zolezzi and Guneralp (2016)
@@ -2657,7 +2741,10 @@ class RiverTransect:
             frm = np.where(np.isnan(self.cwt_peak_pwr))[0]
             conn_2 = WTFunc.remove_nodes(self.cwt_conn, frm)
             meander_id = WTFunc.detect_meanders(
-                self.cwt_wave_c.real, conn_2, self.cwt_peak_row, self.cwt_peak_col
+                self.cwt_wave_c.real,
+                conn_2,
+                self.cwt_peak_row,
+                self.cwt_peak_col,
             )
             conn_2 = np.array(conn_2)
             meander_id = np.array(meander_id)
@@ -2868,7 +2955,9 @@ class RiverTransect:
                     y_m = y[idx_start : idx_end + 1]
                     lambda_extended = RF.calculate_lambda(x_m, y_m)
                     l_extended = RF.calculate_l(x_m, y_m)
-                    sn_extended = RF.calculate_sinuosity(l_extended, lambda_extended)
+                    sn_extended = RF.calculate_sinuosity(
+                        l_extended, lambda_extended
+                    )
                     # Add values
                     node.lambda_extended = lambda_extended
                     node.l_extended = l_extended
@@ -2916,7 +3005,9 @@ class RiverTransect:
                             start = idx_start - i_r
                         c_m = c[start : middle + idx_start + 1]
                         s_m = s[start : middle + idx_start + 1]
-                        s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(s_m, c_m)
+                        s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(
+                            s_m, c_m
+                        )
                         i_r += 1
                         if idx_start - i_r < 0 and len(s_inf) == 0:
                             s_inf = np.array([s_m[0]])
@@ -2948,7 +3039,9 @@ class RiverTransect:
                     while len(s_inf) != 1:
                         c_m = c[middle + idx_start : idx_end + i_r + 1]
                         s_m = s[middle + idx_start : idx_end + i_r + 1]
-                        s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(s_m, c_m)
+                        s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(
+                            s_m, c_m
+                        )
                         i_r += 1
                         if idx_end + i_r > len(c) and len(s_inf) == 0:
                             s_inf = np.array([s_m[-1]])
@@ -3009,7 +3102,9 @@ class RiverTransect:
                     # ----------------------------------
                     # Add within_waterbody
                     # ----------------------------------
-                    within_waterbody = self.within_waterbody[idx_start : idx_end + 1]
+                    within_waterbody = self.within_waterbody[
+                        idx_start : idx_end + 1
+                    ]
                     if np.sum(within_waterbody) > 0:
                         node.within_waterbody = 1
                     else:
@@ -3029,7 +3124,9 @@ class RiverTransect:
                     node.idx_leaf_end = np.max(rigth_bounds)
 
                     # Extract global wavelet spectrum (GWS)
-                    wave_node = wave[:, node.idx_leaf_start : node.idx_leaf_end + 1]
+                    wave_node = wave[
+                        :, node.idx_leaf_start : node.idx_leaf_end + 1
+                    ]
                     n = wave_node.shape[1]
                     gws = np.sum(np.abs(wave_node) ** 2, axis=1) / n
                     # Find peaks in the GWS
@@ -3151,7 +3248,8 @@ class RiverTransect:
         if self.tree_scales_database is None:
             if self.tree_scales is None:
                 raise AttributeError(
-                    "Tree scales not calculated. Run " "River.update_tree_scales()"
+                    "Tree scales not calculated. Run "
+                    "River.update_tree_scales()"
                 )
 
         if bounds_array_str == "extended":
@@ -3161,7 +3259,9 @@ class RiverTransect:
             ext = ""
             inflection_flag = True
         else:
-            raise ValueError('bounds_array_str must be "extended" or ' '"inflection"')
+            raise ValueError(
+                'bounds_array_str must be "extended" or ' '"inflection"'
+            )
 
         # Clip to meanders
         self.update_tree_scales_meander_database()
@@ -3282,7 +3382,10 @@ class RiverTransect:
         tree_scales = self.tree_scales
         # Perform pruning
         tree_scales.prune(
-            method="width", width_var="w_m", compare_var="wavelength_c", gamma=gamma
+            method="width",
+            width_var="w_m",
+            compare_var="wavelength_c",
+            gamma=gamma,
         )
         # Update Tree Scales
         self.tree_scales = tree_scales
@@ -3475,7 +3578,8 @@ class RiverTransect:
             database = self.database
         else:
             raise ValueError(
-                "Database not recognized. Use either " '"tree_scales" or "meander"'
+                "Database not recognized. Use either "
+                '"tree_scales" or "meander"'
             )
 
         return database
@@ -3509,7 +3613,10 @@ class RiverTransect:
         database = self.select_database(database)
 
         gdf = FM.create_geopandas_dataframe(
-            database, geometry_columns=geometry_columns, shape_type=shape_type, crs=crs
+            database,
+            geometry_columns=geometry_columns,
+            shape_type=shape_type,
+            crs=crs,
         )
 
         return gdf
@@ -3563,9 +3670,14 @@ class RiverTransect:
 
             file_name_no_ext = "".join(file_name.split(".")[:-1])
             file_name_up = file_name_no_ext + "_up." + file_name.split(".")[-1]
-            file_name_down = file_name_no_ext + "_down." + file_name.split(".")[-1]
+            file_name_down = (
+                file_name_no_ext + "_down." + file_name.split(".")[-1]
+            )
             FM.save_data(
-                save_df_up, path_output=path_output, file_name=file_name_up, **kwargs
+                save_df_up,
+                path_output=path_output,
+                file_name=file_name_up,
+                **kwargs,
             )
             FM.save_data(
                 save_df_down,
@@ -3653,7 +3765,9 @@ class RiverTransect:
                 crs=crs,
             )
 
-        FM.save_data(save_df, path_output=path_output, file_name=file_name, **kwargs)
+        FM.save_data(
+            save_df, path_output=path_output, file_name=file_name, **kwargs
+        )
         return
 
     # -------------------------
@@ -3713,7 +3827,9 @@ class RiverTransect:
         # ---------------
         # Clip data
         # ---------------
-        x_data, y_data, s_data, add_data = self._extract_data_source(give_add_data=True)
+        x_data, y_data, s_data, add_data = self._extract_data_source(
+            give_add_data=True
+        )
         z_data = add_data["z"]
         so_data = add_data["so"]
         comid_data = add_data["comid"]
@@ -3796,7 +3912,9 @@ class RiverTransect:
                     c = c[i_s_inf_st : i_s_inf_end + 1]
                 dif_idx = i_s_inf_end - i_s_inf_st
                 if dif_idx < 3:
-                    raise SmallMeanderError("Meander too small for current resolution.")
+                    raise SmallMeanderError(
+                        "Meander too small for current resolution."
+                    )
 
         # ------------------------
         # Extract original data
@@ -3815,7 +3933,9 @@ class RiverTransect:
             y_o_all = self.y_o
         coords_o_all = np.array([x_o_all, y_o_all]).T
         # Find closest point
-        idx_start_o = np.argmin(np.linalg.norm(coords_o_all - coords_st, axis=1))
+        idx_start_o = np.argmin(
+            np.linalg.norm(coords_o_all - coords_st, axis=1)
+        )
         idx_end_o = np.argmin(np.linalg.norm(coords_o_all - coords_end, axis=1))
         # idx_start_o = np.argmin(np.abs(self.s_o - s[0]))
         # idx_end_o = np.argmin(np.abs(self.s_o - s[-1]))
@@ -3956,7 +4076,9 @@ class RiverTransect:
         try:
             tree_ids = np.unique(database["tree_id"].values)
         except KeyError:
-            self.logger.warning("No tree_id in database. No metrics calculated.")
+            self.logger.warning(
+                "No tree_id in database. No metrics calculated."
+            )
             self.metrics_reach = None
             return
         # ----------------------------
@@ -4022,17 +4144,19 @@ class RiverTransect:
             self.metrics_reach["total_sinuosity"][i_t] = np.sum(l_i) / d
 
             # Calculate half-meander sinuosity
-            self.metrics_reach["half_meander_sinuosity"][i_t] = np.sum(l_i) / np.sum(
-                y_k
-            )
+            self.metrics_reach["half_meander_sinuosity"][i_t] = np.sum(
+                l_i
+            ) / np.sum(y_k)
 
             # Calculate full-meander sinuosity
-            self.metrics_reach["full_meander_sinuosity"][i_t] = np.sum(y_k) / np.sum(
-                x_j
-            )
+            self.metrics_reach["full_meander_sinuosity"][i_t] = np.sum(
+                y_k
+            ) / np.sum(x_j)
 
             # Calculate residual sinuosity
-            self.metrics_reach["residual_meander_sinuosity"][i_t] = np.sum(x_j) / d
+            self.metrics_reach["residual_meander_sinuosity"][i_t] = (
+                np.sum(x_j) / d
+            )
             # Mean Meander length
             self.metrics_reach["mean_half_meander_length"][i_t] = np.mean(l_i)
         return
@@ -4154,13 +4278,15 @@ class Meander:
             # Extract Indices
             self.ind_inf_st = np.argmin(
                 np.linalg.norm(
-                    np.array([x, y]).T - np.array([self.x_inf_st, self.y_inf_st]),
+                    np.array([x, y]).T
+                    - np.array([self.x_inf_st, self.y_inf_st]),
                     axis=1,
                 )
             )
             self.ind_inf_end = np.argmin(
                 np.linalg.norm(
-                    np.array([x, y]).T - np.array([self.x_inf_end, self.y_inf_end]),
+                    np.array([x, y]).T
+                    - np.array([self.x_inf_end, self.y_inf_end]),
                     axis=1,
                 )
             )
@@ -4250,7 +4376,9 @@ class Meander:
                     x, y, s, gaussian_window=gaussian_window
                 )
                 s_smooth += s[0]
-                _, c_smooth, _ = RF.calculate_curvature(s_smooth, x_smooth, y_smooth)
+                _, c_smooth, _ = RF.calculate_curvature(
+                    s_smooth, x_smooth, y_smooth
+                )
                 s_inf, c_inf, ind_l, ind_r = RF.get_inflection_points(
                     s_smooth, c_smooth
                 )
@@ -4460,7 +4588,9 @@ class Meander:
         x_inf = self.x[self.ind_inf_st : self.ind_inf_end + 1]
         y_inf = self.y[self.ind_inf_st : self.ind_inf_end + 1]
         c_inf = self.c[self.ind_inf_st : self.ind_inf_end + 1]
-        a_h, lambda_h, lambda_u, lambda_d = RF.calculate_asymetry(x_inf, y_inf, c_inf)
+        a_h, lambda_h, lambda_u, lambda_d = RF.calculate_asymetry(
+            x_inf, y_inf, c_inf
+        )
         self.data["a_hm"] = a_h
         self.data["lambda_hm,u"] = lambda_u
         self.data["lambda_hm,d"] = lambda_d
@@ -4471,37 +4601,56 @@ class Meander:
         """
         Calculate the amplitude of the meander by rotating the meander from
         the inflection points and calculating the distance between the minimum
-        and maximum y values.
+        and maximum y values. Additionally, it calculates the dimensionless
+        coordinate of the meander proposed by Lin and Limaye (2022).
+
+        Equation:
+
+        .. math:: A = \\max(y) - \\min(y)
+
+        .. math:: x^* = \\frac{\\beta}{\\pi} - 0.5
+
+        example:
+
+        .. code-block:: python
+
+            x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+            y = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+            amplitude, x_star, center_point, coords_apex = RF.calculate_amplitude(x, y)
+
+        References:
+
+        Li, Y., & Limaye, A. B. (2022). Testing Predictions for Migration of
+        Meandering Rivers: Fit for a Curvature-Based Model Depends on Streamwise
+        Location and Timescale. Journal of Geophysical Research: Earth Surface,
+        127(12), e2022JF006776. https://doi.org/10.1029/2022JF006776
         """
         # --------------------------
         # Extract Inflection points
         # --------------------------
         x_inf = self.x[self.ind_inf_st : self.ind_inf_end + 1]
         y_inf = self.y[self.ind_inf_st : self.ind_inf_end + 1]
-        # --------------------------
-        # Rotate Meanders
-        # --------------------------
-        # coords = np.vstack((x_inf, y_inf)).T
-        # index_initial = 0
-        # index_final = len(coords) - 1
-        # rotated_points, _ = RF.translate_rotate(
-        #     coords, index_initial=index_initial, index_final=index_final)
-        # # --------------------------
-        # # Calculate amplitude
-        # # --------------------------
-        # y_rot = rotated_points[:, 1]
-        # amplitude = np.max(y_rot) - np.min(y_rot)
 
         # ---------------------------------
         # Calculate amplitude Half-meander
         # ---------------------------------
-        amplitude = RF.calculate_amplitude(x_inf, y_inf)
+        amplitude, x_star, center_point, coords_apex = RF.calculate_amplitude(
+            x_inf, y_inf
+        )
         self.data["A_hm"] = amplitude
+        self.data["x_star_hm"] = x_star
+        self.data["center_point_hm"] = center_point
+        self.data["coords_apex_hm"] = coords_apex
         # ---------------------------------
         # Calculate amplitude Full-meander
         # ---------------------------------
-        amplitude = RF.calculate_amplitude(self.x, self.y)
+        amplitude, x_star, center_point, coords_apex = RF.calculate_amplitude(
+            self.x, self.y
+        )
         self.data["A_fm"] = amplitude
+        self.data["x_star_fm"] = x_star
+        self.data["center_point_fm"] = center_point
+        self.data["coords_apex_fm"] = coords_apex
         return
 
     def calculate_funneling_factor(self):
