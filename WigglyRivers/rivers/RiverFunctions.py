@@ -1615,6 +1615,7 @@ def calculate_amplitude(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     y_rot = rotated_points[:, 1]
     if y_rot[len(y_rot) // 2] < 0:
         y_rot = -y_rot
+        rotated_points[:, 1] = y_rot
     amplitude = np.max(y_rot) - np.min(y_rot)
 
     # ------------------------------------------------------------
@@ -1628,19 +1629,11 @@ def calculate_amplitude(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     x_center = 0.0
 
     # Calculate the angle between the start and each point
-    # angle_st_all = np.arctan2(rotated_points[:, 1], rotated_points[:, 0])
-    angle_st_all = np.zeros_like(rotated_points[:, 0])
-    for i in range(len(rotated_points)):
-        if rotated_points[i, 0] == 0:
-            angle_st_all[i] = np.arctan(np.inf)
-        else:
-            angle_st_all[i] = np.arctan(
-                rotated_points[i, 1] / rotated_points[i, 0]
-            )
-
+    angle_st_all = np.arctan2(rotated_points[:, 1], rotated_points[:, 0])
     # Correct angles
-    apex_idx = np.argmax(y_rot)
-    angle_st_all[:apex_idx] = np.pi - angle_st_all[:apex_idx]
+    if angle_st_all[0] < 0:
+        angle_st_all[0] += 2 * np.pi  # Correct cuadrant of the first point
+    angle_st_all = np.pi - angle_st_all  # Correct sign of the angle
 
     # Calculate the dimensionless coordinate
     x_star = (angle_st_all / np.pi) - 0.5
@@ -1650,9 +1643,21 @@ def calculate_amplitude(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     # translate the center point to the origin
     center_point[0] += x_apex
     # Translate to the original coordinates
+    apex_idx = np.argmax(y_rot)
     center_point += coords[index_initial]
     coords_apex = coords[apex_idx]
 
+    # ------------------------------------------------------------
+    # TEST
+    # import matplotlib.pyplot as plt
+    # plt.figure()
+    # plt.plot(x, y, "k-")
+    # plt.scatter(x, y, c=x_star, cmap="RdBu_r")
+    # plt.scatter(coords_apex[0], coords_apex[1], color="r")
+    # plt.scatter(center_point[0], center_point[1], color="b")
+    # plt.colorbar()
+    # plt.show()
+    # ------------------------------------------------------------
     return amplitude, x_star, center_point, coords_apex
 
 
