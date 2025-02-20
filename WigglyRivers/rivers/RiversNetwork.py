@@ -3833,12 +3833,15 @@ class RiverTransect:
         z_data = add_data["z"]
         so_data = add_data["so"]
         comid_data = add_data["comid"]
+        w_m_data = add_data["w_m"]
 
         s = s_data[ind_start : ind_end + 1]
         x = x_data[ind_start : ind_end + 1]
         y = y_data[ind_start : ind_end + 1]
         z = z_data[ind_start : ind_end + 1]
         so = so_data[ind_start : ind_end + 1]
+        w_m = w_m_data[ind_start : ind_end + 1]
+        w_m_gm = self.w_m_gm
         if len(x) < 3:
             raise SmallMeanderError("Meander too small for current resolution.")
 
@@ -3860,6 +3863,9 @@ class RiverTransect:
                 s = np.hstack([s_inf, s])
                 z = np.hstack([z_data[ind_start - 1], z_data[ind_end], z])
                 so = np.hstack([so_data[ind_start - 1], so_data[ind_end], so])
+                w_m = np.hstack(
+                    [w_m_data[ind_start - 1], w_m_data[ind_end], w_m]
+                )
                 if c is not None:
                     c = np.hstack([0, 0, c])
             elif cond_1:
@@ -3868,6 +3874,7 @@ class RiverTransect:
                 s = np.hstack([s_inf[0], s])
                 z = np.hstack([z_data[ind_start - 1], z])
                 so = np.hstack([so_data[ind_start - 1], so])
+                w_m = np.hstack([w_m_data[ind_start - 1], w_m])
                 if c is not None:
                     c = np.hstack([0, c])
             elif cond_2:
@@ -3876,6 +3883,7 @@ class RiverTransect:
                 s = np.hstack([s, s_inf[-1]])
                 z = np.hstack([z, z_data[ind_end]])
                 so = np.hstack([so, so_data[ind_end]])
+                w_m = np.hstack([w_m, w_m_data[ind_end]])
                 if c is not None:
                     c = np.hstack([c, 0])
 
@@ -3885,6 +3893,7 @@ class RiverTransect:
             y = y[s_sort]
             z = z[s_sort]
             so = so[s_sort]
+            w_m = w_m[s_sort]
             if c is not None:
                 c = c[s_sort]
 
@@ -3897,6 +3906,7 @@ class RiverTransect:
                 y = y[i_sort]
                 z = z[i_sort]
                 so = so[i_sort]
+                w_m = w_m[i_sort]
                 if c is not None:
                     c = c[i_sort]
 
@@ -3908,6 +3918,7 @@ class RiverTransect:
                 y = y[i_s_inf_st : i_s_inf_end + 1]
                 z = z[i_s_inf_st : i_s_inf_end + 1]
                 so = so[i_s_inf_st : i_s_inf_end + 1]
+                w_m = w_m[i_s_inf_st : i_s_inf_end + 1]
                 if c is not None:
                     c = c[i_s_inf_st : i_s_inf_end + 1]
                 dif_idx = i_s_inf_end - i_s_inf_st
@@ -3971,6 +3982,8 @@ class RiverTransect:
             x_inf=x_inf,
             y_inf=y_inf,
             s_inf=s_inf,
+            w_m=w_m,
+            w_m_gm=w_m_gm,
             c=c,
             wavelength=wavelength,
             metrics=metrics,
@@ -3980,6 +3993,7 @@ class RiverTransect:
             automatic_flag=automatic_flag,
             inflection_flag=inflection_flag,
             tree_id=tree_id,
+            scale_by_width=self.scale_by_width,
         )
         if len(self._calc_vars) == 0:
             self._calc_vars = meander.calc_vars
@@ -4019,6 +4033,7 @@ class RiverTransect:
         database["automatic_flag"] = [automatic_flag]
         database["inflection_flag"] = [inflection_flag]
         database["tree_id"] = [tree_id]
+        database["w_m_gm"] = [w_m_gm]
         for calc in self._calc_vars:
             database[calc] = [meander.data[calc]]
         database = pd.DataFrame.from_dict(database)
@@ -4167,35 +4182,62 @@ class Meander:
     This class is the basic form of a meander. From the coordinates and height
     it calculates the basic metrics to report them.
 
-    ===================== =====================================================
+    ===================== ==============================================================
     Attribute             Description
-    ===================== =====================================================
+    ===================== ==============================================================
     s                     Vector of distances of each point.
     x                     x-dir coordiantes.
     y                     y-dir coordiantes.
     z                     Height of each point.
     ind_start             Start index in River.
     ind_end               End index in River.
+    w_m                   Width of the River.
+    w_m_gm                Geometric mean width of the River.
+    c                     Curvature of the meander.
     sk                    Skewness.
     fl                    Flatness.
+    comid                 COMID of the meander.
+    x_o                   x-dir coordinates of the original river.
+    y_o                   y-dir coordinates of the original river.
+    ind_start_o           Start index in original river.
+    ind_end_o             End index in original river.
     so                    Stream order of each point.
+    x_inf                 x-dir coordinates of the inflection points.
+    y_inf                 y-dir coordinates of the inflection points.
+    s_inf                 Distance of the inflection points.
+    wavelength            Wavelength of the meander.
     metrics               Calculated metrics.
-
-    ===================== =====================================================
+    calculations          Boolean to perform calculations.
+    automatic_flag        Boolean to indicate if the meander was automatically detected.
+    inflection_flag       Boolean to indicate if the meander has inflection points.
+    tree_id               Tree ID of the meander.
+    scale_by_width        Boolean to scale the meander by the width of the river.
+    ===================== ==============================================================
 
     The following are the methods of the class.
 
-    ===================== =====================================================
-    Methods               Description
-    ===================== =====================================================
-    calculate_lambda      Calculates the length of the meander.
-    calculate_l           Calculates the horizontal length of the meander.
-    calculate_sinuosity   Calculates meander sinuosity.
-    calculate_j_x         Calculate horizontal slope.
-    calculate_so          Calculate the mode of stream order.
-    perform_calculations  Perform all the calculations.
-    get_metrics           get metric dict.
-    ===================== =====================================================
+    ========================= =====================================================
+    Methods                    Description
+    ========================= =====================================================
+    get_inflection_points      Get the inflection points of the meander.
+    add_skewness               Add the skewness of the meander.
+    add_flatness               Add the flatness of the meander.
+    calculate_lambda           Calculates the length of the meander.
+    calculate_l                Calculates the horizontal length of the meander.
+    calculate_sinuosity        Calculates meander sinuosity.
+    calculate_j_x              Calculate horizontal slope.
+    calculate_so               Calculate the mode of stream order.
+    calculate_wavelength       Calculate the wavelength of the meander.
+    calculate_radius           Calculate the radius of the meander.
+    plot_meander               Plot the meander.
+    add_curvature              Add the curvature of the meander.
+    add_s_inf                  Add the s_inf of the meander.
+    calculate_asymetry         Calculate the asymetry of the meander.
+    calculate_amplitude        Calculate the amplitude of the meander.
+    calculate_funneling_factor Calculate the funneling factor of the meander.
+    perform_calculations       Perform all the calculations.
+    get_metrics                Get metric dict.
+    ========================== =====================================================
     """
 
     def __init__(
@@ -4207,6 +4249,8 @@ class Meander:
         z,
         ind_start,
         ind_end,
+        w_m=None,
+        w_m_gm=None,
         c=None,
         sk=np.nan,
         fl=np.nan,
@@ -4225,6 +4269,7 @@ class Meander:
         automatic_flag=0,
         inflection_flag=False,
         tree_id=-1,
+        scale_by_width=False,
     ):
         # ----------------
         # Attributes
@@ -4241,6 +4286,7 @@ class Meander:
         self.tree_id = tree_id
         self.inflection_flag = inflection_flag
         self.wavelength = wavelength
+        self.scale_by_width = scale_by_width
 
         self.x_o = x_o
         self.y_o = y_o
@@ -4251,6 +4297,11 @@ class Meander:
         if c is None:
             r, c, theta = RF.calculate_curvature(s, x, y)
         self.c = c
+
+        if w_m is None:
+            w_m = np.ones_like(x) * np.nan
+        self.w_m = w_m
+        self.w_m_gm = w_m_gm
 
         # Do curvature side on the smooth data
         if inflection_flag:
@@ -4332,6 +4383,7 @@ class Meander:
         self.data["y_c_max"] = self.y_c_max
         self.data["s_c_max"] = self.s_c_max
         self.data["c_max"] = self.c_max
+        self.data["w_m_gm"] = self.w_m_gm
         if metrics is None:
             if calculations:
                 self.perform_calculations()
@@ -4441,7 +4493,9 @@ class Meander:
                     break
                 i_iter += 1
 
-        # Correct coordinates with new inflection points? -> the location of the points is different to the actual coordinates because of the smoothing
+        # Correct coordinates with new inflection points?
+        #  -> the location of the points is different to the actual coordinates
+        #  because of the smoothing
         self.c_smooth = c_smooth
         self.x_smooth = x_smooth
         self.y_smooth = y_smooth
@@ -4604,11 +4658,13 @@ class Meander:
         and maximum y values. Additionally, it calculates the dimensionless
         coordinate of the meander proposed by Lin and Limaye (2022).
 
-        Equation:
+        Equations:
 
         .. math:: A = \\max(y) - \\min(y)
 
         .. math:: x^* = \\frac{\\beta}{\\pi} - 0.5
+
+        .. math:: A^* = \\frac{A}{w_m}
 
         example:
 
@@ -4651,6 +4707,18 @@ class Meander:
         self.data["x_star_fm"] = x_star
         self.data["center_point_fm"] = center_point
         self.data["coords_apex_fm"] = coords_apex
+        # ---------------------------------
+        # Non-dimensional amplitude
+        # ---------------------------------
+        if not self.scale_by_width:
+            self.data["A_star_fm"] = self.data["A_fm"] / self.data["w_m_gm"]
+            self.data["A_star_hm"] = self.data["A_hm"] / self.data["w_m_gm"]
+        else:
+            print(
+                "Coordiantes are already scaled by width, A_star is the same as A"
+            )
+            self.data["A_star_fm"] = self.data["A_fm"]
+            self.data["A_star_hm"] = self.data["A_hm"]
         return
 
     def calculate_funneling_factor(self):
