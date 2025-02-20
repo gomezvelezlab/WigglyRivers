@@ -3841,6 +3841,7 @@ class RiverTransect:
         z = z_data[ind_start : ind_end + 1]
         so = so_data[ind_start : ind_end + 1]
         w_m = w_m_data[ind_start : ind_end + 1]
+        w_m_gm = self.w_m_gm
         if len(x) < 3:
             raise SmallMeanderError("Meander too small for current resolution.")
 
@@ -3982,6 +3983,7 @@ class RiverTransect:
             y_inf=y_inf,
             s_inf=s_inf,
             w_m=w_m,
+            w_m_gm=w_m_gm,
             c=c,
             wavelength=wavelength,
             metrics=metrics,
@@ -4031,6 +4033,7 @@ class RiverTransect:
         database["automatic_flag"] = [automatic_flag]
         database["inflection_flag"] = [inflection_flag]
         database["tree_id"] = [tree_id]
+        database["w_m_gm"] = [w_m_gm]
         for calc in self._calc_vars:
             database[calc] = [meander.data[calc]]
         database = pd.DataFrame.from_dict(database)
@@ -4189,6 +4192,7 @@ class Meander:
     ind_start             Start index in River.
     ind_end               End index in River.
     w_m                   Width of the River.
+    w_m_gm                Geometric mean width of the River.
     c                     Curvature of the meander.
     sk                    Skewness.
     fl                    Flatness.
@@ -4246,6 +4250,7 @@ class Meander:
         ind_start,
         ind_end,
         w_m=None,
+        w_m_gm=None,
         c=None,
         sk=np.nan,
         fl=np.nan,
@@ -4296,10 +4301,7 @@ class Meander:
         if w_m is None:
             w_m = np.ones_like(x) * np.nan
         self.w_m = w_m
-        if np.all(np.isnan(w_m)):
-            self.w_m_mean = np.nan
-        else:
-            self.w_m_mean = np.mean(w_m)
+        self.w_m_gm = w_m_gm
 
         # Do curvature side on the smooth data
         if inflection_flag:
@@ -4381,7 +4383,7 @@ class Meander:
         self.data["y_c_max"] = self.y_c_max
         self.data["s_c_max"] = self.s_c_max
         self.data["c_max"] = self.c_max
-        self.data["w_m_mean"] = self.w_m_mean
+        self.data["w_m_gm"] = self.w_m_gm
         if metrics is None:
             if calculations:
                 self.perform_calculations()
@@ -4709,8 +4711,8 @@ class Meander:
         # Non-dimensional amplitude
         # ---------------------------------
         if not self.scale_by_width:
-            self.data["A_star_fm"] = self.data["A_fm"] / self.data["w_m_mean"]
-            self.data["A_star_hm"] = self.data["A_hm"] / self.data["w_m_mean"]
+            self.data["A_star_fm"] = self.data["A_fm"] / self.data["w_m_gm"]
+            self.data["A_star_hm"] = self.data["A_hm"] / self.data["w_m_gm"]
         else:
             print(
                 "Coordiantes are already scaled by width, A_star is the same as A"
