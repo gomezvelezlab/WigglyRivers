@@ -12,6 +12,8 @@ You can find examples of how to use this package as examples workflows for synth
 
 The synthetic river transect examples are generated using idealized Kinoshita-type curves, implemented in the code, and using the [`meanderpy`](https://github.com/zsylvester/meanderpy) package coded by Sylvester, Durkin, and Covault (2019). The natural river transect example uses the information from the [High-Resolution National Hydrography Dataset (NHDPlus HR)](https://www.usgs.gov/core-science-systems/ngp/national-hydrography/nhdplus-high-resolution) to extract the river transects and assess the meandering features.
 
+A tutorial on how to use the NHD capability of the package is available in this [link](https://drive.google.com/file/d/1LxUsNX8w74yv7fj-zl2lByl01Wuytxvm/view?usp=sharing)
+
 ## Installation
 
 ### Requirements
