@@ -278,7 +278,18 @@ def recursively_save_dict_contents_to_group(
     for key, item in dic.items():
         if isinstance(item, types):
             try:
-                h5file[path + str(key)] = item
+                # Handle string data types
+                if isinstance(item, str):
+                    h5file[path + str(key)] = np.string_(item)
+                elif (
+                    isinstance(item, (list, np.ndarray))
+                    and len(item) > 0
+                    and isinstance(item[0], str)
+                ):
+                    string_array = np.array([np.string_(s) for s in item])
+                    h5file[path + str(key)] = string_array
+                else:
+                    h5file[path + str(key)] = item
             except ValueError:
                 lengths = [len(i) for i in item]
                 max_length = max(lengths)
@@ -289,9 +300,13 @@ def recursively_save_dict_contents_to_group(
                     array[i, : lengths[i]] = item[i]
                 h5file[path + str(key)] = array
             except TypeError:
-                item2 = [str(i) for i in item]
-                h5file[path + str(key)] = item2
-
+                if isinstance(item, (list, np.ndarray)):
+                    # Convert all items to strings and then to bytes
+                    item2 = [np.string_(str(i)) for i in item]
+                    h5file[path + str(key)] = item2
+                else:
+                    # Single item case
+                    h5file[path + str(key)] = np.string_(str(item))
         elif isinstance(item, dict):
             recursively_save_dict_contents_to_group(
                 h5file, path + key + "/", item
