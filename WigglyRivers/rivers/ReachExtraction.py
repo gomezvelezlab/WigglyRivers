@@ -126,33 +126,57 @@ class CompleteReachExtraction:
         # --------------------
         # Data Management
         # --------------------
+        # First create the base DataFrame with the essential columns
         try:
             self.linking_network = data.loc[
                 :, ["nhdplusid", "startflag", "within_waterbody"]
-            ]
+            ].copy()
         except:
             self.logger.warning("No within_waterbody column found")
-            self.linking_network = data.loc[:, ["nhdplusid", "startflag"]]
+            self.linking_network = data.loc[
+                :, ["nhdplusid", "startflag"]
+            ].copy()
+
+        # Set the index after copying to avoid modifying the original data
         self.linking_network.set_index("nhdplusid", inplace=True)
-        self.linking_network["extracted_comid"] = [0] * len(self.linking_network)
-        self.linking_network["linking_comid"] = ["0"] * len(self.linking_network)
-        self.linking_network["huc12"] = ["0"] * len(self.linking_network)
-        self.linking_network["huc10"] = ["0"] * len(self.linking_network)
-        self.linking_network["huc08"] = ["0"] * len(self.linking_network)
-        self.linking_network["huc06"] = ["0"] * len(self.linking_network)
-        self.linking_network["huc04"] = ["0"] * len(self.linking_network)
-        self.linking_network["huc02"] = ["0"] * len(self.linking_network)
-        self.linking_network["huc_n"] = [0] * len(self.linking_network)
-        self.linking_network["n_tributaries"] = [0] * len(self.linking_network)
-        self.linking_network["xm_m"] = [0] * len(self.linking_network)
-        self.linking_network["ym_m"] = [0] * len(self.linking_network)
-        self.linking_network["xup_m"] = [0] * len(self.linking_network)
-        self.linking_network["yup_m"] = [0] * len(self.linking_network)
-        self.linking_network["xdown_m"] = [0] * len(self.linking_network)
-        self.linking_network["ydown_m"] = [0] * len(self.linking_network)
+
+        # Create a dictionary of column definitions with their data types
+        column_definitions = {
+            "extracted_comid": pd.Series(dtype=np.int32),
+            "linking_comid": pd.Series(dtype=str),
+            "huc12": pd.Series(dtype=str),
+            "huc10": pd.Series(dtype=str),
+            "huc08": pd.Series(dtype=str),
+            "huc06": pd.Series(dtype=str),
+            "huc04": pd.Series(dtype=str),
+            "huc02": pd.Series(dtype=str),
+            "huc_n": pd.Series(dtype=np.int32),
+            "n_tributaries": pd.Series(dtype=np.int32),
+            "xm_m": pd.Series(dtype=np.float64),
+            "ym_m": pd.Series(dtype=np.float64),
+            "xup_m": pd.Series(dtype=np.float64),
+            "yup_m": pd.Series(dtype=np.float64),
+            "xdown_m": pd.Series(dtype=np.float64),
+            "ydown_m": pd.Series(dtype=np.float64),
+        }
+
+        # Initialize all columns with proper data types and default values
+        for col_name, dtype_series in column_definitions.items():
+            if dtype_series.dtype == np.int32:
+                self.linking_network[col_name] = pd.Series(
+                    0, index=self.linking_network.index, dtype=np.int32
+                )
+            elif dtype_series.dtype == np.float64:
+                self.linking_network[col_name] = pd.Series(
+                    0.0, index=self.linking_network.index, dtype=np.float64
+                )
+            else:  # string type
+                self.linking_network[col_name] = pd.Series(
+                    "0", index=self.linking_network.index, dtype=str
+                )
+
         data_hw = self.data_info[self.data_info["startflag"] == 1]
         start_comids = data_hw.index.values
-        # self.comid_network = {str(st): [] for st in start_comids}
         self.comid_network = {}
         self.extracted_comids = []
 
@@ -257,7 +281,9 @@ class CompleteReachExtraction:
             max_num_comids = len(start_comids)
 
         # Look for the ones that have been not extracted
-        linking_start = self.linking_network[self.linking_network["startflag"] == 1]
+        linking_start = self.linking_network[
+            self.linking_network["startflag"] == 1
+        ]
 
         start_comids = start_comids[linking_start["extracted_comid"] == 0]
         # Loop over the comids
@@ -294,9 +320,7 @@ class CompleteReachExtraction:
         self.comid_network["comid_start"] = list(np.array(c)[arg_sort_l])
         return
 
-    def map_complete_network_down_up(
-        self, start_comids: list = None, huc_number: int = 4
-    ):
+    def map_complete_network_down_up(self, huc_number: int = 4):
         """
         DESCRIPTION:
         ------------
@@ -305,8 +329,6 @@ class CompleteReachExtraction:
 
         Args:
         ------------
-            :param start_comids: list, np.ndarray, Default None
-                List of comids to be extracted.
             :param huc_number: int, Default 4
                 HUC number to be extracted.
         """
@@ -323,15 +345,33 @@ class CompleteReachExtraction:
         self.linking_network.loc[c_comid, "huc12"] = comid_table.loc[
             c_comid, "reachcode"
         ]
-        self.linking_network.loc[c_comid, "huc10"] = comid_table.loc[c_comid, "huc10"]
-        self.linking_network.loc[c_comid, "huc08"] = comid_table.loc[c_comid, "huc08"]
-        self.linking_network.loc[c_comid, "huc06"] = comid_table.loc[c_comid, "huc06"]
-        self.linking_network.loc[c_comid, "huc04"] = comid_table.loc[c_comid, "huc04"]
-        self.linking_network.loc[c_comid, "huc02"] = comid_table.loc[c_comid, "huc02"]
-        self.linking_network.loc[c_comid, "xm_m"] = comid_table.loc[c_comid, "xm_m"]
-        self.linking_network.loc[c_comid, "ym_m"] = comid_table.loc[c_comid, "ym_m"]
-        self.linking_network.loc[c_comid, "xup_m"] = comid_table.loc[c_comid, "xup_m"]
-        self.linking_network.loc[c_comid, "yup_m"] = comid_table.loc[c_comid, "yup_m"]
+        self.linking_network.loc[c_comid, "huc10"] = comid_table.loc[
+            c_comid, "huc10"
+        ]
+        self.linking_network.loc[c_comid, "huc08"] = comid_table.loc[
+            c_comid, "huc08"
+        ]
+        self.linking_network.loc[c_comid, "huc06"] = comid_table.loc[
+            c_comid, "huc06"
+        ]
+        self.linking_network.loc[c_comid, "huc04"] = comid_table.loc[
+            c_comid, "huc04"
+        ]
+        self.linking_network.loc[c_comid, "huc02"] = comid_table.loc[
+            c_comid, "huc02"
+        ]
+        self.linking_network.loc[c_comid, "xm_m"] = comid_table.loc[
+            c_comid, "xm_m"
+        ]
+        self.linking_network.loc[c_comid, "ym_m"] = comid_table.loc[
+            c_comid, "ym_m"
+        ]
+        self.linking_network.loc[c_comid, "xup_m"] = comid_table.loc[
+            c_comid, "xup_m"
+        ]
+        self.linking_network.loc[c_comid, "yup_m"] = comid_table.loc[
+            c_comid, "yup_m"
+        ]
         self.linking_network.loc[c_comid, "xdown_m"] = comid_table.loc[
             c_comid, "xdown_m"
         ]
@@ -352,22 +392,26 @@ class CompleteReachExtraction:
             # Extract only values of the huc_n
             subset = self.data_info[self.data_info[key_val] == huc_n]
             terminal_paths = np.unique(subset["terminalpa"])
-            pbar = tqdm(
-                total=len(terminal_paths),
-                desc=f"Ext. huc {huc_n}",
-            )
+            # pbar = tqdm(
+            #     total=len(terminal_paths),
+            #     desc=f"Ext. huc {huc_n}",
+            # )
             for i_tp, tp in enumerate(terminal_paths):
                 # Extract comids that include the terminal path
                 comid_table = subset[subset["terminalpa"] == tp]
                 # Sort by drinage area
-                comid_table = comid_table.sort_values(by="totdasqkm", ascending=False)
+                comid_table = comid_table.sort_values(
+                    by="totdasqkm", ascending=False
+                )
                 # Remove where streamorde and streamcalc are different
                 comid_table = comid_table[
                     comid_table["streamorde"] == comid_table["streamcalc"]
                 ]
                 # Extract comids that have not been extracted
                 linking_network = self.linking_network.loc[comid_table.index, :]
-                comid_table = comid_table[linking_network["extracted_comid"] == 0]
+                comid_table = comid_table[
+                    linking_network["extracted_comid"] == 0
+                ]
 
                 # Get starting comid
                 st = comid_table.index
@@ -375,17 +419,19 @@ class CompleteReachExtraction:
                     continue
                 st = st[0]
                 # self.logger.info(f"Extracting comid {st}")
-                comid_table = subset[subset["streamorde"] == subset["streamcalc"]]
+                comid_table = subset[
+                    subset["streamorde"] == subset["streamcalc"]
+                ]
                 comid_network = self._recursive_upstream_exploration(
                     st, comid_table, huc_number=huc_number
                 )
-                pbar.update(i_tp)
+                # pbar.update(i_tp)
 
-            pbar.close()
+            # pbar.close()
 
             lengths = [len(i) for i in comid_network.values()]
             total_length = np.sum(lengths)
-            pbar = tqdm(total=len(subset), desc=" Ext. Extra Nodes")
+            # pbar = tqdm(total=len(subset), desc=" Ext. Extra Nodes")
             while total_length < len(subset):
                 linking_network = self.linking_network.loc[subset.index, :]
                 linking_network = linking_network[
@@ -395,7 +441,9 @@ class CompleteReachExtraction:
                     break
                 comid_table = subset.loc[linking_network.index, :]
                 # sort by drainage area
-                comid_table = comid_table.sort_values(by="totdasqkm", ascending=False)
+                comid_table = comid_table.sort_values(
+                    by="totdasqkm", ascending=False
+                )
                 # Remove where streamorde and streamcalc are different
                 comid_table = comid_table[
                     comid_table["streamorde"] == comid_table["streamcalc"]
@@ -411,9 +459,14 @@ class CompleteReachExtraction:
                 )
                 lengths = [len(i) for i in comid_network.values()]
                 total_length = np.sum(lengths)
-                pbar.update(total_length)
+                # pbar.update(total_length)
 
-            pbar.close()
+            # pbar.close()
+
+            # # Clean duplicated comids
+            # for key, value in comid_network.items():
+            #     indices = np.unique(value, return_index=True)[1]
+            #     comid_network[key] = list(np.array(value)[indices])
 
             # Convert network from terminal to start
             lengths = [len(i) for i in comid_network.values()]
@@ -426,7 +479,9 @@ class CompleteReachExtraction:
             self.comid_network[huc_n]["comid_start"] = list(
                 np.array(c).astype(str)[arg_sort_l]
             )
-            self.comid_network[huc_n]["length"] = list(np.array(lengths)[arg_sort_l])
+            self.comid_network[huc_n]["length"] = list(
+                np.array(lengths)[arg_sort_l]
+            )
         return
 
     def _recursive_upstream_exploration(
@@ -486,11 +541,20 @@ class CompleteReachExtraction:
                     arg_max_so = np.argmax(so)
             else:
                 arg_max_so = np.argmax(so)
+
+            # Add start comid to the network
+            try:
+                comid_network[start_comid]
+            except KeyError:
+                comid_network[start_comid] = []
             if len(c_comid) == 1:
                 comid_network[start_comid].append(c_comid[0])
                 if c_comid != c_comid_pos:
-                    self.linking_network.loc[c_comid, "linking_comid"] = c_comid_pos
+                    self.linking_network.loc[c_comid, "linking_comid"] = (
+                        c_comid_pos
+                    )
                 c_comid = c_comid[0]
+            # If there are more than one comid, add the one with the highest drainage area
             elif len(c_comid) > 1:
                 comid_network[start_comid].append(c_comid[arg_max_so])
                 for j, c_comid_j in enumerate(c_comid):
@@ -547,7 +611,9 @@ class CompleteReachExtraction:
         comid = np.array(self.data_info.index)
         huc_n = self.data_info.loc[start_comid, f"huc{huc_number:02d}"]
 
-        data_info = self.data_info[self.data_info[f"huc{huc_number:02d}"] == huc_n]
+        data_info = self.data_info[
+            self.data_info[f"huc{huc_number:02d}"] == huc_n
+        ]
 
         c_comid_prev = copy.deepcopy(start_comid)
         c_comid = start_comid
@@ -584,7 +650,9 @@ class CompleteReachExtraction:
                 # --------------------------
                 # self.logger.info(f"{i} {start_comid} Next comid {c_comid[0]}")
                 c_comid = c_comid[0]
-                self.linking_network.loc[c_comid_prev, "linking_comid"] = c_comid
+                self.linking_network.loc[c_comid_prev, "linking_comid"] = (
+                    c_comid
+                )
                 c_comid_prev = copy.deepcopy(c_comid)
             # --------------------------
             # Check overlapping
@@ -609,7 +677,7 @@ class CompleteReachExtraction:
         DESCRIPTION:
         ------------
             Map Coordinates and additional data to the comid_list
-        ________________________________________________________________________  
+        ________________________________________________________________________
 
         Args:
         ------------
