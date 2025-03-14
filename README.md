@@ -16,7 +16,7 @@ A tutorial on how to use the NHD capability of the package is available in this 
 
 ## Installation
 
-### Requirements
+### Core Requirements
 
 This package has a few requirements. I encourage using a virtual environment of [Anaconda 3](https://www.anaconda.com/products/individual) with Python 3.10 or higher. The virtual environment creation can be seen [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html). Below, we list the process to create a virtual environment and install the requirements for the package.
 
@@ -27,7 +27,9 @@ conda install -c conda-forge geopandas
 conda install -c conda-forge h5py
 ```
 
-This package was tested in Python version 3.10 and higher. Some incompatible dependencies might arise with older versions of Python. `geopandas` is installed first because the package generates the most incompatibilities. After that package, we install the other dependencies with pip
+### Manual Installation of Requirements
+
+This path is not requiere if you install the package with `pip install WigglyRivers`. Some incompatible dependencies might arise with older versions of Python. `geopandas` is installed first because the package generates the most incompatibilities. After that package, we install the other dependencies with pip
 
 ```bash
 pip install simpledbf
@@ -63,6 +65,18 @@ pip install meanderpy
 ### Install WigglyRivers
 
 To install the package you need to clone the repository and install it using `pip`.
+
+```bash
+pip install WigglyRivers
+```
+
+If you want to install the package manually, you can clone the repository and install it using the following command:
+
+```bash
+git clone https://github.com/gomezvelezlab/WigglyRivers.git
+```
+
+Then, install the package using the following command:
 
 ```bash
 pip install -e .
@@ -127,7 +141,7 @@ Some known incompatible dependencies are addressed in the troubleshooting sectio
 
 If you use this package, please cite the following paper:
 
-Gonzalez-Duque, D., & Gomez-Velez, J. D. (2025). WigglyRivers: Characterizing the Multiscale Nature of Meandering Channels [Submitted]. Environmental Modelling & Software.
+Gonzalez-Duque, D., & Gomez-Velez, J. D. (2025). WigglyRivers: Characterizing the Multiscale Nature of Meandering Channels [Accepted]. Environmental Modelling & Software.
 
 ## Credit and Acknowledgments
 
