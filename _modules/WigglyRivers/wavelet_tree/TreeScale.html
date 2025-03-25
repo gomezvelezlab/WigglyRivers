@@ -1,0 +1,684 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers.wavelet_tree.TreeScale &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../WigglyRivers.html">WigglyRivers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">WigglyRivers.wavelet_tree.TreeScale</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for WigglyRivers.wavelet_tree.TreeScale</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1">#</span>
+<span class="c1">#                       Coded by Daniel Gonzalez-Duque</span>
+<span class="c1">#                           Last revised 2023-07-13</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">Creation of tree scales class</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># ------------------------</span>
+<span class="c1"># Importing Modules</span>
+<span class="c1"># ------------------------</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">anytree</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">PreOrderIter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">anytree.exporter</span><span class="w"> </span><span class="kn">import</span> <span class="n">DotExporter</span>
+
+
+<span class="c1"># Package packages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">utl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">filesManagement</span> <span class="k">as</span> <span class="n">FM</span>
+
+
+<span class="c1"># ---------------------</span>
+<span class="c1"># Logging</span>
+<span class="c1"># ---------------------</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">handlers</span><span class="o">=</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">()])</span>
+
+
+<span class="c1"># ------------------------</span>
+<span class="c1"># Functions</span>
+<span class="c1"># ------------------------</span>
+<span class="c1"># ------------------------</span>
+<span class="c1"># Classes</span>
+<span class="c1"># ------------------------</span>
+<div class="viewcode-block" id="RiverTreeScales">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RiverTreeScales</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is the basic form of rivers.</span>
+
+<span class="sd">    ===================== =====================================================</span>
+<span class="sd">    Attribute             Description</span>
+<span class="sd">    ===================== =====================================================</span>
+<span class="sd">    uid                   Unique identifier</span>
+<span class="sd">    trees                 Dictionary of trees</span>
+<span class="sd">    tree_ids              List of tree ids</span>
+<span class="sd">    metrics               List of metrics</span>
+<span class="sd">    metrics_in_name       List of metrics in name</span>
+<span class="sd">    ===================== =====================================================</span>
+
+<span class="sd">    The following are the methods of the class.</span>
+
+<span class="sd">    ====================== =====================================================</span>
+<span class="sd">    Methods                Description</span>
+<span class="sd">    ====================== =====================================================</span>
+<span class="sd">    scale_coordinates      Scale coordinates by a given value</span>
+<span class="sd">    ====================== =====================================================</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trees</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialization of the class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># ---------------------</span>
+        <span class="c1"># Logging</span>
+        <span class="c1"># ---------------------</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start Logger in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># ---------------------</span>
+        <span class="c1"># Attributes</span>
+        <span class="c1"># ---------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uid</span> <span class="o">=</span> <span class="n">uid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">trees</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_trees_dict</span><span class="p">(</span><span class="n">trees</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tree_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_database</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tree_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_ids</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;peak_col&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peak_row&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peak_pwr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;s_c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;scales_c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;wavelength_c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;x_c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;y_c&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;r_x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;r_y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;x_1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;x_2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;x_3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;y_1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;y_2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;y_3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cc_x&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cc_y&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;beg_idx&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;end_idx&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mid_idx&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;radius&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;idx_planimetry_start&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;idx_planimetry_end&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;l&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lambda_value&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sk&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics_in_name</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;radius&quot;</span><span class="p">,</span> <span class="s2">&quot;sn&quot;</span><span class="p">,</span> <span class="s2">&quot;lambda_value&quot;</span><span class="p">,</span> <span class="s2">&quot;peak_pwr&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics_in_name_formatting</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">{:.2E}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Core Methods</span>
+    <span class="c1"># ---------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is used to get the values of the class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tree_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree_ids</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tree ID </span><span class="si">{</span><span class="n">tree_id</span><span class="si">}</span><span class="s2"> not in the tree list&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tree ID </span><span class="si">{</span><span class="n">tree_id</span><span class="si">}</span><span class="s2"> not in the tree list&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span>
+
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Methods</span>
+    <span class="c1"># ---------------------</span>
+<div class="viewcode-block" id="RiverTreeScales.build_trees_from_tree_scales_dict">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.build_trees_from_tree_scales_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_trees_from_tree_scales_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree_scales</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build trees from tree scales dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">branch_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">tree_scales</span><span class="p">[</span><span class="s2">&quot;branch_id&quot;</span><span class="p">]))</span>
+        <span class="n">tree_id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">meander_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Extract all possible branches</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">branch_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">branch_id</span> <span class="o">=</span> <span class="n">branch_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">linking_branch</span> <span class="o">=</span> <span class="n">tree_scales</span><span class="p">[</span><span class="s2">&quot;link_branch_by_level&quot;</span><span class="p">][</span><span class="n">branch_id</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">root_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_tree_from_linking_branches</span><span class="p">(</span>
+                <span class="n">tree_scales</span><span class="p">,</span>
+                <span class="n">linking_branch</span><span class="p">,</span>
+                <span class="n">tree_id</span><span class="o">=</span><span class="n">tree_id</span><span class="p">,</span>
+                <span class="n">meander_count</span><span class="o">=</span><span class="n">meander_count</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_node</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tree_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tree_id</span><span class="p">)</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">branch_ids</span><span class="p">,</span> <span class="n">linking_branch</span><span class="p">)</span>
+            <span class="n">branch_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">branch_ids</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">tree_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_database</span><span class="p">()</span>
+        <span class="k">return</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_tree_from_linking_branches</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">tree_scales</span><span class="p">,</span> <span class="n">linking_branch</span><span class="p">,</span> <span class="n">tree_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">meander_count</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create tree from linking branches in the tree_scale dictionary</span>
+
+<span class="sd">        This function creates a complete tree from the linking branches</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">node_id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">indicate_var</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># linking_branch = tree_scales[&#39;link_branch_by_level&#39;][branch_id][0]</span>
+        <span class="k">for</span> <span class="n">i_b</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">linking_branch</span><span class="p">):</span>
+            <span class="c1"># Create tree nodes</span>
+            <span class="n">levels_root_leaf</span> <span class="o">=</span> <span class="n">tree_scales</span><span class="p">[</span><span class="s2">&quot;levels_root_leaf&quot;</span><span class="p">][</span><span class="n">b</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i_l</span><span class="p">,</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">levels_root_leaf</span><span class="p">):</span>
+                <span class="c1"># Extract Information</span>
+                <span class="n">radius</span> <span class="o">=</span> <span class="n">tree_scales</span><span class="p">[</span><span class="s2">&quot;idx_conn&quot;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="n">level</span><span class="p">]</span>
+                <span class="c1"># Do not go through nodes already taken</span>
+                <span class="k">if</span> <span class="n">radius</span> <span class="ow">in</span> <span class="n">indicate_var</span><span class="p">:</span>
+                    <span class="n">parent_radius</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="n">indicate_var</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+
+                <span class="c1"># Extract Information</span>
+                <span class="n">meander_in_level</span> <span class="o">=</span> <span class="n">tree_scales</span><span class="p">[</span><span class="s2">&quot;meander_in_level_root_leaf&quot;</span><span class="p">][</span><span class="n">b</span><span class="p">]</span>
+                <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_metrics</span><span class="p">(</span><span class="n">tree_scales</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">meander_in_level</span> <span class="o">==</span> <span class="n">i_l</span><span class="p">:</span>
+                    <span class="n">meander_id</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">meander_count</span><span class="p">)</span>
+                    <span class="n">meander_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">is_meander</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">meander_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                    <span class="n">is_meander</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="c1"># Create Nodes</span>
+                <span class="k">if</span> <span class="n">i_l</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i_b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Root Node</span>
+                    <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_tree_node</span><span class="p">(</span>
+                        <span class="n">tree_id</span><span class="p">,</span>
+                        <span class="n">node_id</span><span class="p">,</span>
+                        <span class="n">metrics</span><span class="p">,</span>
+                        <span class="n">node_type</span><span class="o">=</span><span class="s2">&quot;root&quot;</span><span class="p">,</span>
+                        <span class="n">is_meander</span><span class="o">=</span><span class="n">is_meander</span><span class="p">,</span>
+                        <span class="n">meander_id</span><span class="o">=</span><span class="n">meander_id</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="n">indicate_var</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">parent_radius</span><span class="p">)</span>
+
+                    <span class="n">parent</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">i_l</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">levels_root_leaf</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Parent Node</span>
+                        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_tree_node</span><span class="p">(</span>
+                            <span class="n">tree_id</span><span class="p">,</span>
+                            <span class="n">node_id</span><span class="p">,</span>
+                            <span class="n">metrics</span><span class="p">,</span>
+                            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+                            <span class="n">node_type</span><span class="o">=</span><span class="s2">&quot;parent&quot;</span><span class="p">,</span>
+                            <span class="n">is_meander</span><span class="o">=</span><span class="n">is_meander</span><span class="p">,</span>
+                            <span class="n">meander_id</span><span class="o">=</span><span class="n">meander_id</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Leaf node</span>
+                        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_tree_node</span><span class="p">(</span>
+                            <span class="n">tree_id</span><span class="p">,</span>
+                            <span class="n">node_id</span><span class="p">,</span>
+                            <span class="n">metrics</span><span class="p">,</span>
+                            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+                            <span class="n">node_type</span><span class="o">=</span><span class="s2">&quot;leaf&quot;</span><span class="p">,</span>
+                            <span class="n">is_meander</span><span class="o">=</span><span class="n">is_meander</span><span class="p">,</span>
+                            <span class="n">meander_id</span><span class="o">=</span><span class="n">meander_id</span><span class="p">,</span>
+                        <span class="p">)</span>
+                <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="n">node_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_id</span><span class="p">)</span>
+                <span class="c1"># if tree_id == 1 and node_id in (0, 3):</span>
+                <span class="c1">#     temp = 2</span>
+                <span class="n">node_id</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">parent_radius</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+
+        <span class="n">root_node</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_ids</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_ids</span>
+        <span class="k">return</span> <span class="n">root_node</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_tree_node</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tree_id</span><span class="p">,</span>
+        <span class="n">node_id</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="p">,</span>
+        <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">node_type</span><span class="o">=</span><span class="s2">&quot;root&quot;</span><span class="p">,</span>
+        <span class="n">is_meander</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">meander_id</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create tree node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Select type</span>
+        <span class="k">if</span> <span class="n">node_type</span> <span class="o">==</span> <span class="s2">&quot;root&quot;</span><span class="p">:</span>
+            <span class="n">root_node</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">parent_node</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">leaf_node</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">node_type</span> <span class="o">==</span> <span class="s2">&quot;parent&quot;</span><span class="p">:</span>
+            <span class="n">root_node</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">parent_node</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">leaf_node</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">node_type</span> <span class="o">==</span> <span class="s2">&quot;leaf&quot;</span><span class="p">:</span>
+            <span class="n">root_node</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">parent_node</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">leaf_node</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># Create Node Name</span>
+        <span class="n">node_name</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tree_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">node_id</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">node_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;meander: </span><span class="si">{</span><span class="n">is_meander</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;meander_id: </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">node_name</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics_in_name</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;peak_pwr&quot;</span>
+        <span class="p">]</span>
+        <span class="n">node_name</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;peak_pwr: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;peak_pwr&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.2E</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+
+        <span class="n">node_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
+
+        <span class="c1"># Create Node</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span>
+            <span class="n">node_name</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+            <span class="n">tree_id</span><span class="o">=</span><span class="n">tree_id</span><span class="p">,</span>
+            <span class="n">node_id</span><span class="o">=</span><span class="n">node_id</span><span class="p">,</span>
+            <span class="n">root_node</span><span class="o">=</span><span class="n">root_node</span><span class="p">,</span>
+            <span class="n">parent_node</span><span class="o">=</span><span class="n">parent_node</span><span class="p">,</span>
+            <span class="n">leaf_node</span><span class="o">=</span><span class="n">leaf_node</span><span class="p">,</span>
+            <span class="n">is_meander</span><span class="o">=</span><span class="n">is_meander</span><span class="p">,</span>
+            <span class="n">meander_id</span><span class="o">=</span><span class="n">meander_id</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">metrics</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree_scales</span><span class="p">,</span> <span class="n">branch_id</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract metrics from tree scales dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">metrics_values</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">i</span><span class="p">:</span> <span class="n">tree_scales</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">branch_id</span><span class="p">][</span><span class="n">level</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">metrics_values</span>
+
+<div class="viewcode-block" id="RiverTreeScales.select_node">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.select_node">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree_id</span><span class="p">,</span> <span class="n">node_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select node with node_id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span>
+        <span class="n">selected_node</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">PreOrderIter</span><span class="p">(</span><span class="n">root_node</span><span class="p">,</span> <span class="n">filter_</span><span class="o">=</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">node_id</span> <span class="o">==</span> <span class="n">node_id</span><span class="p">)</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">selected_node</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.filter_nodes">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.filter_nodes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter nodes by key and value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">tree_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tree_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree_ids</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tree_ids</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">tree_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">tree_ids</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">tree_id</span> <span class="ow">in</span> <span class="n">tree_ids</span><span class="p">:</span>
+            <span class="n">nodes</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="n">PreOrderIter</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="n">tree_id</span><span class="p">],</span>
+                    <span class="n">filter_</span><span class="o">=</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">nodes</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.add_parameter_to_nodes">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.add_parameter_to_nodes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_parameter_to_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add paramter to node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.update_database">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.update_database">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update database</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">tree_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree_ids</span><span class="p">:</span>
+            <span class="n">root_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">root_node</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span><span class="o">.</span><span class="n">descendants</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;from_node_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;from_node_id&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">node_id</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+            <span class="n">keys</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+            <span class="n">keys</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;_NodeMixin__children&quot;</span><span class="p">)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">j</span><span class="p">:</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">})</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">depth</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.compile_database">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.compile_database">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compile_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compile current trees databases to a single table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">tree_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree_ids</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tree_id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">compiled_database</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">compiled_database</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">compiled_database</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]],</span>
+                    <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">compiled_database</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.create_connectivity_matrix">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.create_connectivity_matrix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_connectivity_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create connectivity matrixrows and columns denote node IDs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">database</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span>
+        <span class="n">parent_nodes</span> <span class="o">=</span> <span class="n">database</span><span class="p">[</span><span class="s2">&quot;from_node_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">node_ids</span> <span class="o">=</span> <span class="n">database</span><span class="p">[</span><span class="s2">&quot;node_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># Create connectivity matrix</span>
+        <span class="n">connectivity_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">node_ids</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_ids</span><span class="p">):</span>
+            <span class="n">from_value</span> <span class="o">=</span> <span class="n">parent_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">from_value</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">connectivity_matrix</span><span class="p">[</span><span class="n">node_id</span><span class="p">,</span> <span class="n">from_value</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">connectivity_matrix</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.save_tree">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.save_tree">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_output</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;tree.p&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save tree dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">FM</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">,</span> <span class="n">path_output</span><span class="o">=</span><span class="n">path_output</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.load_trees_dict">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.load_trees_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_trees_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trees_dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load data from a trees dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="o">=</span> <span class="n">trees_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_database</span><span class="p">()</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.load_tree">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.load_tree">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load tree dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trees</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">path_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.save_tree_figure">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.save_tree_figure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_tree_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree_id</span><span class="p">,</span> <span class="n">path_img</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;tree.png&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save tree figure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">utl</span><span class="o">.</span><span class="n">cr_folder</span><span class="p">(</span><span class="n">path_img</span><span class="p">)</span>
+        <span class="n">root_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trees</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]</span>
+        <span class="n">DotExporter</span><span class="p">(</span><span class="n">root_node</span><span class="p">)</span><span class="o">.</span><span class="n">to_picture</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path_img</span><span class="si">}{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="RiverTreeScales.prune">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.prune">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;sinuosity&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">prune_methods</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;sinuosity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prune_by_sinuosity</span><span class="p">,</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prune_by_width</span><span class="p">,</span>
+            <span class="s2">&quot;peak_power&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prune_by_peak_power</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">meanders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_nodes</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;is_meander&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">tree_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">meanders</span><span class="p">):</span>
+            <span class="n">already_extracted</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">meanders</span><span class="p">[</span><span class="n">tree_id</span><span class="p">]:</span>
+                <span class="n">prune_methods</span><span class="p">[</span><span class="n">method</span><span class="p">](</span><span class="n">node</span><span class="p">,</span> <span class="n">already_extracted</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prune_by_sinuosity</span><span class="p">(</span>
+        <span class="n">node</span><span class="p">,</span> <span class="n">already_extracted</span><span class="o">=</span><span class="p">[],</span> <span class="n">sinuosity_var</span><span class="o">=</span><span class="s2">&quot;sn&quot;</span><span class="p">,</span> <span class="n">sinuosity_threshold</span><span class="o">=</span><span class="mf">1.1</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prune tree by sinuosity with a give threshold.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">sinuosity_var</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">sinuosity_threshold</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;is_meander&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prune_by_width</span><span class="p">(</span>
+        <span class="n">node</span><span class="p">,</span>
+        <span class="n">already_extracted</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">width_var</span><span class="o">=</span><span class="s2">&quot;w_m&quot;</span><span class="p">,</span>
+        <span class="n">compare_var</span><span class="o">=</span><span class="s2">&quot;wavelength_c&quot;</span><span class="p">,</span>
+        <span class="n">gamma</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">additional_threshold</span><span class="o">=</span><span class="mf">1e6</span><span class="p">,</span>
+        <span class="n">additional_var</span><span class="o">=</span><span class="s2">&quot;radius&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the meander level in nodes with compare_var lower than</span>
+<span class="sd">        gamma * width_var</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract meanders</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">compare_var</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">node</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">width_var</span><span class="p">]</span> <span class="o">*</span> <span class="n">gamma</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;is_meander&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># Convert parent to meander if additional threshold</span>
+            <span class="c1"># is satisfied</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
+            <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">additional_var</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">additional_threshold</span><span class="p">:</span>
+                <span class="n">parent</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;is_meander&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;is_meander&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prune_by_peak_power</span><span class="p">(</span>
+        <span class="n">node</span><span class="p">,</span>
+        <span class="n">already_extracted</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">peak_power_var</span><span class="o">=</span><span class="s2">&quot;peak_pwr&quot;</span><span class="p">,</span>
+        <span class="n">sign_var</span><span class="o">=</span><span class="s2">&quot;direction_node_to_parent&quot;</span><span class="p">,</span>
+        <span class="n">characteristic_length</span><span class="o">=</span><span class="mf">1e6</span><span class="p">,</span>
+        <span class="n">compare_var</span><span class="o">=</span><span class="s2">&quot;radius&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the meander level in parent nodes with peak_power_var higher</span>
+<span class="sd">        than the mean of the children peak_power_var.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get parent node</span>
+        <span class="n">node_parent</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">node_parent</span><span class="o">.</span><span class="n">node_id</span> <span class="ow">in</span> <span class="n">already_extracted</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">node_parent</span><span class="o">.</span><span class="n">is_meander</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="p">):</span>
+            <span class="k">return</span>
+        <span class="c1"># Look if parent has other parent nodes as children</span>
+        <span class="n">children_nodes</span> <span class="o">=</span> <span class="n">node_parent</span><span class="o">.</span><span class="n">children</span>
+        <span class="n">descendent_nodes</span> <span class="o">=</span> <span class="n">node_parent</span><span class="o">.</span><span class="n">descendants</span>
+        <span class="n">already_extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_parent</span><span class="o">.</span><span class="n">node_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">descendent_nodes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">children_nodes</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Get peak power of parent</span>
+        <span class="n">peak_pwr_parent</span> <span class="o">=</span> <span class="n">node_parent</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">peak_power_var</span><span class="p">]</span>
+        <span class="n">peak_pwr_children</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">child</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">peak_power_var</span><span class="p">]</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children_nodes</span>
+        <span class="p">]</span>
+        <span class="c1"># Extract if node is pointing towards parent (1) or not (-1)</span>
+        <span class="n">sign_children</span> <span class="o">=</span> <span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">sign_var</span><span class="p">]</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children_nodes</span><span class="p">]</span>
+
+        <span class="c1"># Calculate the peak power mean of the children</span>
+        <span class="c1"># that point towards the parent (sign_children == 1)</span>
+        <span class="n">mean_peak_pwr_children</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peak_pwr_children</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sign_children</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">peak_pwr_parent</span> <span class="o">&gt;</span> <span class="n">mean_peak_pwr_children</span><span class="p">:</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="n">node_parent</span><span class="o">.</span><span class="n">is_root</span>
+            <span class="k">if</span> <span class="n">node_parent</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span>
+                <span class="n">compare_var</span>
+            <span class="p">]</span> <span class="o">&lt;</span> <span class="n">characteristic_length</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">cond</span><span class="p">):</span>
+                <span class="n">node_parent</span><span class="o">.</span><span class="n">is_meander</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children_nodes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">direction_node_to_parent</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">child</span><span class="o">.</span><span class="n">is_meander</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">peak_pwr_parent</span> <span class="o">&gt;</span> <span class="n">child</span><span class="o">.</span><span class="n">peak_pwr</span><span class="p">:</span>
+                            <span class="n">child</span><span class="o">.</span><span class="n">is_meander</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

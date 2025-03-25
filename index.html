@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers documentation &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=fc837d61"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="WigglyRivers package" href="WigglyRivers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="WigglyRivers.html">WigglyRivers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">WigglyRivers documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="wigglyrivers-documentation">
+<h1>WigglyRivers documentation<a class="headerlink" href="#wigglyrivers-documentation" title="Link to this heading"></a></h1>
+<p><em>WigglyRivers</em> is a Python package that builds on existing work using wavelet-based methods to create supervised and unsupervised meander identification tools. This tool allows the characterization of the multiscale nature of river transects and the identification of individual meandering features. The package uses any set of river coordinates and calculates the curvature and direction-angle to perform the characterization, and also leverages the use of the High-Resolution National Hydrography Dataset (NHDPlus HR) to assess river transects at a catchment scale. Additionally, the <em>WigglyRivers</em> package contains a supervised river identification tool that allows the visual selection of individual meandering features with satellite imagery in the background.</p>
+<section id="example-notebooks">
+<h2>Example Notebooks<a class="headerlink" href="#example-notebooks" title="Link to this heading"></a></h2>
+<p>You can find examples of how to use this package as examples workflows for synthetic and natural river transects in the <a class="reference external" href="https://github.com/gomezvelezlab/WigglyRivers/tree/stable/examples/new_user_workflow">examples/new_user_workflow/</a> folder.</p>
+<p>The synthetic river transect examples are generated using idealized Kinoshita-type curves, implemented in the code, and using the <a class="reference external" href="https://github.com/zsylvester/meanderpy">meanderpy</a> package coded by Sylvester, Durkin, and Covault (2019). The natural river transect example uses the information from the <a class="reference external" href="https://www.usgs.gov/core-science-systems/ngp/national-hydrography/nhdplus-high-resolution">High-Resolution National Hydrography Dataset (NHDPlus HR)</a> to extract the river transects and assess the meandering features.</p>
+<p>The package includes several Jupyter notebooks that demonstrate its functionality:</p>
+<section id="synthetic-rivers">
+<h3>Synthetic Rivers<a class="headerlink" href="#synthetic-rivers" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Kinoshita Examples</strong> (<cite>Kinoshita_Examples.ipynb</cite>):
+Demonstrates how to generate and analyze synthetic river transects using Kinoshita curves. This notebook shows:</p>
+<ul class="simple">
+<li><p>Generation of Kinoshita curves with different parameters</p></li>
+<li><p>Curvature and direction-angle calculations</p></li>
+<li><p>Wavelet analysis of river planforms</p></li>
+<li><p>Meander identification and characterization</p></li>
+</ul>
+</li>
+<li><p><strong>Meanderpy River Example</strong> (<cite>Meanderpy_River_Example.ipynb</cite>):
+Shows how to use the <cite>meanderpy</cite> package integration to:</p>
+<ul class="simple">
+<li><p>Generate synthetic meandering rivers</p></li>
+<li><p>Analyze their morphological characteristics</p></li>
+<li><p>Compare with Kinoshita curves</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="natural-rivers">
+<h3>Natural Rivers<a class="headerlink" href="#natural-rivers" title="Link to this heading"></a></h3>
+<ol class="arabic simple" start="3">
+<li><p><strong>NHDPlus HR Data Extraction</strong> (<cite>Extract_NHDPlus_HR_Data.ipynb</cite>):
+Demonstrates how to:</p>
+<ul class="simple">
+<li><p>Extract river data from the NHDPlus HR dataset</p></li>
+<li><p>Process and analyze real river transects</p></li>
+<li><p>Identify and characterize natural meanders</p></li>
+<li><p>Visualize results with interactive plots</p></li>
+</ul>
+</li>
+</ol>
+<p>These notebooks can be found in the <cite>examples/new_user_workflow/</cite> directory of the repository.</p>
+</section>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<section id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h3>
+<p>This package has a few requirements. I encourage using a virtual environment of <a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda 3</a> with Python 3.10 or higher. The virtual environment creation can be seen <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html">here</a>. Below, we list the process to create a virtual environment and install the requirements for the package.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>wigglyrivers_env<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.XX
+conda<span class="w"> </span>activate<span class="w"> </span>wigglyrivers_env
+conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>geopandas
+conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>h5py
+</pre></div>
+</div>
+<p>This package was tested in Python version 3.10 and higher. Some incompatible dependencies might arise with older versions of Python. <code class="docutils literal notranslate"><span class="pre">geopandas</span></code> is installed first because the package generates the most incompatibilities. After that package, we install the other dependencies with pip</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>simpledbf
+pip<span class="w"> </span>install<span class="w"> </span>statsmodels
+pip<span class="w"> </span>install<span class="w"> </span>seaborn
+pip<span class="w"> </span>install<span class="w"> </span>pyarrow
+pip<span class="w"> </span>install<span class="w"> </span>plotly
+pip<span class="w"> </span>install<span class="w"> </span>salem
+pip<span class="w"> </span>install<span class="w"> </span>anytree
+pip<span class="w"> </span>install<span class="w"> </span>circle-fit
+</pre></div>
+</div>
+<p>The package uses <code class="docutils literal notranslate"><span class="pre">anytree</span></code> to store the information of the meanders.</p>
+<p>For interactive plots</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>ipympl
+</pre></div>
+</div>
+<p>If you are using <code class="docutils literal notranslate"><span class="pre">.env</span></code> files, remember to also install</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>python-dotenv
+</pre></div>
+</div>
+<p>To run one of the synthetic examples, you will need to install the <code class="docutils literal notranslate"><span class="pre">meanderpy</span></code> package. You can install it using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>meanderpy
+</pre></div>
+</div>
+</section>
+<section id="install-wigglyrivers">
+<h3>Install WigglyRivers<a class="headerlink" href="#install-wigglyrivers" title="Link to this heading"></a></h3>
+<p>To install the package you need to clone the repository and install it using <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p>Some known incompatible dependencies are addressed in the troubleshooting section. If you have any issues not discussed in the troubleshooting section, please open an issue in the repository.</p>
+</section>
+<section id="troubleshooting-package-installation">
+<h3>Troubleshooting Package Installation<a class="headerlink" href="#troubleshooting-package-installation" title="Link to this heading"></a></h3>
+<ul>
+<li><p>If you have problems with <code class="docutils literal notranslate"><span class="pre">geopandas</span></code> look at <a class="reference external" href="https://wilcoxen.maxwell.insightworks.com/pages/6373.html#:~:text=It%20has%20complex%20links%20to,between%2010%20and%2030%20minutes.">this website</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">h5py</span></code> and <code class="docutils literal notranslate"><span class="pre">fiona</span></code> might have some issues when importing at the same time. Installing both of them using <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">-conda-forge</span></code> solved the issue for me.</p></li>
+<li><p>If the interactive plot with <code class="docutils literal notranslate"><span class="pre">plotly</span></code> gives you issues with <code class="docutils literal notranslate"><span class="pre">ipywidgets</span></code>  and <code class="docutils literal notranslate"><span class="pre">jupyterlab-widgets</span></code>, install the following versions  <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">ipywidgets==7.7.1</span> <span class="pre">jupyterlab-widgets==1.1.1</span></code></p></li>
+<li><p>There is a known issue with <code class="docutils literal notranslate"><span class="pre">plotly&lt;=5.15</span></code> where plotting MAPBOX with the interactive widget will prompt the following error message:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ne">ValueError</span><span class="p">:</span>
+<span class="n">Invalid</span> <span class="nb">property</span> <span class="n">path</span> <span class="s1">&#39;mapbox._derived&#39;</span> <span class="k">for</span> <span class="n">layout</span>
+</pre></div>
+</div>
+<p>There is a temporary fix to this issue given in the following <a class="reference external" href="https://github.com/plotly/plotly.py/issues/2570">GitHub issue webpage</a> that requires the use of the function below and restart the kernel.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">fix_widget_error</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fix FigureWidget - &#39;mapbox._derived&#39; Value Error.</span>
+<span class="sd">    Adopted from: https://github.com/plotly/plotly.py/issues/2570#issuecomment-738735816</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pkg_resources</span>
+
+    <span class="n">pkg_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s2">&quot;plotly&quot;</span><span class="p">,</span> <span class="s2">&quot;plotly.py&quot;</span><span class="p">))</span>
+
+    <span class="n">basedatatypesPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pkg_dir</span><span class="p">,</span> <span class="s2">&quot;basedatatypes.py&quot;</span><span class="p">)</span>
+
+    <span class="n">backup_file</span> <span class="o">=</span> <span class="n">basedatatypesPath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">,</span> <span class="s2">&quot;_bk.py&quot;</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">basedatatypesPath</span><span class="p">,</span> <span class="n">backup_file</span><span class="p">)</span>
+
+    <span class="c1"># read basedatatypes.py</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">basedatatypesPath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">find</span> <span class="o">=</span> <span class="s2">&quot;if not BaseFigure._is_key_path_compatible(key_path_str, self.layout):&quot;</span>
+
+    <span class="n">replace</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;if not BaseFigure._is_key_path_compatible(key_path_str, self.layout):</span>
+<span class="s2">                if key_path_str == &quot;mapbox._derived&quot;:</span>
+<span class="s2">                    return&quot;&quot;&quot;</span>
+
+    <span class="c1"># add new text</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">find</span><span class="p">,</span> <span class="n">replace</span><span class="p">)</span>
+
+    <span class="c1"># overwrite old &#39;basedatatypes.py&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">basedatatypesPath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+<span class="c1"># Run fix</span>
+<span class="n">fix_widget_error</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<section id="how-to-cite">
+<h2>How to cite<a class="headerlink" href="#how-to-cite" title="Link to this heading"></a></h2>
+<p>If you use this package, please cite the following paper:</p>
+<p>Gonzalez-Duque, D., &amp; Gomez-Velez, J. D. (2025). WigglyRivers: Characterizing the Multiscale Nature of Meandering Channels [Submitted]. Environmental Modelling &amp; Software.</p>
+</section>
+<section id="credit-and-acknowledgments">
+<h2>Credit and Acknowledgments<a class="headerlink" href="#credit-and-acknowledgments" title="Link to this heading"></a></h2>
+<p>The Continous Wavelet Transform (CWT) computation uses an updated version of the code created by Torrence and Compo (1998) brought to Python by Evgeniya Predybaylo. Also, the unsupervised identification algorithm is based on previous work coded in Matlab by Vermeulen et al. (2016). Each code and function is adequately accredited and cited in the code.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<p>Sylvester, Z., Durkin, P., &amp; Covault, J. A. (2019). High curvatures drive river meandering. Geology, 47(3), 263–266. <a class="reference external" href="https://doi.org/10.1130/G45608.1">https://doi.org/10.1130/G45608.1</a></p>
+<p>Torrence, C., &amp; Compo, G. P. (1998). A Practical Guide to Wavelet Analysis. Bulletin of the American Meteorological Society, 79(1), 61–78. <a class="reference external" href="https://doi.org/10.1175/1520-0477(1998">https://doi.org/10.1175/1520-0477(1998</a>)079&lt;0061:APGTWA&gt;2.0.CO;2</p>
+<p>Vermeulen, B., Hoitink, A. J. F., Zolezzi, G., Abad, J. D., &amp; Aalto, R. (2016). Multiscale structure of meanders. Geophysical Research Letters, 2016GL068238. <a class="reference external" href="https://doi.org/10.1002/2016GL068238">https://doi.org/10.1002/2016GL068238</a></p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="WigglyRivers.html">WigglyRivers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.nhd_extract.html">WigglyRivers.nhd_extract package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.rivers.html">WigglyRivers.rivers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.tests.html">WigglyRivers.tests package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.utilities.html">WigglyRivers.utilities package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.wavelet_tree.html">WigglyRivers.wavelet_tree package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#module-WigglyRivers.AppFiles">WigglyRivers.AppFiles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#module-WigglyRivers.VersionControl">WigglyRivers.VersionControl module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#module-WigglyRivers">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="WigglyRivers.html" class="btn btn-neutral float-right" title="WigglyRivers package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

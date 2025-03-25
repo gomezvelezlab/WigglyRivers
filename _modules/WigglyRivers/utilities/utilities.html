@@ -1,0 +1,242 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers.utilities.utilities &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../WigglyRivers.html">WigglyRivers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">WigglyRivers.utilities.utilities</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for WigglyRivers.utilities.utilities</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1">#</span>
+<span class="c1">#                       Coded by Daniel Gonzalez-Duque</span>
+<span class="c1">#                           Last revised 2021-01-14</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">The functions given on this package allow the user to manipulate and create</span>
+<span class="sd">functions from the computer.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># ------------------------</span>
+<span class="c1"># Importing Modules</span>
+<span class="c1"># ------------------------</span>
+<span class="c1"># System</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+
+<div class="viewcode-block" id="unzip_file">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.utilities.unzip_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">unzip_file</span><span class="p">(</span><span class="n">zip_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">path_output</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;unzip a file to a specific path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        zip_file (Union[pl.Path, str]): Path to the zip file.</span>
+<span class="sd">        path_output (Union[pl.Path, str]): Path to extract the zip file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+
+    <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path_output</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="cr_folder">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.utilities.cr_folder">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cr_folder</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a folder in a specific path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (Union[pl.Path, str]): Path to create the folder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">path</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="c1"># Verify if the path already exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_folders">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.utilities.get_folders">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_folders</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;get folders in a specific path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (Union[pl.Path, str]): get folders in a specific path.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: list of folders in the path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="toc">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.utilities.toc">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">toc</span><span class="p">(</span><span class="n">time1</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;print the time of execution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        time1 (float): time when execution started given by time.time().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dif</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time1</span>
+    <span class="k">if</span> <span class="n">dif</span> <span class="o">&gt;=</span> <span class="mi">3600</span> <span class="o">*</span> <span class="mi">24</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;====</span><span class="se">\t</span><span class="si">{</span><span class="n">dif</span><span class="o">/</span><span class="mi">3600</span><span class="o">/</span><span class="mi">24</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> days</span><span class="se">\t</span><span class="s2"> ====&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">dif</span> <span class="o">&gt;=</span> <span class="mi">3600</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;====</span><span class="se">\t</span><span class="si">{</span><span class="n">dif</span><span class="o">/</span><span class="mi">3600</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> hours</span><span class="se">\t</span><span class="s2"> ====&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">dif</span> <span class="o">&gt;=</span> <span class="mi">60</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;====</span><span class="se">\t</span><span class="si">{</span><span class="n">dif</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> minutes</span><span class="se">\t</span><span class="s2"> ====&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;====</span><span class="se">\t</span><span class="si">{</span><span class="n">dif</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> seconds</span><span class="se">\t</span><span class="s2"> ====&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="fix_widget_error">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.utilities.fix_widget_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fix_widget_error</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fix FigureWidget - &#39;mapbox._derived&#39; Value Error.</span>
+<span class="sd">    Adopted from:</span>
+
+<span class="sd">    https://github.com/plotly/plotly.py/issues/2570#issuecomment-738735816</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pkg_resources</span>
+
+    <span class="n">pkg_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+        <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s2">&quot;plotly&quot;</span><span class="p">,</span> <span class="s2">&quot;plotly.py&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">basedatatypesPath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pkg_dir</span><span class="p">,</span> <span class="s2">&quot;basedatatypes.py&quot;</span><span class="p">)</span>
+
+    <span class="n">backup_file</span> <span class="o">=</span> <span class="n">basedatatypesPath</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">,</span> <span class="s2">&quot;_bk.py&quot;</span><span class="p">)</span>
+    <span class="c1"># find if backup file exists</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">backup_file</span><span class="p">):</span>
+        <span class="c1"># copy the backup file as current file</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">backup_file</span><span class="p">,</span> <span class="n">basedatatypesPath</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Save a backup copy of the original file</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">basedatatypesPath</span><span class="p">,</span> <span class="n">backup_file</span><span class="p">)</span>
+
+    <span class="c1"># read basedatatypes.py</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">basedatatypesPath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">find</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;if not BaseFigure._is_key_path_compatible(key_path_str, self.layout):&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">replace</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;if not BaseFigure._is_key_path_compatible(key_path_str, self.layout):</span>
+<span class="s2">                if key_path_str == &quot;mapbox._derived&quot;:</span>
+<span class="s2">                    return&quot;&quot;&quot;</span>
+
+    <span class="c1"># add new text</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">find</span><span class="p">,</span> <span class="n">replace</span><span class="p">)</span>
+
+    <span class="c1"># overwrite old &#39;basedatatypes.py&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">basedatatypesPath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># fix_widget_error()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

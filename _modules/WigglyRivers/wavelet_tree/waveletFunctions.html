@@ -1,0 +1,783 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers.wavelet_tree.waveletFunctions &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../WigglyRivers.html">WigglyRivers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">WigglyRivers.wavelet_tree.waveletFunctions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for WigglyRivers.wavelet_tree.waveletFunctions</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 1995-2021, Christopher Torrence and Gilbert P.Compo</span>
+<span class="c1"># Python version of the code is written by Evgeniya Predybaylo in 2014</span>
+<span class="c1"># edited by Michael von Papen (FZ Juelich, INM-6), 2018, to include</span>
+<span class="c1"># analysis at arbitrary frequencies</span>
+<span class="c1">#</span>
+<span class="c1">#   This software may be used, copied, or redistributed as long as it is not</span>
+<span class="c1">#   sold and this copyright notice is reproduced on each copy made. This</span>
+<span class="c1">#   routine is provided as is without any express or implied warranties</span>
+<span class="c1">#   whatsoever.</span>
+<span class="c1">#</span>
+<span class="c1"># Notice: Please acknowledge the use of the above software in any publications:</span>
+<span class="c1">#            Wavelet software was provided by C. Torrence and G. Compo,</span>
+<span class="c1">#      and is available at URL: http://paos.colorado.edu/research/wavelets/&#39;&#39;.</span>
+<span class="c1">#</span>
+<span class="c1"># Reference: Torrence, C. and G. P. Compo, 1998: A Practical Guide to</span>
+<span class="c1">#            Wavelet Analysis. &lt;I&gt;Bull. Amer. Meteor. Soc.&lt;/I&gt;, 79, 61-78.</span>
+<span class="c1">#</span>
+<span class="c1"># Please send a copy of such publications to either C. Torrence or G. Compo:</span>
+<span class="c1">#  Dr. Christopher Torrence               Dr. Gilbert P. Compo</span>
+<span class="c1">#  Research Systems, Inc.                 Climate Diagnostics Center</span>
+<span class="c1">#  4990 Pearl East Circle                 325 Broadway R/CDC1</span>
+<span class="c1">#  Boulder, CO 80301, USA                 Boulder, CO 80305-3328, USA</span>
+<span class="c1">#  E-mail: chris[AT]rsinc[DOT]com         E-mail: compo[AT]colorado[DOT]edu</span>
+<span class="c1">#</span>
+<span class="c1"># ----------------------------------------------------------------------------</span>
+
+
+<span class="c1"># # WAVELET  1D Wavelet transform with optional significance testing</span>
+<span class="c1">#   wave, period, scale, coi = wavelet(Y, dt, pad, dj, s0, J1, mother, param)</span>
+<span class="c1">#</span>
+<span class="c1">#   Computes the wavelet transform of the vector Y (length N),</span>
+<span class="c1">#   with sampling rate DT.</span>
+<span class="c1">#</span>
+<span class="c1">#   By default, the Morlet wavelet (k0=6) is used.</span>
+<span class="c1">#   The wavelet basis is normalized to have total energy=1 at all scales.</span>
+<span class="c1">#</span>
+<span class="c1"># INPUTS:</span>
+<span class="c1">#</span>
+<span class="c1">#    Y = the time series of length N.</span>
+<span class="c1">#    DT = amount of time between each Y value, i.e. the sampling time.</span>
+<span class="c1">#</span>
+<span class="c1"># OUTPUTS:</span>
+<span class="c1">#</span>
+<span class="c1">#    WAVE is the WAVELET transform of Y. This is a complex array</span>
+<span class="c1">#    of dimensions (N,J1+1). FLOAT(WAVE) gives the WAVELET amplitude,</span>
+<span class="c1">#    ATAN(IMAGINARY(WAVE),FLOAT(WAVE) gives the WAVELET phase.</span>
+<span class="c1">#    The WAVELET power spectrum is ABS(WAVE)**2.</span>
+<span class="c1">#    Its units are sigma**2 (the time series variance).</span>
+<span class="c1">#</span>
+<span class="c1"># OPTIONAL INPUTS:</span>
+<span class="c1">#</span>
+<span class="c1"># *** Note *** if none of the optional variables is set up, then the program</span>
+<span class="c1">#   uses default values of -1.</span>
+<span class="c1">#</span>
+<span class="c1">#    PAD = if set to 1 (default is 0), pad time series with zeroes to get</span>
+<span class="c1">#         N up to the next higher power of 2. This prevents wraparound</span>
+<span class="c1">#         from the end of the time series to the beginning, and also</span>
+<span class="c1">#         speeds up the FFT&#39;s used to do the wavelet transform.</span>
+<span class="c1">#         This will not eliminate all edge effects (see COI below).</span>
+<span class="c1">#</span>
+<span class="c1">#    DJ = the spacing between discrete scales. Default is 0.25.</span>
+<span class="c1">#         A smaller # will give better scale resolution, but be slower to plot.</span>
+<span class="c1">#</span>
+<span class="c1">#    S0 = the smallest scale of the wavelet.  Default is 2*DT.</span>
+<span class="c1">#</span>
+<span class="c1">#    J1 = the # of scales minus one. Scales range from S0 up to S0*2**(J1*DJ),</span>
+<span class="c1">#        to give a total of (J1+1) scales. Default is J1 = (LOG2(N DT/S0))/DJ.</span>
+<span class="c1">#</span>
+<span class="c1">#    MOTHER = the mother wavelet function.</span>
+<span class="c1">#             The choices are &#39;MORLET&#39;, &#39;PAUL&#39;, or &#39;DOG&#39;</span>
+<span class="c1">#</span>
+<span class="c1">#    PARAM = the mother wavelet parameter.</span>
+<span class="c1">#            For &#39;MORLET&#39; this is k0 (wavenumber), default is 6.</span>
+<span class="c1">#            For &#39;PAUL&#39; this is m (order), default is 4.</span>
+<span class="c1">#            For &#39;DOG&#39; this is m (m-th derivative), default is 2.</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># OPTIONAL OUTPUTS:</span>
+<span class="c1">#</span>
+<span class="c1">#    PERIOD = the vector of &quot;Fourier&quot; periods (in time units) that corresponds</span>
+<span class="c1">#           to the SCALEs.</span>
+<span class="c1">#</span>
+<span class="c1">#    SCALE = the vector of scale indices, given by S0*2**(j*DJ), j=0...J1</span>
+<span class="c1">#            where J1+1 is the total # of scales.</span>
+<span class="c1">#</span>
+<span class="c1">#    COI = if specified, then return the Cone-of-Influence, which is a vector</span>
+<span class="c1">#        of N points that contains the maximum period of useful information</span>
+<span class="c1">#        at that particular time.</span>
+<span class="c1">#        Periods greater than this are subject to edge effects.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">fminbound</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special._ufuncs</span><span class="w"> </span><span class="kn">import</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">gammainc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_peaks</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Evgeniya Predybaylo, Michael von Papen, Daniel Gonzalez-Duque&quot;</span>
+
+
+<div class="viewcode-block" id="wavelet">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.waveletFunctions.wavelet">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">wavelet</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dj</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">s0</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">J1</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mother</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">param</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">s0</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">dt</span>
+    <span class="k">if</span> <span class="n">dj</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">dj</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">4.0</span>
+    <span class="k">if</span> <span class="n">J1</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">J1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fix</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">n1</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">/</span> <span class="n">s0</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="n">dj</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mother</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">mother</span> <span class="o">=</span> <span class="s2">&quot;MORLET&quot;</span>
+
+    <span class="c1"># construct time series to analyze, pad if necessary</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pad</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># power of 2 nearest to N</span>
+        <span class="n">base2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">n1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.4999</span><span class="p">)</span>
+        <span class="n">nzeroes</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">base2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">n1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nzeroes</span><span class="p">)))</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># construct wavenumber array used in transform [Eqn(5)]</span>
+    <span class="n">kplus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">kplus</span> <span class="o">=</span> <span class="n">kplus</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">kminus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">kminus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">((</span><span class="o">-</span><span class="n">kminus</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)))</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="mf">0.0</span><span class="p">],</span> <span class="n">kplus</span><span class="p">,</span> <span class="n">kminus</span><span class="p">))</span>
+
+    <span class="c1"># compute FFT of the (padded) time series</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># [Eqn(3)]</span>
+
+    <span class="c1"># construct SCALE array &amp; empty PERIOD &amp; WAVE arrays</span>
+    <span class="k">if</span> <span class="n">mother</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;MORLET&quot;</span><span class="p">:</span>
+        <span class="n">empir</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.776</span><span class="p">,</span> <span class="mf">2.32</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">6.0</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.776</span><span class="p">,</span> <span class="mf">2.32</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">]</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="n">param</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">param</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">mother</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;PAUL&quot;</span><span class="p">:</span>
+        <span class="n">empir</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.132</span><span class="p">,</span> <span class="mf">1.17</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">4.0</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.132</span><span class="p">,</span> <span class="mf">1.17</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">]</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">param</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mother</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;DOG&quot;</span><span class="p">:</span>
+        <span class="n">empir</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.541</span><span class="p">,</span> <span class="mf">1.43</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">2.0</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.541</span><span class="p">,</span> <span class="mf">1.43</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>  <span class="c1"># --------------------------------------DOG</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.966</span><span class="p">,</span> <span class="mf">1.37</span><span class="p">,</span> <span class="mf">0.97</span><span class="p">]</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">param</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">if</span> <span class="n">freq</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">J1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">s0</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">**</span> <span class="p">(</span><span class="n">j</span> <span class="o">*</span> <span class="n">dj</span><span class="p">)</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">fourier_factor</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span>
+        <span class="n">period</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">freq</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">fourier_factor</span> <span class="o">*</span> <span class="n">freq</span><span class="p">)</span>
+        <span class="n">period</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">freq</span>
+    <span class="c1"># define the wavelet array</span>
+    <span class="n">wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">scale</span><span class="p">),</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+    <span class="c1"># loop through all scales and compute transform</span>
+    <span class="k">for</span> <span class="n">a1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">scale</span><span class="p">)):</span>
+        <span class="n">daughter</span><span class="p">,</span> <span class="n">fourier_factor</span><span class="p">,</span> <span class="n">coi</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">wave_bases</span><span class="p">(</span><span class="n">mother</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">scale</span><span class="p">[</span><span class="n">a1</span><span class="p">],</span> <span class="n">param</span><span class="p">)</span>
+        <span class="n">wave</span><span class="p">[</span><span class="n">a1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="n">daughter</span><span class="p">)</span>  <span class="c1"># wavelet transform[Eqn(4)]</span>
+
+    <span class="c1"># COI [Sec.3g]</span>
+    <span class="n">coi</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">coi</span>
+        <span class="o">*</span> <span class="n">dt</span>
+        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">n1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1e-5</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)),</span>
+                    <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="p">[</span><span class="mf">1e-5</span><span class="p">],</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">wave</span> <span class="o">=</span> <span class="n">wave</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n1</span><span class="p">]</span>  <span class="c1"># get rid of padding before returning</span>
+
+    <span class="c1"># Save parameters in dictionary</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;pad&quot;</span><span class="p">:</span> <span class="n">pad</span><span class="p">,</span>
+        <span class="s2">&quot;s0&quot;</span><span class="p">:</span> <span class="n">s0</span><span class="p">,</span>
+        <span class="s2">&quot;dj&quot;</span><span class="p">:</span> <span class="n">dj</span><span class="p">,</span>
+        <span class="s2">&quot;J1&quot;</span><span class="p">:</span> <span class="n">J1</span><span class="p">,</span>
+        <span class="s2">&quot;mother&quot;</span><span class="p">:</span> <span class="n">mother</span><span class="p">,</span>
+        <span class="s2">&quot;C_delta&quot;</span><span class="p">:</span> <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">wave</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">coi</span><span class="p">,</span> <span class="n">parameters</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># WAVE_BASES  1D Wavelet functions Morlet, Paul, or DOG</span>
+<span class="c1">#</span>
+<span class="c1">#  DAUGHTER,FOURIER_FACTOR,COI,DOFMIN = wave_bases(MOTHER,K,SCALE,PARAM)</span>
+<span class="c1">#</span>
+<span class="c1">#   Computes the wavelet function as a function of Fourier frequency,</span>
+<span class="c1">#   used for the wavelet transform in Fourier space.</span>
+<span class="c1">#   (This program is called automatically by WAVELET)</span>
+<span class="c1">#</span>
+<span class="c1"># INPUTS:</span>
+<span class="c1">#</span>
+<span class="c1">#    MOTHER = a string, equal to &#39;MORLET&#39; or &#39;PAUL&#39; or &#39;DOG&#39;</span>
+<span class="c1">#    K = a vector, the Fourier frequencies at which to calculate the wavelet</span>
+<span class="c1">#    SCALE = a number, the wavelet scale</span>
+<span class="c1">#    PARAM = the nondimensional parameter for the wavelet function</span>
+<span class="c1">#</span>
+<span class="c1"># OUTPUTS:</span>
+<span class="c1">#</span>
+<span class="c1">#    DAUGHTER = a vector, the wavelet function</span>
+<span class="c1">#    FOURIER_FACTOR = the ratio of Fourier period to scale</span>
+<span class="c1">#    COI = a number, the cone-of-influence size at the scale</span>
+<span class="c1">#    DOFMIN = a number, degrees of freedom for each point in the wavelet power</span>
+<span class="c1">#             (either 2 for Morlet and Paul, or 1 for the DOG)</span>
+
+
+<div class="viewcode-block" id="wave_bases">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.waveletFunctions.wave_bases">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">wave_bases</span><span class="p">(</span><span class="n">mother</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">param</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">kplus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mother</span> <span class="o">==</span> <span class="s2">&quot;MORLET&quot;</span><span class="p">:</span>  <span class="c1"># -----------------------------------  Morlet</span>
+
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">6.0</span>
+
+        <span class="n">k0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+        <span class="c1"># calc psi_0(s omega) from Table 1</span>
+        <span class="n">expnt</span> <span class="o">=</span> <span class="o">-</span><span class="p">((</span><span class="n">scale</span> <span class="o">*</span> <span class="n">k</span> <span class="o">-</span> <span class="n">k0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">kplus</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.25</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">daughter</span> <span class="o">=</span> <span class="n">norm</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">expnt</span><span class="p">)</span>
+        <span class="n">daughter</span> <span class="o">=</span> <span class="n">daughter</span> <span class="o">*</span> <span class="n">kplus</span>  <span class="c1"># Heaviside step function</span>
+        <span class="c1"># Scale--&gt;Fourier [Sec.3h]</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">k0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k0</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">coi</span> <span class="o">=</span> <span class="n">fourier_factor</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Cone-of-influence [Sec.3g]</span>
+        <span class="n">dofmin</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># Degrees of freedom</span>
+    <span class="k">elif</span> <span class="n">mother</span> <span class="o">==</span> <span class="s2">&quot;PAUL&quot;</span><span class="p">:</span>  <span class="c1"># --------------------------------  Paul</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">4.0</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="c1"># calc psi_0(s omega) from Table 1</span>
+        <span class="n">expnt</span> <span class="o">=</span> <span class="o">-</span><span class="n">scale</span> <span class="o">*</span> <span class="n">k</span> <span class="o">*</span> <span class="n">kplus</span>
+        <span class="n">norm_bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">m</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)))</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">m</span> <span class="o">/</span> <span class="n">norm_bottom</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">daughter</span> <span class="o">=</span> <span class="n">norm</span> <span class="o">*</span> <span class="p">((</span><span class="n">scale</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span> <span class="o">**</span> <span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">expnt</span><span class="p">)</span> <span class="o">*</span> <span class="n">kplus</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">coi</span> <span class="o">=</span> <span class="n">fourier_factor</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">dofmin</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">mother</span> <span class="o">==</span> <span class="s2">&quot;DOG&quot;</span><span class="p">:</span>  <span class="c1"># --------------------------------  DOG</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">2.0</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="c1"># calc psi_0(s omega) from Table 1</span>
+        <span class="n">expnt</span> <span class="o">=</span> <span class="o">-</span><span class="p">((</span><span class="n">scale</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">scale</span> <span class="o">*</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">daughter</span> <span class="o">=</span> <span class="o">-</span><span class="n">norm</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">**</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">scale</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span> <span class="o">**</span> <span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">expnt</span><span class="p">)</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">coi</span> <span class="o">=</span> <span class="n">fourier_factor</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">dofmin</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mother must be one of MORLET, PAUL, DOG&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">daughter</span><span class="p">,</span> <span class="n">fourier_factor</span><span class="p">,</span> <span class="n">coi</span><span class="p">,</span> <span class="n">dofmin</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># WAVE_SIGNIF  Significance testing for the 1D Wavelet transform WAVELET</span>
+<span class="c1">#</span>
+<span class="c1">#   SIGNIF = wave_signif(Y,DT,SCALE,SIGTEST,LAG1,SIGLVL,DOF,MOTHER,PARAM)</span>
+<span class="c1">#</span>
+<span class="c1"># INPUTS:</span>
+<span class="c1">#</span>
+<span class="c1">#    Y = the time series, or, the VARIANCE of the time series.</span>
+<span class="c1">#        (If this is a single number, it is assumed to be the variance...)</span>
+<span class="c1">#    DT = amount of time between each Y value, i.e. the sampling time.</span>
+<span class="c1">#    SCALE = the vector of scale indices, from previous call to WAVELET.</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># OUTPUTS:</span>
+<span class="c1">#</span>
+<span class="c1">#    SIGNIF = significance levels as a function of SCALE</span>
+<span class="c1">#    FFT_THEOR = output theoretical red-noise spectrum as fn of PERIOD</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># OPTIONAL INPUTS:</span>
+<span class="c1">#    SIGTEST = 0, 1, or 2.    If omitted, then assume 0.</span>
+<span class="c1">#</span>
+<span class="c1">#         If 0 (the default), then just do a regular chi-square test,</span>
+<span class="c1">#             i.e. Eqn (18) from Torrence &amp; Compo.</span>
+<span class="c1">#         If 1, then do a &quot;time-average&quot; test, i.e. Eqn (23).</span>
+<span class="c1">#             In this case, DOF should be set to NA, the number</span>
+<span class="c1">#             of local wavelet spectra that were averaged together.</span>
+<span class="c1">#             For the Global Wavelet Spectrum, this would be NA=N,</span>
+<span class="c1">#             where N is the number of points in your time series.</span>
+<span class="c1">#         If 2, then do a &quot;scale-average&quot; test, i.e. Eqns (25)-(28).</span>
+<span class="c1">#             In this case, DOF should be set to a</span>
+<span class="c1">#             two-element vector [S1,S2], which gives the scale</span>
+<span class="c1">#             range that was averaged together.</span>
+<span class="c1">#             e.g. if one scale-averaged scales between 2 and 8,</span>
+<span class="c1">#             then DOF=[2,8].</span>
+<span class="c1">#</span>
+<span class="c1">#    LAG1 = LAG 1 Autocorrelation, used for SIGNIF levels. Default is 0.0</span>
+<span class="c1">#</span>
+<span class="c1">#    SIGLVL = significance level to use. Default is 0.95</span>
+<span class="c1">#</span>
+<span class="c1">#    DOF = degrees-of-freedom for signif test.</span>
+<span class="c1">#         IF SIGTEST=0, then (automatically) DOF = 2 (or 1 for MOTHER=&#39;DOG&#39;)</span>
+<span class="c1">#         IF SIGTEST=1, then DOF = NA, the number of times averaged together.</span>
+<span class="c1">#         IF SIGTEST=2, then DOF = [S1,S2], the range of scales averaged.</span>
+<span class="c1">#</span>
+<span class="c1">#       Note: IF SIGTEST=1, then DOF can be a vector (same length as SCALEs),</span>
+<span class="c1">#            in which case NA is assumed to vary with SCALE.</span>
+<span class="c1">#            This allows one to average different numbers of times</span>
+<span class="c1">#            together at different scales, or to take into account</span>
+<span class="c1">#            things like the Cone of Influence.</span>
+<span class="c1">#            See discussion following Eqn (23) in Torrence &amp; Compo.</span>
+<span class="c1">#</span>
+<span class="c1">#    GWS = global wavelet spectrum, a vector of the same length as scale.</span>
+<span class="c1">#          If input then this is used as the theoretical background spectrum,</span>
+<span class="c1">#          rather than white or red noise.</span>
+
+
+<div class="viewcode-block" id="wave_signif">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.waveletFunctions.wave_signif">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">wave_signif</span><span class="p">(</span>
+    <span class="n">Y</span><span class="p">,</span>
+    <span class="n">dt</span><span class="p">,</span>
+    <span class="n">scale</span><span class="p">,</span>
+    <span class="n">sigtest</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">lag1</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">siglvl</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">dof</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">mother</span><span class="o">=</span><span class="s2">&quot;MORLET&quot;</span><span class="p">,</span>
+    <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">gws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">Y</span><span class="p">))</span>
+    <span class="n">J1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">dj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">n1</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">variance</span> <span class="o">=</span> <span class="n">Y</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">variance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+    <span class="c1"># get the appropriate parameters [see Table(2)]</span>
+    <span class="k">if</span> <span class="n">mother</span> <span class="o">==</span> <span class="s2">&quot;MORLET&quot;</span><span class="p">:</span>  <span class="c1"># ----------------------------------  Morlet</span>
+        <span class="n">empir</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">6.0</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.776</span><span class="p">,</span> <span class="mf">2.32</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">]</span>
+        <span class="n">k0</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="c1"># Scale--&gt;Fourier [Sec.3h]</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">k0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k0</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">mother</span> <span class="o">==</span> <span class="s2">&quot;PAUL&quot;</span><span class="p">:</span>
+        <span class="n">empir</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.132</span><span class="p">,</span> <span class="mf">1.17</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mother</span> <span class="o">==</span> <span class="s2">&quot;DOG&quot;</span><span class="p">:</span>  <span class="c1"># -------------------------------------Paul</span>
+        <span class="n">empir</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">2.0</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.541</span><span class="p">,</span> <span class="mf">1.43</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>  <span class="c1"># --------------------------------------DOG</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.966</span><span class="p">,</span> <span class="mf">1.37</span><span class="p">,</span> <span class="mf">0.97</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mother must be one of MORLET, PAUL, DOG&quot;</span><span class="p">)</span>
+
+    <span class="n">period</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">fourier_factor</span>
+    <span class="n">dofmin</span> <span class="o">=</span> <span class="n">empir</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Degrees of freedom with no smoothing</span>
+    <span class="n">Cdelta</span> <span class="o">=</span> <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># reconstruction factor</span>
+    <span class="n">gamma_fac</span> <span class="o">=</span> <span class="n">empir</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># time-decorrelation factor</span>
+    <span class="n">dj0</span> <span class="o">=</span> <span class="n">empir</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># scale-decorrelation factor</span>
+
+    <span class="n">freq</span> <span class="o">=</span> <span class="n">dt</span> <span class="o">/</span> <span class="n">period</span>  <span class="c1"># normalized frequency</span>
+
+    <span class="k">if</span> <span class="n">gws</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># use global-wavelet as background spectrum</span>
+        <span class="n">fft_theor</span> <span class="o">=</span> <span class="n">gws</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># [Eqn(16)]</span>
+        <span class="n">fft_theor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">lag1</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">lag1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">freq</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">+</span> <span class="n">lag1</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">fft_theor</span> <span class="o">=</span> <span class="n">variance</span> <span class="o">*</span> <span class="n">fft_theor</span>  <span class="c1"># include time-series variance</span>
+
+    <span class="n">signif</span> <span class="o">=</span> <span class="n">fft_theor</span>
+    <span class="k">if</span> <span class="n">dof</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dof</span> <span class="o">=</span> <span class="n">dofmin</span>
+
+    <span class="k">if</span> <span class="n">sigtest</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># no smoothing, DOF=dofmin [Sec.4]</span>
+        <span class="n">dof</span> <span class="o">=</span> <span class="n">dofmin</span>
+        <span class="n">chisquare</span> <span class="o">=</span> <span class="n">chisquare_inv</span><span class="p">(</span><span class="n">siglvl</span><span class="p">,</span> <span class="n">dof</span><span class="p">)</span> <span class="o">/</span> <span class="n">dof</span>
+        <span class="n">signif</span> <span class="o">=</span> <span class="n">fft_theor</span> <span class="o">*</span> <span class="n">chisquare</span>  <span class="c1"># [Eqn(18)]</span>
+    <span class="k">elif</span> <span class="n">sigtest</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># time-averaged significance</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">dof</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">dof</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">J1</span><span class="p">)</span> <span class="o">+</span> <span class="n">dof</span>
+        <span class="n">dof</span><span class="p">[</span><span class="n">dof</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># [Eqn(23)]</span>
+        <span class="n">dof</span> <span class="o">=</span> <span class="n">dofmin</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">dof</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">/</span> <span class="n">gamma_fac</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">dof</span><span class="p">[</span><span class="n">dof</span> <span class="o">&lt;</span> <span class="n">dofmin</span><span class="p">]</span> <span class="o">=</span> <span class="n">dofmin</span>  <span class="c1"># minimum DOF is dofmin</span>
+        <span class="k">for</span> <span class="n">a1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">J1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">chisquare</span> <span class="o">=</span> <span class="n">chisquare_inv</span><span class="p">(</span><span class="n">siglvl</span><span class="p">,</span> <span class="n">dof</span><span class="p">[</span><span class="n">a1</span><span class="p">])</span> <span class="o">/</span> <span class="n">dof</span><span class="p">[</span><span class="n">a1</span><span class="p">]</span>
+            <span class="n">signif</span><span class="p">[</span><span class="n">a1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fft_theor</span><span class="p">[</span><span class="n">a1</span><span class="p">]</span> <span class="o">*</span> <span class="n">chisquare</span>
+    <span class="k">elif</span> <span class="n">sigtest</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># time-averaged significance</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dof</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: DOF must be set to [S1,S2],&quot;</span> <span class="s2">&quot; the range of scale-averages&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Cdelta</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;ERROR: Cdelta &amp; dj0 not defined&quot;</span>
+                <span class="s2">&quot; for &quot;</span> <span class="o">+</span> <span class="n">mother</span> <span class="o">+</span> <span class="s2">&quot; with param = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">dof</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="n">dof</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">scale</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">scale</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">)</span>  <span class="c1"># scales between S1 &amp; S2</span>
+        <span class="n">navg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">scale</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">scale</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">navg</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: No valid scales between &quot;</span> <span class="o">+</span> <span class="n">s1</span> <span class="o">+</span> <span class="s2">&quot; and &quot;</span> <span class="o">+</span> <span class="n">s2</span><span class="p">)</span>
+        <span class="n">Savg</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">scale</span><span class="p">[</span><span class="n">avg</span><span class="p">])</span>  <span class="c1"># [Eqn(25)]</span>
+        <span class="n">Smid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">s2</span><span class="p">))</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># power-of-two midpoint</span>
+        <span class="n">dof</span> <span class="o">=</span> <span class="p">(</span><span class="n">dofmin</span> <span class="o">*</span> <span class="n">navg</span> <span class="o">*</span> <span class="n">Savg</span> <span class="o">/</span> <span class="n">Smid</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">navg</span> <span class="o">*</span> <span class="n">dj</span> <span class="o">/</span> <span class="n">dj0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="p">)</span>  <span class="c1"># [Eqn(28)]</span>
+        <span class="n">fft_theor</span> <span class="o">=</span> <span class="n">Savg</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fft_theor</span><span class="p">[</span><span class="n">avg</span><span class="p">]</span> <span class="o">/</span> <span class="n">scale</span><span class="p">[</span><span class="n">avg</span><span class="p">])</span>  <span class="c1"># [Eqn(27)]</span>
+        <span class="n">chisquare</span> <span class="o">=</span> <span class="n">chisquare_inv</span><span class="p">(</span><span class="n">siglvl</span><span class="p">,</span> <span class="n">dof</span><span class="p">)</span> <span class="o">/</span> <span class="n">dof</span>
+        <span class="n">signif</span> <span class="o">=</span> <span class="p">(</span><span class="n">dj</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">/</span> <span class="n">Cdelta</span> <span class="o">/</span> <span class="n">Savg</span><span class="p">)</span> <span class="o">*</span> <span class="n">fft_theor</span> <span class="o">*</span> <span class="n">chisquare</span>  <span class="c1"># [Eqn(26)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: sigtest must be either 0, 1, or 2&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">signif</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># CHISQUARE_INV  Inverse of chi-square cumulative distribution function (cdf).</span>
+<span class="c1">#</span>
+<span class="c1">#   X = chisquare_inv(P,V) returns the inverse of chi-square cdf with V</span>
+<span class="c1">#   degrees of freedom at fraction P.</span>
+<span class="c1">#   This means that P*100 percent of the distribution lies between 0 and X.</span>
+<span class="c1">#</span>
+<span class="c1">#   To check, the answer should satisfy:   P==gammainc(X/2,V/2)</span>
+
+<span class="c1"># Uses FMIN and CHISQUARE_SOLVE</span>
+
+
+<div class="viewcode-block" id="chisquare_inv">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.waveletFunctions.chisquare_inv">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">chisquare_inv</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">P</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-4</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;P must be &lt; 0.9999&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">P</span> <span class="o">==</span> <span class="mf">0.95</span> <span class="ow">and</span> <span class="n">V</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># this is a no-brainer</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="mf">5.9915</span>
+        <span class="k">return</span> <span class="n">X</span>
+
+    <span class="n">MINN</span> <span class="o">=</span> <span class="mf">0.01</span>  <span class="c1"># hopefully this is small enough</span>
+    <span class="n">MAXX</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># actually starts at 10 (see while loop below)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">TOLERANCE</span> <span class="o">=</span> <span class="mf">1e-4</span>  <span class="c1"># this should be accurate enough</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">X</span> <span class="o">+</span> <span class="n">TOLERANCE</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">MAXX</span><span class="p">:</span>  <span class="c1"># should only need to loop thru once</span>
+        <span class="n">MAXX</span> <span class="o">=</span> <span class="n">MAXX</span> <span class="o">*</span> <span class="mf">10.0</span>
+        <span class="c1"># this calculates value for X, NORMALIZED by V</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">fminbound</span><span class="p">(</span><span class="n">chisquare_solve</span><span class="p">,</span> <span class="n">MINN</span><span class="p">,</span> <span class="n">MAXX</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">V</span><span class="p">),</span> <span class="n">xtol</span><span class="o">=</span><span class="n">TOLERANCE</span><span class="p">)</span>
+        <span class="n">MINN</span> <span class="o">=</span> <span class="n">MAXX</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span> <span class="o">*</span> <span class="n">V</span>  <span class="c1"># put back in the goofy V factor</span>
+
+    <span class="k">return</span> <span class="n">X</span>  <span class="c1"># end of code</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># CHISQUARE_SOLVE  Internal function used by CHISQUARE_INV</span>
+<span class="c1">#</span>
+<span class="c1">#   PDIFF=chisquare_solve(XGUESS,P,V)  Given XGUESS, a percentile P,</span>
+<span class="c1">#   and degrees-of-freedom V, return the difference between</span>
+<span class="c1">#   calculated percentile and P.</span>
+
+<span class="c1"># Uses GAMMAINC</span>
+<span class="c1">#</span>
+<span class="c1"># Written January 1998 by C. Torrence</span>
+
+<span class="c1"># extra factor of V is necessary because X is Normalized</span>
+
+
+<div class="viewcode-block" id="chisquare_solve">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.waveletFunctions.chisquare_solve">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">chisquare_solve</span><span class="p">(</span><span class="n">XGUESS</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
+
+    <span class="n">PGUESS</span> <span class="o">=</span> <span class="n">gammainc</span><span class="p">(</span><span class="n">V</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">V</span> <span class="o">*</span> <span class="n">XGUESS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># incomplete Gamma function</span>
+
+    <span class="n">PDIFF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">PGUESS</span> <span class="o">-</span> <span class="n">P</span><span class="p">)</span>  <span class="c1"># error in calculated P</span>
+
+    <span class="n">TOL</span> <span class="o">=</span> <span class="mf">1e-4</span>
+    <span class="k">if</span> <span class="n">PGUESS</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">TOL</span><span class="p">:</span>  <span class="c1"># if P is very close to 1 (i.e. a bad guess)</span>
+        <span class="n">PDIFF</span> <span class="o">=</span> <span class="n">XGUESS</span>  <span class="c1"># then just assign some big number like XGUESS</span>
+
+    <span class="k">return</span> <span class="n">PDIFF</span></div>
+
+
+
+<div class="viewcode-block" id="iwavelet">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.waveletFunctions.iwavelet">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">iwavelet</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">scale_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mother</span><span class="o">=</span><span class="s2">&quot;MORLET&quot;</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Description:</span>
+<span class="sd">    ------------</span>
+
+<span class="sd">        Inverse wavelet transform of Y, using [Eqn(11)] in Torrence and Compo</span>
+<span class="sd">        (1998).</span>
+
+<span class="sd">        Created by Daniel Gonzalez-Duque on 07/02/2023</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    ------</span>
+
+<span class="sd">    :param Y: np.ndarray,</span>
+<span class="sd">        Wavelet transform of a time series.</span>
+<span class="sd">    :param dt: float,</span>
+<span class="sd">        Time interval between samples.</span>
+<span class="sd">    :param scale: np.ndarray,</span>
+<span class="sd">        Vector of scale indices.</span>
+<span class="sd">    :param scale_indices: np.ndarray,</span>
+<span class="sd">        Vector of scale indices where the reconstruction will be applied.</span>
+<span class="sd">    :param mother: str,</span>
+<span class="sd">        Wavelet type.</span>
+<span class="sd">    :param param: np.ndarray</span>
+<span class="sd">        Wavelet parameters.</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">):</span>
+        <span class="n">wave</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">real</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">wave</span> <span class="o">=</span> <span class="n">Y</span>
+    <span class="c1"># Calculate dj from the scales</span>
+    <span class="n">dj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># Select the appropiate parameters [see Table(2)]</span>
+    <span class="k">if</span> <span class="n">mother</span> <span class="o">==</span> <span class="s2">&quot;MORLET&quot;</span><span class="p">:</span>  <span class="c1"># ----------------------------------  Morlet</span>
+        <span class="n">empir</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">6.0</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.776</span><span class="p">,</span> <span class="mf">2.32</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)]</span>
+        <span class="n">k0</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="c1"># Scale--&gt;Fourier [Sec.3h]</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">k0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">k0</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">mother</span> <span class="o">==</span> <span class="s2">&quot;PAUL&quot;</span><span class="p">:</span>
+        <span class="n">empir</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.079</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mi">4</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.132</span><span class="p">,</span> <span class="mf">1.17</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.867</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mother</span> <span class="o">==</span> <span class="s2">&quot;DOG&quot;</span><span class="p">:</span>  <span class="c1"># -------------------------------------Paul</span>
+        <span class="n">empir</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="mf">2.0</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.541</span><span class="p">,</span> <span class="mf">1.43</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">,</span> <span class="mf">0.867</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">param</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>  <span class="c1"># --------------------------------------DOG</span>
+            <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.966</span><span class="p">,</span> <span class="mf">1.37</span><span class="p">,</span> <span class="mf">0.97</span><span class="p">,</span> <span class="mf">0.884</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">param</span>
+        <span class="n">fourier_factor</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mother must be one of MORLET, PAUL, DOG&quot;</span><span class="p">)</span>
+    <span class="n">c_delta</span> <span class="o">=</span> <span class="n">empir</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># reconstruction factor</span>
+    <span class="n">wave_0</span> <span class="o">=</span> <span class="n">empir</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>  <span class="c1"># wavelet zeroth moment</span>
+
+    <span class="c1"># Filtering over scales</span>
+    <span class="k">if</span> <span class="n">scale_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scale_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+    <span class="n">new_wave</span> <span class="o">=</span> <span class="n">wave</span><span class="p">[</span><span class="n">scale_indices</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">new_scale</span> <span class="o">=</span> <span class="n">scale</span><span class="p">[</span><span class="n">scale_indices</span><span class="p">]</span>
+
+    <span class="c1"># Reconstruction with Torrence and Compo (1998) (Eq[11])</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">dj</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">c_delta</span> <span class="o">*</span> <span class="n">wave_0</span><span class="p">)</span>
+    <span class="n">r_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">new_wave</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="n">new_scale</span><span class="o">**</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">c_r</span> <span class="o">=</span> <span class="n">r_sum</span> <span class="o">*</span> <span class="n">factor</span>
+
+    <span class="k">return</span> <span class="n">c_r</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_global_wavelet_spectrum">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.waveletFunctions.calculate_global_wavelet_spectrum">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_global_wavelet_spectrum</span><span class="p">(</span><span class="n">wave</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Description:</span>
+<span class="sd">    ------------</span>
+
+<span class="sd">        Calculates the global wavelet spectrum (GWS) from the wavelet transform</span>
+<span class="sd">        using equation (22) in Torrence and Compo (1998). This function also</span>
+<span class="sd">        finds the index for the peaks in the global wavelet spectrum.</span>
+
+<span class="sd">        Created by Daniel Gonzalez-Duque on 11/19/2023.</span>
+
+<span class="sd">        References:</span>
+<span class="sd">        </span>
+<span class="sd">        Torrence, C., and G. P. Compo, 1998: A Practical Guide to Wavelet</span>
+<span class="sd">        Analysis. Bull. Amer. Meteor. Soc., 79, 61–78,</span>
+<span class="sd">        https://doi.org/10.1175/1520-0477(1998)079&lt;0061:APGTWA&gt;2.0.CO;2</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    -----</span>
+<span class="sd">        :param wave: np.ndarray,</span>
+<span class="sd">            Wavelet transform.</span>
+<span class="sd">        :return: gws: np.ndarray,</span>
+<span class="sd">            Global wavelet spectrum.</span>
+<span class="sd">            peaks: np.ndarray,</span>
+<span class="sd">            Indices for the peaks in the GWS.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gws</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># find peaks in the gws</span>
+    <span class="n">peaks</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">find_peaks</span><span class="p">(</span><span class="n">gws</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gws</span><span class="p">,</span> <span class="n">peaks</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_scale_averaged_wavelet_power">
+<a class="viewcode-back" href="../../../WigglyRivers.wavelet_tree.html#WigglyRivers.wavelet_tree.waveletFunctions.calculate_scale_averaged_wavelet_power">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_scale_averaged_wavelet_power</span><span class="p">(</span><span class="n">wave</span><span class="p">,</span> <span class="n">scales</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">dj</span><span class="p">,</span> <span class="n">c_delta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Description:</span>
+<span class="sd">    ------------</span>
+
+<span class="sd">        Calculates the scale-averaged wavelet power (SAWP) from the wavelet</span>
+<span class="sd">        transform using equation (9) in Zolezzi and Güneralp (2016).</span>
+
+<span class="sd">        Created by Daniel Gonzalez-Duque on 11/19/2023.</span>
+
+<span class="sd">        References:</span>
+<span class="sd">        </span>
+<span class="sd">        Zolezzi, G., &amp; Güneralp, I. (2016). Continuous wavelet</span>
+<span class="sd">        characterization of the wavelengths and regularity of</span>
+<span class="sd">        meandering rivers. Geomorphology, 252, 98–111.</span>
+<span class="sd">        https://doi.org/10.1016/j.geomorph.2015.07.029</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    -----</span>
+<span class="sd">        :param wave: np.ndarray,</span>
+<span class="sd">            Wavelet transform.</span>
+<span class="sd">        :param scales: np.ndarray,</span>
+<span class="sd">            Vector of scales.</span>
+<span class="sd">        :param dt: float,</span>
+<span class="sd">            Time or spatial resolution of the data.</span>
+<span class="sd">        :param dj: float,</span>
+<span class="sd">            Scale increment.</span>
+<span class="sd">        :param c_delta: float,</span>
+<span class="sd">            Reconstruction factor.</span>
+<span class="sd">        :return:</span>
+<span class="sd">            Scale-averaged wavelet power.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">scales_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">scales</span><span class="p">,</span> <span class="p">(</span><span class="n">power</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">sawp</span> <span class="o">=</span> <span class="p">(</span><span class="n">dj</span> <span class="o">*</span> <span class="n">ds</span><span class="p">)</span> <span class="o">/</span> <span class="n">c_delta</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">power</span> <span class="o">/</span> <span class="n">scales_p</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sawp</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

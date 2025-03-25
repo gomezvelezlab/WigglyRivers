@@ -1,0 +1,585 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers.utilities.filesManagement &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../WigglyRivers.html">WigglyRivers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">WigglyRivers.utilities.filesManagement</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for WigglyRivers.utilities.filesManagement</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1">#</span>
+<span class="c1">#                       Coded by: Daniel Gonzalez-Duque</span>
+<span class="c1">#</span>
+<span class="c1">#                               Last revised 2025-02-13</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The functions given on this package allow the user to save data in different</span>
+<span class="sd">formats</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># ------------------------</span>
+<span class="c1"># Importing Modules</span>
+<span class="c1"># ------------------------</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+<span class="c1"># Data Managment</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># import netCDF4 as nc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+
+<span class="c1"># Personal libaries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">utl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">classExceptions</span> <span class="k">as</span> <span class="n">CE</span>
+
+
+<span class="c1"># ------------------------</span>
+<span class="c1"># Functions</span>
+<span class="c1"># ------------------------</span>
+<div class="viewcode-block" id="NpEncoder">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.NpEncoder">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NpEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
+<div class="viewcode-block" id="NpEncoder.default">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.NpEncoder.default">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="get_save_formats">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.get_save_formats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_save_formats</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="s2">&quot;p&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;txt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hdf5&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;feather&quot;</span><span class="p">,</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_load_formats">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.get_load_formats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_load_formats</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="s2">&quot;p&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;txt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dbf&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hdf5&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;feather&quot;</span><span class="p">,</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="save_data">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.save_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_data</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path_output</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save data in any of the following formats:</span>
+<span class="sd">        .p, .pickle, .mat, .json, .txt, .csv, .shp, .hdf5, .feather</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (dict): Data to be saved in dictionary format.</span>
+<span class="sd">        path_output (Union[Path, str]): Path where the data will be saved.</span>
+<span class="sd">        file_name (str): File name.</span>
+<span class="sd">        *args: Additional arguments for each saving function.</span>
+<span class="sd">        **kwargs: Additional keyword arguments for each saving function.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        CE.FormatError: Format not implemented.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Error Management</span>
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># if not isinstance(data, dict) and not isinstance(</span>
+    <span class="c1">#         data, gpd.geodataframe.GeoDataFrame):</span>
+    <span class="c1">#     raise TypeError(&#39;data must be a dictionary or a geopandas dataframe&#39;)</span>
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Create Folder</span>
+    <span class="c1"># ---------------------</span>
+    <span class="n">utl</span><span class="o">.</span><span class="n">cr_folder</span><span class="p">(</span><span class="n">path_output</span><span class="p">)</span>
+
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Save data</span>
+    <span class="c1"># ---------------------</span>
+    <span class="n">name_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">path_output</span><span class="p">,</span> <span class="n">file_name</span>
+    <span class="p">)</span>  <span class="c1"># f&#39;{path_output}{file_name}&#39;</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">dataframe</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span>
+    <span class="p">)</span> <span class="ow">and</span> <span class="n">extension</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;shp&quot;</span><span class="p">,</span> <span class="s2">&quot;txt&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;feather&quot;</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">extension</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;shp&quot;</span><span class="p">,</span> <span class="s2">&quot;txt&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;feather&quot;</span><span class="p">):</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;mat&quot;</span><span class="p">:</span>
+        <span class="n">sio</span><span class="o">.</span><span class="n">savemat</span><span class="p">(</span><span class="n">name_out</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;txt&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">):</span>
+        <span class="c1"># dataframe = pd.DataFrame.from_dict(data)</span>
+        <span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">name_out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;feather&quot;</span><span class="p">:</span>
+        <span class="c1"># dataframe = pd.DataFrame.from_dict(data)</span>
+        <span class="n">dataframe</span><span class="o">.</span><span class="n">to_feather</span><span class="p">(</span><span class="n">name_out</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;pickle&quot;</span><span class="p">):</span>
+        <span class="n">file_open</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">name_out</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">file_open</span><span class="p">)</span>
+        <span class="n">file_open</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">name_out</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NpEncoder</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;shp&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">name_out</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;hdf5&quot;</span><span class="p">:</span>
+        <span class="n">save_dict_to_hdf5</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">name_out</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">CE</span><span class="o">.</span><span class="n">FormatError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;format .</span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s2"> not implemented. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Use extensions </span><span class="si">{</span><span class="n">get_save_formats</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_data">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.load_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">pandas_dataframe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load data in any of the following formats:</span>
+<span class="sd">        .p, .pickle, .mat, .json, .txt, .csv, .shp, .dbf, .hdf5, .feather</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_path (Union[Path, str]): file to be loaded.</span>
+<span class="sd">        pandas_dataframe (bool, optional): Load the data as PandasDataframe.</span>
+<span class="sd">            If False, the data will be loaded as a dictionary. Defaults to False.</span>
+<span class="sd">        *args: Additional arguments for each loading function.</span>
+<span class="sd">        **kwargs: Additional keyword arguments for each loading function.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: file_path must be a string or Path.</span>
+<span class="sd">        CE.FormatError: format not implemented.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Union[dict, pd.DataFrame]: Loaded data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Error Management</span>
+    <span class="c1"># ---------------------</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;data must be a string.&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;keys&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># load data</span>
+    <span class="c1"># ---------------------</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;mat&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">sio</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;txt&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">):</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;feather&quot;</span><span class="p">:</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_feather</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;pickle&quot;</span><span class="p">):</span>
+        <span class="n">file_open</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_open</span><span class="p">)</span>
+        <span class="n">file_open</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;shp&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;dbf&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">simpledbf</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dbf5</span>
+
+        <span class="n">dbf</span> <span class="o">=</span> <span class="n">Dbf5</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">dbf</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;hdf5&quot;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">load_dict_from_hdf5</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">key_c</span><span class="o">=</span><span class="n">keys</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">CE</span><span class="o">.</span><span class="n">FormatError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;format .</span><span class="si">{</span><span class="n">extension</span><span class="si">}</span><span class="s2"> not implemented. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Use files with extensions </span><span class="si">{</span><span class="n">get_load_formats</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">pandas_dataframe</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="save_dict_to_hdf5">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.save_dict_to_hdf5">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_dict_to_hdf5</span><span class="p">(</span><span class="n">dic</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;save dictionary to hdf5 file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dic (dict): Dictionary to be saved.</span>
+<span class="sd">        file_name (str): Complete path to the file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+        <span class="n">recursively_save_dict_contents_to_group</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">dic</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="recursively_save_dict_contents_to_group">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.recursively_save_dict_contents_to_group">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">recursively_save_dict_contents_to_group</span><span class="p">(</span>
+    <span class="n">h5file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dic</span><span class="p">:</span> <span class="nb">dict</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;recursively save dictionary to hdf5 file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        h5file (h5py.File): h5py file object.</span>
+<span class="sd">        path (str): path to variable.</span>
+<span class="sd">        dic (dict): dictionary to be saved.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: save type not implemented.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">types</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">,</span>
+        <span class="nb">bytes</span><span class="p">,</span>
+        <span class="nb">float</span><span class="p">,</span>
+        <span class="nb">int</span><span class="p">,</span>
+        <span class="nb">bool</span><span class="p">,</span>
+        <span class="nb">list</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">int_</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">float_</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">str_</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dic</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Handle string data types</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">h5file</span><span class="p">[</span><span class="n">path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span>
+                    <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="n">string_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">item</span><span class="p">])</span>
+                    <span class="n">h5file</span><span class="p">[</span><span class="n">path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">string_array</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">h5file</span><span class="p">[</span><span class="n">path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">item</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span>
+                <span class="n">max_length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+                <span class="c1"># create array with max length</span>
+                <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">max_length</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="c1"># fill array with item</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)):</span>
+                    <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span> <span class="n">lengths</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">h5file</span><span class="p">[</span><span class="n">path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">array</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+                    <span class="c1"># Convert all items to strings and then to bytes</span>
+                    <span class="n">item2</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span>
+                    <span class="n">h5file</span><span class="p">[</span><span class="n">path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">item2</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Single item case</span>
+                    <span class="n">h5file</span><span class="p">[</span><span class="n">path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">string_</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">recursively_save_dict_contents_to_group</span><span class="p">(</span>
+                <span class="n">h5file</span><span class="p">,</span> <span class="n">path</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">item</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot save </span><span class="si">%s</span><span class="s2"> type&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="load_dict_from_hdf5">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.load_dict_from_hdf5">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_dict_from_hdf5</span><span class="p">(</span>
+    <span class="n">file_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">key_c</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;load dictionary from hdf5 file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_name (Union[Path, str]): complete path to the file.</span>
+<span class="sd">        key_c (Union[str, None], optional): specific key to be loaded from the</span>
+<span class="sd">            hdf5 file. If key_c is None, all the keys will be loaded.</span>
+<span class="sd">            Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: loaded dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5file</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">recursively_load_dict_contents_from_group</span><span class="p">(</span>
+            <span class="n">h5file</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">key_c</span><span class="o">=</span><span class="n">key_c</span>
+        <span class="p">)</span>
+        <span class="n">h5file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">dataset</span></div>
+
+
+
+<div class="viewcode-block" id="recursively_load_dict_contents_from_group">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.recursively_load_dict_contents_from_group">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">recursively_load_dict_contents_from_group</span><span class="p">(</span>
+    <span class="n">h5file</span><span class="p">:</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key_c</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;recursively load dictionary from hdf5 file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        h5file (h5py.File): h5py file object.</span>
+<span class="sd">        path (str): path to variable.</span>
+<span class="sd">        key_c (Union[str, None], optional): specific key to be loaded from the</span>
+<span class="sd">            hdf5 file. If key_c is None, all the keys will be loaded.</span>
+<span class="sd">            Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Loaded dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ans</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">h5file</span><span class="p">[</span><span class="n">path</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key_c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key_c</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">key_c</span> <span class="o">=</span> <span class="p">[</span><span class="n">key_c</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key_c</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">_hl</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+            <span class="c1"># ans[key] = item.value</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[:]</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[()]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">bytes</span><span class="p">):</span>
+                <span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">bytes</span><span class="p">):</span>
+                    <span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">]])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">_hl</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">Group</span><span class="p">):</span>
+            <span class="n">ans</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">recursively_load_dict_contents_from_group</span><span class="p">(</span>
+                <span class="n">h5file</span><span class="p">,</span> <span class="n">path</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ans</span></div>
+
+
+
+<div class="viewcode-block" id="create_geopandas_dataframe">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.create_geopandas_dataframe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_geopandas_dataframe</span><span class="p">(</span>
+    <span class="n">pandas_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">geometry_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">shape_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;line&quot;</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create geopandas dataframe from a pandas dataframe.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pandas_df (pd.DataFrame): Pandas dataframe.</span>
+<span class="sd">        geometry_columns (list): list of columns that hold the geometry.</span>
+<span class="sd">        shape_type (str, optional): geometry type. The options are &quot;point&quot; or</span>
+<span class="sd">            &quot;line&quot;. Defaults to &quot;line&quot;.</span>
+<span class="sd">        crs (str, optional): projection. Defaults to &quot;EPSG:4326&quot;.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: geometry type not implemented.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        gpd.GeoDataFrame: geopandas dataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Create geometry</span>
+    <span class="k">if</span> <span class="n">shape_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;point&quot;</span><span class="p">:</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span>
+            <span class="n">pandas_df</span><span class="p">[</span><span class="n">geometry_columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">pandas_df</span><span class="p">[</span><span class="n">geometry_columns</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">shape_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;line&quot;</span><span class="p">:</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">LineString</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xy</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">xy</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">pandas_df</span><span class="p">[</span><span class="n">geometry_columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">pandas_df</span><span class="p">[</span><span class="n">geometry_columns</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">shape_type</span><span class="si">}</span><span class="s2"> is not a valid type of geometry.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create geopandas dataframe</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">pandas_df</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">)</span>
+
+    <span class="c1"># Remove object columns</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">gdf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gdf</span></div>
+
+
+
+<div class="viewcode-block" id="read_gdb">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.filesManagement.read_gdb">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_gdb</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a layer from a geodatabase.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_path (Union[Path, str]): Path to the geodatabase.</span>
+<span class="sd">        layer (str): layer to be read.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        gpd.GeoDataFrame: geopandas dataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">shapefile</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;FileGDB&quot;</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">layer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">shapefile</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

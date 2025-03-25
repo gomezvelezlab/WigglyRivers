@@ -1,0 +1,956 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers.rivers.ReachExtraction &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../WigglyRivers.html">WigglyRivers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">WigglyRivers.rivers.ReachExtraction</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for WigglyRivers.rivers.ReachExtraction</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1">#</span>
+<span class="c1">#                       Coded by: Daniel Gonzalez-Duque</span>
+<span class="c1">#                               Last revised 2025-02-16</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">   This class extracts the complete reaches obtained with the model</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># -----------</span>
+<span class="c1"># Libraries</span>
+<span class="c1"># -----------</span>
+<span class="c1"># System Management</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">shell</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;ZMQInteractiveShell&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.notebook</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>  <span class="c1"># Jupyter notebook or qtconsole</span>
+    <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s2">&quot;TerminalInteractiveShell&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>  <span class="c1"># Terminal running IPython</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>  <span class="c1"># Other type (console, script, etc.)</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>  <span class="c1"># Probably standard Python interpreter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+<span class="c1"># Data Management</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">interpolate</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># MeanderCONUS Packages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">classExceptions</span> <span class="k">as</span> <span class="n">CE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">filesManagement</span> <span class="k">as</span> <span class="n">FM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">RiverFunctions</span> <span class="k">as</span> <span class="n">RF</span>
+
+<span class="c1"># Determine if we&#39;re running in a Jupyter notebook</span>
+
+<span class="c1"># ------------------</span>
+<span class="c1"># Logging</span>
+<span class="c1"># ------------------</span>
+<span class="c1"># Set logger</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">handlers</span><span class="o">=</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">()])</span>
+
+
+<span class="c1"># ------------------</span>
+<span class="c1"># Class</span>
+<span class="c1"># ------------------</span>
+<div class="viewcode-block" id="CompleteReachExtraction">
+<a class="viewcode-back" href="../../../WigglyRivers.rivers.html#WigglyRivers.rivers.ReachExtraction.CompleteReachExtraction">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CompleteReachExtraction</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class obtained meander information from the NHD dataset.</span>
+<span class="sd">    It works by loading the NHD geometry and using different methods</span>
+<span class="sd">    to obtain meander information.</span>
+
+<span class="sd">    The following are the available attributes</span>
+
+<span class="sd">    ===================== =====================================================</span>
+<span class="sd">    Attribute             Description</span>
+<span class="sd">    ===================== =====================================================</span>
+<span class="sd">    data                  Pandas dataframe with the NHD information.</span>
+<span class="sd">    comid_id              String with the name of the comid column.</span>
+<span class="sd">    logger                Logger object.</span>
+<span class="sd">    ===================== =====================================================</span>
+
+<span class="sd">    The following are the methods of the class.</span>
+
+<span class="sd">    ============================= =====================================================</span>
+<span class="sd">    Methods                       Description</span>
+<span class="sd">    ============================= =====================================================</span>
+<span class="sd">    load_coords                   Load coordinates from file.</span>
+<span class="sd">    map_complete_network          Map comid network from the headwaters to the terminal</span>
+<span class="sd">                                  nodes.</span>
+<span class="sd">    map_complete_network_down_up  Map the entire database. It will do</span>
+<span class="sd">                                  exploration from the terminal nodes to the</span>
+<span class="sd">                                  headwaters. Saving the information in each reach.</span>
+<span class="sd">    map_complete_network          Map comid network from the headwaters to the terminal</span>
+<span class="sd">    map_complete_reach            Map individual comid network from starting comid to</span>
+<span class="sd">    map_coordinates               Extract coordinates from the comid list.</span>
+<span class="sd">    ============================= =====================================================</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">comid_id</span><span class="o">=</span><span class="s2">&quot;nhdplusid&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class constructor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># ------------------------</span>
+        <span class="c1"># Logging</span>
+        <span class="c1"># ------------------------</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting logger </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># ------------------------</span>
+        <span class="c1"># Attribute management</span>
+        <span class="c1"># ------------------------</span>
+        <span class="c1"># Default data</span>
+        <span class="c1"># Path management</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># set headers to lower case</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comid_id</span> <span class="o">=</span> <span class="n">comid_id</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_loaded_coords</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Set index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">comid_id</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">huc_04</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="s2">&quot;huc04&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_format</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__save_formats</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">get_save_formats</span><span class="p">()</span>
+
+        <span class="c1"># Change parameters</span>
+        <span class="n">valid_kwargs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;save_format&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_kwargs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid keyword argument </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+        <span class="c1"># --------------------</span>
+        <span class="c1"># Data Management</span>
+        <span class="c1"># --------------------</span>
+        <span class="c1"># First create the base DataFrame with the essential columns</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;nhdplusid&quot;</span><span class="p">,</span> <span class="s2">&quot;startflag&quot;</span><span class="p">,</span> <span class="s2">&quot;within_waterbody&quot;</span><span class="p">]</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No within_waterbody column found&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;nhdplusid&quot;</span><span class="p">,</span> <span class="s2">&quot;startflag&quot;</span><span class="p">]</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># Set the index after copying to avoid modifying the original data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;nhdplusid&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Create a dictionary of column definitions with their data types</span>
+        <span class="n">column_definitions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;extracted_comid&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="s2">&quot;linking_comid&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span>
+            <span class="s2">&quot;huc12&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span>
+            <span class="s2">&quot;huc10&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span>
+            <span class="s2">&quot;huc08&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span>
+            <span class="s2">&quot;huc06&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span>
+            <span class="s2">&quot;huc04&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span>
+            <span class="s2">&quot;huc02&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">),</span>
+            <span class="s2">&quot;huc_n&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="s2">&quot;n_tributaries&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="s2">&quot;xm_m&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="s2">&quot;ym_m&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="s2">&quot;xup_m&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="s2">&quot;yup_m&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="s2">&quot;xdown_m&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+            <span class="s2">&quot;ydown_m&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Initialize all columns with proper data types and default values</span>
+        <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">dtype_series</span> <span class="ow">in</span> <span class="n">column_definitions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dtype_series</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                    <span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">dtype_series</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                    <span class="mf">0.0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># string type</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                    <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span>
+                <span class="p">)</span>
+
+        <span class="n">data_hw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="s2">&quot;startflag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">start_comids</span> <span class="o">=</span> <span class="n">data_hw</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extracted_comids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># ------------</span>
+        <span class="c1"># NHD Data</span>
+        <span class="c1"># ------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords_all</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span>
+
+    <span class="c1"># --------------------------</span>
+    <span class="c1"># Get functions</span>
+    <span class="c1"># --------------------------</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;save format of the files&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_format</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;logger for debbuging&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span>
+
+    <span class="c1"># --------------------------</span>
+    <span class="c1"># Set functions</span>
+    <span class="c1"># --------------------------</span>
+    <span class="nd">@save_format</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_format</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set save format of the files&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">save_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__save_formats</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;format &#39;</span><span class="si">{</span><span class="n">save_format</span><span class="si">}</span><span class="s2">&#39; not implemented. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Use any of these formats &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__save_formats</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">CE</span><span class="o">.</span><span class="n">FormatError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;format &#39;</span><span class="si">{</span><span class="n">save_format</span><span class="si">}</span><span class="s2">&#39; not implemented. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Use formats &#39;p&#39;, &#39;mat&#39;, &#39;json&#39;, &#39;txt&#39;, or&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;csv&#39;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting save_format to &#39;</span><span class="si">{</span><span class="n">save_format</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_format</span> <span class="o">=</span> <span class="n">save_format</span>
+
+    <span class="c1"># --------------------------</span>
+    <span class="c1"># Core functions</span>
+    <span class="c1"># --------------------------</span>
+<div class="viewcode-block" id="CompleteReachExtraction.load_coords">
+<a class="viewcode-back" href="../../../WigglyRivers.rivers.html#WigglyRivers.rivers.ReachExtraction.CompleteReachExtraction.load_coords">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_coords</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DESCRIPTION:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            Load coordinates from a file.</span>
+<span class="sd">        ________________________________________________________________________</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            :param path_coords: str</span>
+<span class="sd">                Path to the coordinates file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading coordinates from </span><span class="si">{</span><span class="n">path_coords</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords_all</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="n">path_coords</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_loaded_coords</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="CompleteReachExtraction.map_complete_network">
+<a class="viewcode-back" href="../../../WigglyRivers.rivers.html#WigglyRivers.rivers.ReachExtraction.CompleteReachExtraction.map_complete_network">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_complete_network</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">start_comids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">huc_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="n">max_num_comids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cut_comid_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">do_not_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DESCRIPTION:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            Map comid network from the headwaters to the terminal nodes.</span>
+<span class="sd">        ________________________________________________________________________</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            :param start_comids: list, np.ndarray, Default None</span>
+<span class="sd">                List of comids to be extracted.</span>
+<span class="sd">            :param huc_number: int, Default 4</span>
+<span class="sd">                HUC number to be extracted.</span>
+<span class="sd">            :param max_num_comids: int, Default None</span>
+<span class="sd">                Maximum number of comids to be extracted.</span>
+<span class="sd">            :param cut_comid_number: int,</span>
+<span class="sd">                Minimum number of comids contained in a reach to be extracted</span>
+<span class="sd">            :param do_not_overlap: bool, Default False</span>
+<span class="sd">                If True, the comids will not overlap.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Include map newtwork as a function to huc level</span>
+        <span class="k">if</span> <span class="n">start_comids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Extract headwaters</span>
+            <span class="n">data_hw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="s2">&quot;startflag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># data_hw = data_hw.sort_values(by=&#39;totdasqkm&#39;)</span>
+            <span class="n">data_hw</span> <span class="o">=</span> <span class="n">data_hw</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;dnhydroseq&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">start_comids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data_hw</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start_comids</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start_comids</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="n">start_comids</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_comids</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">max_num_comids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">max_num_comids</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">start_comids</span><span class="p">)</span>
+
+        <span class="c1"># Look for the ones that have been not extracted</span>
+        <span class="n">linking_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="p">[</span><span class="s2">&quot;startflag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="p">]</span>
+
+        <span class="n">start_comids</span> <span class="o">=</span> <span class="n">start_comids</span><span class="p">[</span><span class="n">linking_start</span><span class="p">[</span><span class="s2">&quot;extracted_comid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Loop over the comids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extracted_comids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">max_num_comids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">max_num_comids</span>
+        <span class="n">i_data</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">i_extracted</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">i_data</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">start_comids</span><span class="p">):</span>
+            <span class="n">time_1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">i_extracted</span> <span class="o">&gt;=</span> <span class="n">max_num_comids</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">start_comid</span> <span class="o">=</span> <span class="n">start_comids</span><span class="p">[</span><span class="n">i_data</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting comid </span><span class="si">{</span><span class="n">start_comid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">comid_network</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_complete_reach</span><span class="p">(</span>
+                <span class="n">start_comid</span><span class="p">,</span> <span class="n">huc_number</span><span class="p">,</span> <span class="n">do_not_overlap</span><span class="o">=</span><span class="n">do_not_overlap</span>
+            <span class="p">)</span>
+            <span class="c1"># Check if the comid_network is less than the cut_comid_number</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">comid_network</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">cut_comid_number</span><span class="p">:</span>
+                <span class="n">i_data</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start_comid</span><span class="p">,</span> <span class="s2">&quot;extracted_comid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">comid_network</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">=</span> <span class="n">comid_network</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extracted_comids</span><span class="p">[</span><span class="n">i_extracted</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_comid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start_comid</span><span class="p">,</span> <span class="s2">&quot;extracted_comid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">i_extracted</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">time_1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Time elapsed: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">i_extracted</span><span class="p">]</span><span class="si">}</span><span class="s2"> min&quot;</span><span class="p">)</span>
+            <span class="n">i_data</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">i_extracted</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="n">arg_sort_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[</span><span class="n">arg_sort_l</span><span class="p">])</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">comid_network</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span><span class="p">[</span><span class="s2">&quot;comid_start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="n">arg_sort_l</span><span class="p">])</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="CompleteReachExtraction.map_complete_network_down_up">
+<a class="viewcode-back" href="../../../WigglyRivers.rivers.html#WigglyRivers.rivers.ReachExtraction.CompleteReachExtraction.map_complete_network_down_up">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_complete_network_down_up</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">huc_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DESCRIPTION:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            Map comid network from the headwaters to the terminal nodes.</span>
+<span class="sd">        ________________________________________________________________________</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            :param huc_number: int, Default 4</span>
+<span class="sd">                HUC number to be extracted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract headwaters</span>
+        <span class="n">data_term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="s2">&quot;terminalfl&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">terminal_paths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="s2">&quot;terminalpa&quot;</span><span class="p">])</span>
+        <span class="c1"># data_term = data_term.sort_values(by=&#39;totdasqkm&#39;, ascending=False)</span>
+        <span class="c1"># start_comids = np.array(data_term.index)</span>
+        <span class="c1"># terminal_paths = data_term[&#39;terminalpa&#39;].values</span>
+
+        <span class="c1"># Fill values of comid</span>
+        <span class="n">comid_table</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">)</span>
+        <span class="n">c_comid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc12&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;reachcode&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc10&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc10&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc08&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc08&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc06&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc06&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc04&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc04&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc02&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc02&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;xm_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;xm_m&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;ym_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;ym_m&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;xup_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;xup_m&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;yup_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;yup_m&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;xdown_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;xdown_m&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;ydown_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;ydown_m&quot;</span>
+        <span class="p">]</span>
+
+        <span class="n">huc_n_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;huc</span><span class="si">{</span><span class="n">huc_number</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span><span class="p">[</span><span class="s2">&quot;huc_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">huc_n_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="nb">str</span><span class="p">(</span><span class="n">huc_n</span><span class="p">):</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">huc_n</span> <span class="ow">in</span> <span class="n">huc_n_value</span><span class="p">})</span>
+
+        <span class="n">time1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">huc_n</span> <span class="ow">in</span> <span class="n">huc_n_value</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">huc_number</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+                <span class="n">key_val</span> <span class="o">=</span> <span class="s2">&quot;reachcode&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">key_val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;huc</span><span class="si">{</span><span class="n">huc_number</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># Extract only values of the huc_n</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="n">key_val</span><span class="p">]</span> <span class="o">==</span> <span class="n">huc_n</span><span class="p">]</span>
+            <span class="n">terminal_paths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">subset</span><span class="p">[</span><span class="s2">&quot;terminalpa&quot;</span><span class="p">])</span>
+            <span class="c1"># pbar = tqdm(</span>
+            <span class="c1">#     total=len(terminal_paths),</span>
+            <span class="c1">#     desc=f&quot;Ext. huc {huc_n}&quot;,</span>
+            <span class="c1"># )</span>
+            <span class="k">for</span> <span class="n">i_tp</span><span class="p">,</span> <span class="n">tp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">terminal_paths</span><span class="p">):</span>
+                <span class="c1"># Extract comids that include the terminal path</span>
+                <span class="n">comid_table</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="n">subset</span><span class="p">[</span><span class="s2">&quot;terminalpa&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">tp</span><span class="p">]</span>
+                <span class="c1"># Sort by drinage area</span>
+                <span class="n">comid_table</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+                    <span class="n">by</span><span class="o">=</span><span class="s2">&quot;totdasqkm&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+                <span class="c1"># Remove where streamorde and streamcalc are different</span>
+                <span class="n">comid_table</span> <span class="o">=</span> <span class="n">comid_table</span><span class="p">[</span>
+                    <span class="n">comid_table</span><span class="p">[</span><span class="s2">&quot;streamorde&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">comid_table</span><span class="p">[</span><span class="s2">&quot;streamcalc&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="c1"># Extract comids that have not been extracted</span>
+                <span class="n">linking_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_table</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">comid_table</span> <span class="o">=</span> <span class="n">comid_table</span><span class="p">[</span>
+                    <span class="n">linking_network</span><span class="p">[</span><span class="s2">&quot;extracted_comid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="p">]</span>
+
+                <span class="c1"># Get starting comid</span>
+                <span class="n">st</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">index</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">st</span> <span class="o">=</span> <span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c1"># self.logger.info(f&quot;Extracting comid {st}&quot;)</span>
+                <span class="n">comid_table</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span>
+                    <span class="n">subset</span><span class="p">[</span><span class="s2">&quot;streamorde&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">subset</span><span class="p">[</span><span class="s2">&quot;streamcalc&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="n">comid_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recursive_upstream_exploration</span><span class="p">(</span>
+                    <span class="n">st</span><span class="p">,</span> <span class="n">comid_table</span><span class="p">,</span> <span class="n">huc_number</span><span class="o">=</span><span class="n">huc_number</span>
+                <span class="p">)</span>
+                <span class="c1"># pbar.update(i_tp)</span>
+
+            <span class="c1"># pbar.close()</span>
+
+            <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">comid_network</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <span class="n">total_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+            <span class="c1"># pbar = tqdm(total=len(subset), desc=&quot; Ext. Extra Nodes&quot;)</span>
+            <span class="k">while</span> <span class="n">total_length</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">):</span>
+                <span class="n">linking_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">linking_network</span> <span class="o">=</span> <span class="n">linking_network</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="p">[</span><span class="s2">&quot;extracted_comid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">linking_network</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">comid_table</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">linking_network</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="c1"># sort by drainage area</span>
+                <span class="n">comid_table</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+                    <span class="n">by</span><span class="o">=</span><span class="s2">&quot;totdasqkm&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+                <span class="c1"># Remove where streamorde and streamcalc are different</span>
+                <span class="n">comid_table</span> <span class="o">=</span> <span class="n">comid_table</span><span class="p">[</span>
+                    <span class="n">comid_table</span><span class="p">[</span><span class="s2">&quot;streamorde&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">comid_table</span><span class="p">[</span><span class="s2">&quot;streamcalc&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="c1"># Get starting comid</span>
+                <span class="n">st</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">index</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">st</span> <span class="o">=</span> <span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c1"># self.logger.info(f&quot;Extracting comid {st}&quot;)</span>
+                <span class="n">comid_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recursive_upstream_exploration</span><span class="p">(</span>
+                    <span class="n">st</span><span class="p">,</span> <span class="n">comid_table</span><span class="p">,</span> <span class="n">huc_number</span><span class="o">=</span><span class="n">huc_number</span>
+                <span class="p">)</span>
+                <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">comid_network</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+                <span class="n">total_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+                <span class="c1"># pbar.update(total_length)</span>
+
+            <span class="c1"># pbar.close()</span>
+
+            <span class="c1"># # Clean duplicated comids</span>
+            <span class="c1"># for key, value in comid_network.items():</span>
+            <span class="c1">#     indices = np.unique(value, return_index=True)[1]</span>
+            <span class="c1">#     comid_network[key] = list(np.array(value)[indices])</span>
+
+            <span class="c1"># Convert network from terminal to start</span>
+            <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">comid_network</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <span class="n">arg_sort_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">comid_network_2</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span> <span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">comid_network</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span><span class="p">[</span><span class="n">huc_n</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_network_2</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">comid_network_2</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span><span class="p">[</span><span class="n">huc_n</span><span class="p">][</span><span class="s2">&quot;comid_start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)[</span><span class="n">arg_sort_l</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comid_network</span><span class="p">[</span><span class="n">huc_n</span><span class="p">][</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[</span><span class="n">arg_sort_l</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">return</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_recursive_upstream_exploration</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">start_comid</span><span class="p">,</span> <span class="n">comid_table</span><span class="p">,</span> <span class="n">comid_network</span><span class="o">=</span><span class="p">{},</span> <span class="n">huc_number</span><span class="o">=</span><span class="mi">4</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DESCRIPTION:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            Recursive exploration of the upstream comids.</span>
+<span class="sd">        ________________________________________________________________________</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            :param start_comid: int</span>
+<span class="sd">                Starting comid to be extracted.</span>
+<span class="sd">            :param comid_table: pd.DataFrame,</span>
+<span class="sd">                Dataframe with the comid table.</span>
+<span class="sd">            :param comid_network: dict, Default None</span>
+<span class="sd">                directory to save the comid network (for recursive).</span>
+<span class="sd">            :param huc_number: int, Default 4</span>
+<span class="sd">                HUC number to be extracted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c_comid</span> <span class="o">=</span> <span class="n">start_comid</span>
+        <span class="c1"># if huc_number == 12:</span>
+        <span class="c1">#     ini_huc = comid_table.loc[c_comid, &#39;reachcode&#39;]</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     ini_huc = comid_table.loc[c_comid, f&#39;huc{huc_number:02d}&#39;]</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">comid_table</span><span class="p">):</span>
+            <span class="c1"># Update lists</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc_n&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">huc_number</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;extracted_comid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">c_comid_pos</span> <span class="o">=</span> <span class="n">c_comid</span>
+            <span class="c1"># --------------------------</span>
+            <span class="c1"># Get from nodes</span>
+            <span class="c1"># --------------------------</span>
+            <span class="n">from_i</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;fromnode&quot;</span><span class="p">]</span>
+            <span class="c1"># --------------------------</span>
+            <span class="c1"># Extract new comid</span>
+            <span class="c1"># --------------------------</span>
+            <span class="n">c_comid</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">comid_table</span><span class="p">[</span><span class="s2">&quot;tonode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">from_i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;n_tributaries&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_comid</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_comid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c1"># add linking</span>
+            <span class="c1"># Search for highest stream order</span>
+            <span class="n">so</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;streamorde&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">so</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">so</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">so</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">da</span> <span class="o">=</span> <span class="n">comid_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;totdasqkm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                    <span class="n">arg_max_so</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">arg_max_so</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">so</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">arg_max_so</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">so</span><span class="p">)</span>
+
+            <span class="c1"># Add start comid to the network</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">comid_network</span><span class="p">[</span><span class="n">start_comid</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">comid_network</span><span class="p">[</span><span class="n">start_comid</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_comid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">comid_network</span><span class="p">[</span><span class="n">start_comid</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c_comid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">c_comid</span> <span class="o">!=</span> <span class="n">c_comid_pos</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;linking_comid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">c_comid_pos</span>
+                    <span class="p">)</span>
+                <span class="n">c_comid</span> <span class="o">=</span> <span class="n">c_comid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># If there are more than one comid, add the one with the highest drainage area</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_comid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">comid_network</span><span class="p">[</span><span class="n">start_comid</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c_comid</span><span class="p">[</span><span class="n">arg_max_so</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">c_comid_j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c_comid</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">c_comid_j</span> <span class="o">!=</span> <span class="n">c_comid_pos</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid_j</span><span class="p">,</span> <span class="s2">&quot;linking_comid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">c_comid_pos</span>
+                        <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="n">arg_max_so</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">comid_network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recursive_upstream_exploration</span><span class="p">(</span>
+                        <span class="n">c_comid</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">comid_table</span><span class="p">,</span> <span class="n">comid_network</span>
+                    <span class="p">)</span>
+                    <span class="c1"># Test recursive to see if the other network exists</span>
+                    <span class="c1"># try:</span>
+                    <span class="c1">#     comid_network = self._recursive_upstream_exploration(</span>
+                    <span class="c1">#         c_comid[j], comid_table, comid_network)</span>
+                    <span class="c1"># except KeyError:</span>
+                    <span class="c1">#     continue</span>
+
+                <span class="n">c_comid</span> <span class="o">=</span> <span class="n">c_comid</span><span class="p">[</span><span class="n">arg_max_so</span><span class="p">]</span>
+
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">comid_network</span>
+
+<div class="viewcode-block" id="CompleteReachExtraction.map_complete_reach">
+<a class="viewcode-back" href="../../../WigglyRivers.rivers.html#WigglyRivers.rivers.ReachExtraction.CompleteReachExtraction.map_complete_reach">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_complete_reach</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">start_comid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">huc_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="n">do_not_overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DESCRIPTION:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            Separate complete reach comid from the ToNode and FromNode</span>
+<span class="sd">            values</span>
+<span class="sd">        ________________________________________________________________________</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            :param start_comid: str,</span>
+<span class="sd">                Start comid value.</span>
+<span class="sd">            :param huc_number: int, Default 4</span>
+<span class="sd">                Path of the current reach.</span>
+<span class="sd">            :param do_not_overlap: bool, Default True</span>
+<span class="sd">                If True, the reach extracted will not overlap with existing</span>
+<span class="sd">                reaches extracted previously.</span>
+<span class="sd">            :return reach: list,</span>
+<span class="sd">                List of comids for the values</span>
+<span class="sd">            :rtype reach: Union[list, np.ndarray]</span>
+<span class="sd">            :return huc_n: list,</span>
+<span class="sd">                List of huc numbers for the values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">comid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">huc_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start_comid</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;huc</span><span class="si">{</span><span class="n">huc_number</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+
+        <span class="n">data_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;huc</span><span class="si">{</span><span class="n">huc_number</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">huc_n</span>
+        <span class="p">]</span>
+
+        <span class="n">c_comid_prev</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">start_comid</span><span class="p">)</span>
+        <span class="n">c_comid</span> <span class="o">=</span> <span class="n">start_comid</span>
+        <span class="n">comid_network</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">comid</span><span class="p">))</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">i_overlap</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_overlapping</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Maximum number of overlaps</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># self.logger.info(f&quot;{i} {start_comid} Iterating comid {c_comid}&quot;)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;huc_n&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">huc_number</span>
+            <span class="c1"># --------------------------</span>
+            <span class="c1"># Get to and from nodes</span>
+            <span class="c1"># --------------------------</span>
+            <span class="n">to_i</span> <span class="o">=</span> <span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;tonode&quot;</span><span class="p">]</span>
+            <span class="c1"># --------------------------</span>
+            <span class="c1"># Save Data</span>
+            <span class="c1"># --------------------------</span>
+            <span class="n">comid_network</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_comid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;extracted_comid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="c1"># --------------------------</span>
+            <span class="c1"># Extract new comid</span>
+            <span class="c1"># --------------------------</span>
+            <span class="n">c_comid</span> <span class="o">=</span> <span class="n">data_info</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">data_info</span><span class="p">[</span><span class="s2">&quot;fromnode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">to_i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c_comid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">c_comid</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_comid</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_comid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">c_comid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">c_comid_prev</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># --------------------------</span>
+                <span class="c1"># Iterate over the network</span>
+                <span class="c1"># --------------------------</span>
+                <span class="c1"># self.logger.info(f&quot;{i} {start_comid} Next comid {c_comid[0]}&quot;)</span>
+                <span class="n">c_comid</span> <span class="o">=</span> <span class="n">c_comid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid_prev</span><span class="p">,</span> <span class="s2">&quot;linking_comid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">c_comid</span>
+                <span class="p">)</span>
+                <span class="n">c_comid_prev</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">c_comid</span><span class="p">)</span>
+            <span class="c1"># --------------------------</span>
+            <span class="c1"># Check overlapping</span>
+            <span class="c1"># --------------------------</span>
+            <span class="k">if</span> <span class="n">do_not_overlap</span><span class="p">:</span>
+                <span class="c1"># Check three overlapping comids</span>
+                <span class="n">linking</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linking_network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">c_comid</span><span class="p">,</span> <span class="s2">&quot;linking_comid&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">linking</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># Sum in the overlapping</span>
+                    <span class="n">i_overlap</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">i_overlap</span> <span class="o">==</span> <span class="n">max_overlapping</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">i_overlap</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">break</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">comid_network</span> <span class="o">=</span> <span class="n">comid_network</span><span class="p">[</span><span class="n">comid_network</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">comid_network</span> <span class="o">=</span> <span class="n">comid_network</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">comid_network</span> <span class="o">=</span> <span class="n">comid_network</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">comid_network</span><span class="p">,</span> <span class="n">huc_n</span></div>
+
+
+<div class="viewcode-block" id="CompleteReachExtraction.map_coordinates">
+<a class="viewcode-back" href="../../../WigglyRivers.rivers.html#WigglyRivers.rivers.ReachExtraction.CompleteReachExtraction.map_coordinates">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comid_list</span><span class="p">,</span> <span class="n">file_coords</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DESCRIPTION:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            Map Coordinates and additional data to the comid_list</span>
+<span class="sd">        ________________________________________________________________________</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            :param comid_list: list,</span>
+<span class="sd">                List with comid values</span>
+<span class="sd">            :param file_coords: str,</span>
+<span class="sd">                File name where the coordiantes will be saved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">timeg</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">comid_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">comid_list</span><span class="p">)</span>
+        <span class="n">huc_04s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_list</span><span class="p">,</span> <span class="s2">&quot;huc04&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">slope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_list</span><span class="p">,</span> <span class="s2">&quot;slope&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">so_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_list</span><span class="p">,</span> <span class="s2">&quot;streamorde&quot;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">da_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_list</span><span class="p">,</span> <span class="s2">&quot;totdasqkm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">da_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">comid_list</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">da_inc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_list</span><span class="p">,</span> <span class="s2">&quot;areasqkm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">da_inc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">comid_list</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">da_hw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_list</span><span class="p">,</span> <span class="s2">&quot;hwnodesqkm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">da_hw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">comid_list</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">start_comid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_list</span><span class="p">,</span> <span class="s2">&quot;startflag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># lengthkm = self.data_info.loc[comid_list, &#39;lengthkm&#39;].values</span>
+        <span class="c1"># cm to m</span>
+        <span class="n">max_elev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_info</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_list</span><span class="p">,</span> <span class="s2">&quot;maxelevsmo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="mi">100</span>
+        <span class="c1"># Generate Loop</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">huc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">huc_04</span><span class="p">:</span>
+            <span class="c1"># Load coordinates</span>
+            <span class="n">time1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">c_all</span> <span class="o">=</span> <span class="n">comid_list</span><span class="p">[</span><span class="n">huc_04s</span> <span class="o">==</span> <span class="n">huc</span><span class="p">]</span>
+            <span class="n">indices_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">c_all</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">c_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">c_all</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">indices_c</span><span class="p">)])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_loaded_coords</span><span class="p">:</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords_all</span><span class="p">)</span>
+                <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_all</span><span class="p">]</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Load File</span>
+                <span class="k">if</span> <span class="n">file_coords</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;hdf5&quot;</span><span class="p">:</span>
+                    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_all</span><span class="p">]</span>
+                    <span class="n">coordinates</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_coords</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">)</span>
+                    <span class="n">coordinates</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">coordinates</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_coords</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">length_reach</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">RF</span><span class="o">.</span><span class="n">get_reach_distances</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_all</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">length_reach</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">length_reach</span><span class="p">])</span>
+            <span class="n">cum_length_reach</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">length_reach</span><span class="p">)</span>
+            <span class="c1"># print(&#39;loading coordinates&#39;)</span>
+            <span class="c1"># utl.toc(time1)</span>
+            <span class="c1"># -----------------</span>
+            <span class="c1"># Get coordinates</span>
+            <span class="c1"># -----------------</span>
+            <span class="c1"># append coordinates</span>
+            <span class="n">time1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_all</span><span class="p">]</span>
+            <span class="n">xx</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_all</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_all</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">xx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">indices</span><span class="p">)])</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">yy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">indices</span><span class="p">)])</span>
+            <span class="c1"># print(&#39;appending coordinates&#39;)</span>
+            <span class="c1"># utl.toc(time1)</span>
+            <span class="c1"># ------------------------------------</span>
+            <span class="c1"># Calculate distance along the river</span>
+            <span class="c1"># ------------------------------------</span>
+            <span class="n">time1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="c1"># Check if the complete reach is lower than 3</span>
+            <span class="n">x_coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">RF</span><span class="o">.</span><span class="n">get_reach_distances</span><span class="p">(</span><span class="n">x_coord</span><span class="p">)</span>
+            <span class="c1"># print(&#39;calculating distance along the river&#39;)</span>
+            <span class="c1"># utl.toc(time1)</span>
+            <span class="c1"># ------------------------------------</span>
+            <span class="c1"># Calculate Drainage Area</span>
+            <span class="c1"># ------------------------------------</span>
+            <span class="n">time1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="c1"># Calculate accumulated DA</span>
+            <span class="n">da_initial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">da_t</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Set initial DA</span>
+            <span class="k">if</span> <span class="n">start_comid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">da_hw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">da_initial</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_hw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">da_inc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">da_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">da_initial</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_inc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">da_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">da_initial</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">da_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cond</span> <span class="o">=</span> <span class="n">da_t</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                    <span class="n">cond</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">da_t</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">da_t</span><span class="p">[</span><span class="n">da_t</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">da_t</span><span class="p">[</span><span class="n">cond</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                        <span class="n">da_initial</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">da_t</span><span class="p">[</span><span class="n">da_t</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-5</span>
+                        <span class="n">da_initial</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">da_inc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">da_inc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">da_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">da_initial</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">da_inc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">da_initial</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Calculate rest of the DA</span>
+            <span class="n">da_initial</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">da_t</span>
+
+            <span class="c1"># Interpolate values</span>
+            <span class="n">intp</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span>
+                <span class="n">cum_length_reach</span><span class="p">,</span> <span class="n">da_initial</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span>
+            <span class="p">)</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">intp</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+            <span class="c1"># Calculate Width with Wilkerson et al. (2014)</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">RF</span><span class="o">.</span><span class="n">calculate_channel_width</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+            <span class="c1"># print(&#39;calculating DA and width&#39;)</span>
+            <span class="c1"># utl.toc(time1)</span>
+            <span class="c1"># -----------------------------</span>
+            <span class="c1"># Additional values</span>
+            <span class="c1"># -----------------------------</span>
+            <span class="c1"># Add variables</span>
+            <span class="n">time1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">comid_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_all</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">comid_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">comid_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">indices</span><span class="p">)])</span>
+            <span class="n">so</span> <span class="o">=</span> <span class="p">[</span><span class="n">so_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_all</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">so</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">so</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">indices</span><span class="p">)])</span>
+            <span class="c1"># print(&#39;adding variables&#39;)</span>
+            <span class="c1"># utl.toc(time1)</span>
+            <span class="c1"># -----------------------------</span>
+            <span class="c1"># Include Elevation</span>
+            <span class="c1"># -----------------------------</span>
+            <span class="n">time1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="c1"># Store data</span>
+            <span class="n">time1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="c1"># print(&#39;storing data&#39;)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;comid&quot;</span><span class="p">:</span> <span class="n">comid_values</span><span class="p">,</span>
+                <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+                <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span>
+                <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span>
+                <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span>
+                <span class="s2">&quot;so&quot;</span><span class="p">:</span> <span class="n">so</span><span class="p">,</span>
+                <span class="s2">&quot;da_sqkm&quot;</span><span class="p">:</span> <span class="n">da</span><span class="p">,</span>
+                <span class="s2">&quot;w_m&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;comid&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># print(&#39;storing data&#39;)</span>
+            <span class="c1"># utl.toc(time1)</span>
+
+        <span class="c1"># print(&#39;Time general&#39;)</span>
+        <span class="c1"># utl.toc(timeg)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

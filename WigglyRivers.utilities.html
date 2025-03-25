@@ -1,0 +1,1027 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers.utilities package &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=fc837d61"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="WigglyRivers.wavelet_tree package" href="WigglyRivers.wavelet_tree.html" />
+    <link rel="prev" title="WigglyRivers.tests package" href="WigglyRivers.tests.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="WigglyRivers.html">WigglyRivers package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="WigglyRivers.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.nhd_extract.html">WigglyRivers.nhd_extract package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.rivers.html">WigglyRivers.rivers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.tests.html">WigglyRivers.tests package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">WigglyRivers.utilities package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.utilities.Logger">WigglyRivers.utilities.Logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.utilities.classExceptions">WigglyRivers.utilities.classExceptions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.utilities.filesManagement">WigglyRivers.utilities.filesManagement module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.utilities.general_functions">WigglyRivers.utilities.general_functions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.utilities.graphs">WigglyRivers.utilities.graphs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.utilities.interactivePlotly">WigglyRivers.utilities.interactivePlotly module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.utilities.utilities">WigglyRivers.utilities.utilities module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.utilities">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.wavelet_tree.html">WigglyRivers.wavelet_tree package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#module-WigglyRivers.AppFiles">WigglyRivers.AppFiles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#module-WigglyRivers.VersionControl">WigglyRivers.VersionControl module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#module-WigglyRivers">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="WigglyRivers.html">WigglyRivers package</a></li>
+      <li class="breadcrumb-item active">WigglyRivers.utilities package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/WigglyRivers.utilities.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="wigglyrivers-utilities-package">
+<h1>WigglyRivers.utilities package<a class="headerlink" href="#wigglyrivers-utilities-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-WigglyRivers.utilities.Logger">
+<span id="wigglyrivers-utilities-logger-module"></span><h2>WigglyRivers.utilities.Logger module<a class="headerlink" href="#module-WigglyRivers.utilities.Logger" title="Link to this heading"></a></h2>
+<hr class="docutils" />
+<blockquote>
+<div><dl class="simple">
+<dt>DESCRIPTION:</dt><dd><p>This class acts as the logger for all the classes</p>
+</dd>
+</dl>
+</div></blockquote>
+<hr class="docutils" />
+<dl class="py class">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.Logger.Logger">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.Logger.</span></span><span class="sig-name descname"><span class="pre">Logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">console</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'DEBUG'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'%(asctime)s[%(levelname)s]</span> <span class="pre">%(funcName)s:</span> <span class="pre">%(message)s'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/Logger.html#Logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.Logger.Logger" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.Logger.Logger.close_logger">
+<span class="sig-name descname"><span class="pre">close_logger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/Logger.html#Logger.close_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.Logger.Logger.close_logger" title="Link to this definition"></a></dt>
+<dd><p>Close current logger</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.Logger.Logger.critical">
+<span class="sig-name descname"><span class="pre">critical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/Logger.html#Logger.critical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.Logger.Logger.critical" title="Link to this definition"></a></dt>
+<dd><p>Logger message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.Logger.Logger.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/Logger.html#Logger.debug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.Logger.Logger.debug" title="Link to this definition"></a></dt>
+<dd><p>Logger message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.Logger.Logger.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/Logger.html#Logger.error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.Logger.Logger.error" title="Link to this definition"></a></dt>
+<dd><p>Logger message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.Logger.Logger.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/Logger.html#Logger.info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.Logger.Logger.info" title="Link to this definition"></a></dt>
+<dd><p>Logger message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – message</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.Logger.Logger.logger">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#WigglyRivers.utilities.Logger.Logger.logger" title="Link to this definition"></a></dt>
+<dd><p>logger for debbuging</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.Logger.Logger.set_logger">
+<span class="sig-name descname"><span class="pre">set_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">console</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'%(asctime)s[%(levelname)s]</span> <span class="pre">%(funcName)s:</span> <span class="pre">%(message)s'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/Logger.html#Logger.set_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.Logger.Logger.set_logger" title="Link to this definition"></a></dt>
+<dd><p>Setting logging</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>console</strong> (<em>bool</em><em>, </em><em>optional</em>) – show logger information in the terminal.
+Defaults to False.</p></li>
+<li><p><strong>file</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pl.Path</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – Export logger
+information to file. If None no file will be created.
+Defaults to None.</p></li>
+<li><p><strong>level</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>, </em><em>optional</em>) – level of logger, the levels are:
+DEBUG, CRITICAL, ERROR, WARNING, INFO, NOTSET. Defaults to “DEBUG”.</p></li>
+<li><p><strong>format</strong> (<em>str</em><em>, </em><em>optional</em>) – format for logger message.
+Defaults to “%(asctime)s[%(levelname)s] %(funcName)s: %(message)s”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.Logger.Logger.warning">
+<span class="sig-name descname"><span class="pre">warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/Logger.html#Logger.warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.Logger.Logger.warning" title="Link to this definition"></a></dt>
+<dd><p>Logger message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – message</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-WigglyRivers.utilities.classExceptions">
+<span id="wigglyrivers-utilities-classexceptions-module"></span><h2>WigglyRivers.utilities.classExceptions module<a class="headerlink" href="#module-WigglyRivers.utilities.classExceptions" title="Link to this heading"></a></h2>
+<p>The classExceptions are included in this script.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.classExceptions.FileNotFoundError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.classExceptions.</span></span><span class="sig-name descname"><span class="pre">FileNotFoundError</span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/classExceptions.html#FileNotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.classExceptions.FileNotFoundError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.classExceptions.FormatError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.classExceptions.</span></span><span class="sig-name descname"><span class="pre">FormatError</span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/classExceptions.html#FormatError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.classExceptions.FormatError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.classExceptions.HUCNotFoundError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.classExceptions.</span></span><span class="sig-name descname"><span class="pre">HUCNotFoundError</span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/classExceptions.html#HUCNotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.classExceptions.HUCNotFoundError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.classExceptions.SmallMeanderError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.classExceptions.</span></span><span class="sig-name descname"><span class="pre">SmallMeanderError</span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/classExceptions.html#SmallMeanderError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.classExceptions.SmallMeanderError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.classExceptions.VariableNotFoundError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.classExceptions.</span></span><span class="sig-name descname"><span class="pre">VariableNotFoundError</span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/classExceptions.html#VariableNotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.classExceptions.VariableNotFoundError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.classExceptions.deprecated">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.classExceptions.</span></span><span class="sig-name descname"><span class="pre">deprecated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">replacement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/classExceptions.html#deprecated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.classExceptions.deprecated" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-WigglyRivers.utilities.filesManagement">
+<span id="wigglyrivers-utilities-filesmanagement-module"></span><h2>WigglyRivers.utilities.filesManagement module<a class="headerlink" href="#module-WigglyRivers.utilities.filesManagement" title="Link to this heading"></a></h2>
+<p>The functions given on this package allow the user to save data in different
+formats</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.NpEncoder">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">NpEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#NpEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.NpEncoder" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">JSONEncoder</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.NpEncoder.default">
+<span class="sig-name descname"><span class="pre">default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#NpEncoder.default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.NpEncoder.default" title="Link to this definition"></a></dt>
+<dd><p>Implement this method in a subclass such that it returns
+a serializable object for <code class="docutils literal notranslate"><span class="pre">o</span></code>, or calls the base implementation
+(to raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>).</p>
+<p>For example, to support arbitrary iterators, you could
+implement default like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="c1"># Let the base class default method raise the TypeError</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.create_geopandas_dataframe">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">create_geopandas_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pandas_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'line'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'EPSG:4326'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#create_geopandas_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.create_geopandas_dataframe" title="Link to this definition"></a></dt>
+<dd><p>Create geopandas dataframe from a pandas dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pandas_df</strong> (<em>pd.DataFrame</em>) – Pandas dataframe.</p></li>
+<li><p><strong>geometry_columns</strong> (<em>list</em>) – list of columns that hold the geometry.</p></li>
+<li><p><strong>shape_type</strong> (<em>str</em><em>, </em><em>optional</em>) – geometry type. The options are “point” or
+“line”. Defaults to “line”.</p></li>
+<li><p><strong>crs</strong> (<em>str</em><em>, </em><em>optional</em>) – projection. Defaults to “EPSG:4326”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – geometry type not implemented.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>geopandas dataframe.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>gpd.GeoDataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.get_load_formats">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">get_load_formats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#get_load_formats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.get_load_formats" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.get_save_formats">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">get_save_formats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#get_save_formats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.get_save_formats" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.load_data">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pandas_dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.load_data" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Load data in any of the following formats:</dt><dd><p>.p, .pickle, .mat, .json, .txt, .csv, .shp, .dbf, .hdf5, .feather</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>Union</em><em>[</em><em>Path</em><em>, </em><em>str</em><em>]</em>) – file to be loaded.</p></li>
+<li><p><strong>pandas_dataframe</strong> (<em>bool</em><em>, </em><em>optional</em>) – Load the data as PandasDataframe.
+If False, the data will be loaded as a dictionary. Defaults to False.</p></li>
+<li><p><strong>*args</strong> – Additional arguments for each loading function.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments for each loading function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>TypeError</strong> – file_path must be a string or Path.</p></li>
+<li><p><strong>CE.FormatError</strong> – format not implemented.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Loaded data.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Union[dict, pd.DataFrame]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.load_dict_from_hdf5">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">load_dict_from_hdf5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#load_dict_from_hdf5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.load_dict_from_hdf5" title="Link to this definition"></a></dt>
+<dd><p>load dictionary from hdf5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>Union</em><em>[</em><em>Path</em><em>, </em><em>str</em><em>]</em>) – complete path to the file.</p></li>
+<li><p><strong>key_c</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – specific key to be loaded from the
+hdf5 file. If key_c is None, all the keys will be loaded.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>loaded dictionary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.read_gdb">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">read_gdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#read_gdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.read_gdb" title="Link to this definition"></a></dt>
+<dd><p>Read a layer from a geodatabase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>Union</em><em>[</em><em>Path</em><em>, </em><em>str</em><em>]</em>) – Path to the geodatabase.</p></li>
+<li><p><strong>layer</strong> (<em>str</em>) – layer to be read.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>geopandas dataframe.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>gpd.GeoDataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.recursively_load_dict_contents_from_group">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">recursively_load_dict_contents_from_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#recursively_load_dict_contents_from_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.recursively_load_dict_contents_from_group" title="Link to this definition"></a></dt>
+<dd><p>recursively load dictionary from hdf5 file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5file</strong> (<em>h5py.File</em>) – h5py file object.</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – path to variable.</p></li>
+<li><p><strong>key_c</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – specific key to be loaded from the
+hdf5 file. If key_c is None, all the keys will be loaded.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loaded dictionary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.recursively_save_dict_contents_to_group">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">recursively_save_dict_contents_to_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#recursively_save_dict_contents_to_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.recursively_save_dict_contents_to_group" title="Link to this definition"></a></dt>
+<dd><p>recursively save dictionary to hdf5 file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h5file</strong> (<em>h5py.File</em>) – h5py file object.</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – path to variable.</p></li>
+<li><p><strong>dic</strong> (<em>dict</em>) – dictionary to be saved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – save type not implemented.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.save_data">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">save_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#save_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.save_data" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Save data in any of the following formats:</dt><dd><p>.p, .pickle, .mat, .json, .txt, .csv, .shp, .hdf5, .feather</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – Data to be saved in dictionary format.</p></li>
+<li><p><strong>path_output</strong> (<em>Union</em><em>[</em><em>Path</em><em>, </em><em>str</em><em>]</em>) – Path where the data will be saved.</p></li>
+<li><p><strong>file_name</strong> (<em>str</em>) – File name.</p></li>
+<li><p><strong>*args</strong> – Additional arguments for each saving function.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments for each saving function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>CE.FormatError</strong> – Format not implemented.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.filesManagement.save_dict_to_hdf5">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.filesManagement.</span></span><span class="sig-name descname"><span class="pre">save_dict_to_hdf5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/filesManagement.html#save_dict_to_hdf5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.filesManagement.save_dict_to_hdf5" title="Link to this definition"></a></dt>
+<dd><p>save dictionary to hdf5 file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dic</strong> (<em>dict</em>) – Dictionary to be saved.</p></li>
+<li><p><strong>file_name</strong> (<em>str</em>) – Complete path to the file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-WigglyRivers.utilities.general_functions">
+<span id="wigglyrivers-utilities-general-functions-module"></span><h2>WigglyRivers.utilities.general_functions module<a class="headerlink" href="#module-WigglyRivers.utilities.general_functions" title="Link to this heading"></a></h2>
+<p>The functions given on this package allow the user to manipulate and create
+functions from the computer.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.general_functions.circumcenter">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.general_functions.</span></span><span class="sig-name descname"><span class="pre">circumcenter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Delaunay</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/general_functions.html#circumcenter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.general_functions.circumcenter" title="Link to this definition"></a></dt>
+<dd><p>Compute the circumcenter of a triangle. The point where the
+perpendicular bisectors of the sides of the triangle intersect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tri</strong> (<em>Delaunay</em>) – Delaunay triangulation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>circumcenter of the triangle.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.general_functions.convolution_smoother">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.general_functions.</span></span><span class="sig-name descname"><span class="pre">convolution_smoother</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/general_functions.html#convolution_smoother"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.general_functions.convolution_smoother" title="Link to this definition"></a></dt>
+<dd><p>Calculates a mean smoothing by convolution.</p>
+<p>This function is based
+on the __convolution_smoother__ of pynumdiff, created by
+Van Breugel et al. (2022).</p>
+<p>Van Breugel, F. V., Liu, Y., Brunton, B. W., &amp; Kutz, J. N. (2022).
+PyNumDiff: A Python package for numerical differentiation of noisy
+time-series data. Journal of Open Source Software, 7(71), 4078.
+<a class="reference external" href="https://doi.org/10.21105/joss.04078">https://doi.org/10.21105/joss.04078</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – 1xN, Coordinates to differentiate</p></li>
+<li><p><strong>kernel</strong> (<em>np.ndarray</em>) – 1xwindow_size, Kernel used in the convolution.</p></li>
+<li><p><strong>iter</strong> (<em>int</em>) – Number of iterations &gt;= 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>coordinates smoothed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.general_functions.gaussian_function">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.general_functions.</span></span><span class="sig-name descname"><span class="pre">gaussian_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/general_functions.html#gaussian_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.general_functions.gaussian_function" title="Link to this definition"></a></dt>
+<dd><p>Gaussian function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – array of values to evaluate the function.</p></li>
+<li><p><strong>sigma</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>float</em><em>]</em>) – array of values of the standard
+deviation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>array of values of the gaussian function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[float, np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.general_functions.savgol_filter">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.general_functions.</span></span><span class="sig-name descname"><span class="pre">savgol_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savgol_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/general_functions.html#savgol_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.general_functions.savgol_filter" title="Link to this definition"></a></dt>
+<dd><p>This function performs the savitzky golay filter with a Gaussian filter.</p>
+<p>It is based in the functions presented in the pynumdiff package, created
+by Van Breugel et al. (2022).</p>
+<p>Van Breugel, F. V., Liu, Y., Brunton, B. W., &amp; Kutz, J. N. (2022).
+PyNumDiff: A Python package for numerical differentiation of noisy
+time-series data. Journal of Open Source Software, 7(71), 4078.
+<a class="reference external" href="https://doi.org/10.21105/joss.04078">https://doi.org/10.21105/joss.04078</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – coordinates to filter.</p></li>
+<li><p><strong>ds</strong> (<em>float</em>) – delta in distance.</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – order of the polynomial in the savgol filter.</p></li>
+<li><p><strong>savgol_window</strong> (<em>int</em>) – savgol filter window. It has to be an odd number
+if an even number is given the function will sum one to the value.</p></li>
+<li><p><strong>kernel</strong> (<em>np.ndarray</em>) – Gaussian kernel to apply additional smoothing to
+the function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if savgol_window is smaller than order.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>smoothed values of the coordinates.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-WigglyRivers.utilities.graphs">
+<span id="wigglyrivers-utilities-graphs-module"></span><h2>WigglyRivers.utilities.graphs module<a class="headerlink" href="#module-WigglyRivers.utilities.graphs" title="Link to this heading"></a></h2>
+<p>The functions here are used to plot Meanders</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.MidPointLogNorm">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">MidPointLogNorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">midpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#MidPointLogNorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.MidPointLogNorm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">LogNorm</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.MidPointNorm">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">MidPointNorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">midpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#MidPointNorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.MidPointNorm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Normalize</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.plot_meander_matplotlib">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">plot_meander_matplotlib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_river</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_river</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_meander</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_meander</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#plot_meander_matplotlib"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.plot_meander_matplotlib" title="Link to this definition"></a></dt>
+<dd><p>plot meander in the river.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_river</strong> (<em>np.ndarray</em>) – x coordinates of the river.</p></li>
+<li><p><strong>y_river</strong> (<em>np.ndarray</em>) – y coordinates of the river.</p></li>
+<li><p><strong>x_meander</strong> (<em>np.ndarray</em>) – x coordinates of the meander.</p></li>
+<li><p><strong>y_meander</strong> (<em>np.ndarray</em>) – y coordinates of the meander.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguments to be passed to the ax.plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure of the plot.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plt.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.plot_node">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">plot_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Axes</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#plot_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.plot_node" title="Link to this definition"></a></dt>
+<dd><p>plot node in the planimetry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>plt.Axes</em>) – axes of the plot.</p></li>
+<li><p><strong>node</strong> (<em>Node</em>) – Node object.</p></li>
+<li><p><strong>x_var</strong> (<em>str</em>) – variable name of the x coordinate.</p></li>
+<li><p><strong>y_var</strong> (<em>str</em>) – variable name of the y coordinate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Axes of the plot.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plt.Axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.plot_river_spectrum_compiled">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">plot_river_spectrum_compiled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">river</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_significant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Axes</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#plot_river_spectrum_compiled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.plot_river_spectrum_compiled" title="Link to this definition"></a></dt>
+<dd><p>plot river spectrum.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>river</strong> (<a class="reference internal" href="WigglyRivers.rivers.html#WigglyRivers.rivers.RiversNetwork.RiverTransect" title="WigglyRivers.rivers.RiversNetwork.RiverTransect"><em>RiverTransect</em></a>) – RiverTransect object.</p></li>
+<li><p><strong>only_significant</strong> (<em>bool</em><em>, </em><em>optional</em>) – flag to show only significant
+meanders. Defaults to True.</p></li>
+<li><p><strong>idx_data</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – index data to plot.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure and Axes of the plot.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[plt.Figure, plt.Axes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.plot_river_with_plotly">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">plot_river_with_plotly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">river</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meanders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curvature_side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">so</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapbox_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'esri:102003'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'original'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#plot_river_with_plotly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.plot_river_with_plotly" title="Link to this definition"></a></dt>
+<dd><p>plot the river transect with the meanders and the tree using plotly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>river</strong> (<a class="reference internal" href="WigglyRivers.rivers.html#WigglyRivers.rivers.RiversNetwork.RiverTransect" title="WigglyRivers.rivers.RiversNetwork.RiverTransect"><em>RiverTransect</em></a>) – River transect object.</p></li>
+<li><p><strong>tree</strong> (<em>bool</em><em>, </em><em>optional</em>) – flag to plot the tree. Defaults to False.</p></li>
+<li><p><strong>meanders</strong> (<em>bool</em><em>, </em><em>optional</em>) – flag to plot meanders. Defaults to False.</p></li>
+<li><p><strong>curvature_side</strong> (<em>int</em><em>, </em><em>optional</em>) – curveture side of meanders to plot.
+This parameter can be 1 or -1. Defaults to 1.</p></li>
+<li><p><strong>so</strong> (<em>int</em><em>, </em><em>optional</em>) – Stream order to plot. Only used if data_source is
+‘smooth’. If 0 all stream orders will be plotted. Defaults to 0.</p></li>
+<li><p><strong>mapbox_token</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – mapbox token. This will
+allow to plot the figure with the satellite image at the background.
+Defaults to None.</p></li>
+<li><p><strong>projection</strong> (<em>str</em><em>, </em><em>optional</em>) – projection of the current data. This is
+needed to convert the data to WGS84 for mapbox plotting.
+Defaults to “esri:102003”.</p></li>
+<li><p><strong>data_source</strong> (<em>str</em><em>, </em><em>optional</em>) – data source use for plotting.
+Defaults to “original”.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.plot_rivers_matplotlib">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">plot_rivers_matplotlib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rivers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'resample'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#plot_rivers_matplotlib"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.plot_rivers_matplotlib" title="Link to this definition"></a></dt>
+<dd><p>plot the rivers using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rivers</strong> (<a class="reference internal" href="WigglyRivers.rivers.html#WigglyRivers.rivers.RiversNetwork.RiverDatasets" title="WigglyRivers.rivers.RiversNetwork.RiverDatasets"><em>RiverDatasets</em></a>) – RiverDatasets object.</p></li>
+<li><p><strong>comids</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>list</em><em>, </em><em>np.ndarray</em><em>]</em>) – list of comids to be plotted.</p></li>
+<li><p><strong>data_source</strong> (<em>str</em><em>, </em><em>optional</em>) – data source of the coordinates.
+The options are ‘original’ and ‘resample’. Defaults to “resample”.</p></li>
+<li><p><strong>**kwargs</strong> – additional arguments to be passed to the ax.plot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>figure and axes of the plot.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[plt.Figure, plt.Axes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.plot_rivers_plotly">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">plot_rivers_plotly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rivers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'resample'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapbox_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_crs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'epsg:4326'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#plot_rivers_plotly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.plot_rivers_plotly" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.plot_tree_from_anytree">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">plot_tree_from_anytree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_curvature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree_scales</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peaks_gws</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_river</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_removed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_by_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#plot_tree_from_anytree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.plot_tree_from_anytree" title="Link to this definition"></a></dt>
+<dd><p>plot the river, the curvature, and the wavelet response using anytree
+tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – x coordinates of the river.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – y coordinates of the river.</p></li>
+<li><p><strong>s_curvature</strong> (<em>np.ndarray</em>) – Arc length of the river.</p></li>
+<li><p><strong>wavelength</strong> (<em>np.ndarray</em>) – Wavelength of the wavelet response.</p></li>
+<li><p><strong>wave</strong> (<em>np.ndarray</em>) – power of the wavelet response.</p></li>
+<li><p><strong>tree_scales</strong> (<em>dict</em>) – treescales object.</p></li>
+<li><p><strong>gws</strong> (<em>np.ndarray</em>) – generalized wavelet spectrum.</p></li>
+<li><p><strong>peaks_gws</strong> (<em>np.ndarray</em>) – peaks of the generalized wavelet spectrum.</p></li>
+<li><p><strong>id_river</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>float</em><em>, </em><em>str</em><em>]</em>) – river id.</p></li>
+<li><p><strong>coi</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – cone of influence.
+Defaults to None.</p></li>
+<li><p><strong>tree_ids</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – tree ids to plot.
+Defaults to None.</p></li>
+<li><p><strong>node_ids</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – node ids to plot.
+Defaults to None.</p></li>
+<li><p><strong>min_s</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – cut in this spectrum.
+Defaults to None.</p></li>
+<li><p><strong>include_removed</strong> (<em>bool</em><em>, </em><em>optional</em>) – include removed branches.
+Defaults to False.</p></li>
+<li><p><strong>scale_by_width</strong> (<em>bool</em><em>, </em><em>optional</em>) – scale distance by width.
+Defaults to False.</p></li>
+<li><p><strong>title</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – title of the figure.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – node_ids must be None if more than one tree_id</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>figure and Axes of the plot.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple[plt.Figure, plt.Axes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.graphs.plot_wavelet_system">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.graphs.</span></span><span class="sig-name descname"><span class="pre">plot_wavelet_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_curvature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwt_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwt_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zc_lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zc_sign</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ml_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Spectral'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meanders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curvature_side</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/graphs.html#plot_wavelet_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.graphs.plot_wavelet_system" title="Link to this definition"></a></dt>
+<dd><p>This function plots the river, the curvature, and the wavelet response.
+It will also plot the zero-crossings and the peaks of the wavelet response,
+and the tree that shows the location of the meanders with dots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – x coordinates of the river.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – y coordinates of the river.</p></li>
+<li><p><strong>c</strong> (<em>np.ndarray</em>) – Curvature of the river.</p></li>
+<li><p><strong>s_curvature</strong> (<em>np.ndarray</em>) – Arc length of the river.</p></li>
+<li><p><strong>cwt_matrix</strong> (<em>np.ndarray</em>) – Wavelet response of the river.</p></li>
+<li><p><strong>scales</strong> (<em>np.ndarray</em>) – Scales of the wavelet response.</p></li>
+<li><p><strong>cwt_period</strong> (<em>np.ndarray</em>) – Period of the wavelet response.</p></li>
+<li><p><strong>zc_lines</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – zero-crossing lines of
+the wavelet response. If None this lines will not be plotted.
+Defaults to None.</p></li>
+<li><p><strong>zc_sign</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – sign of the zero-crossing
+lines of the wavelet response. If None this lines will not be
+plotted. Defaults to None.</p></li>
+<li><p><strong>poly</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – Polygons that delimits the
+region in the wavelet response. If None this regions will not be
+plotted. Defaults to None.</p></li>
+<li><p><strong>ml_tree</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – Connection between the
+nodes of the tree. If None this nodes will not be plotted.
+Defaults to None.</p></li>
+<li><p><strong>peak_row</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – Row of the peaks of the
+wavelet response for each polygon region. Defaults to None.</p></li>
+<li><p><strong>peak_col</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – Columns of the peaks of
+the wavelet response for each plygon region. Defaults to None.</p></li>
+<li><p><strong>xc</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – x coordinates of the tree nodes
+projected to the planimetry. Defaults to None.</p></li>
+<li><p><strong>yc</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – y coordinated of the tree nodes
+projected to the planimetry. Defaults to None.</p></li>
+<li><p><strong>regions</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>list</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – regions of the
+wavelet response. Defaults to None.</p></li>
+<li><p><strong>save</strong> (<em>bool</em><em>, </em><em>optional</em>) – flag to save the figure. If False the figure will
+not be saved. Defaults to False.</p></li>
+<li><p><strong>path</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pl.Path</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – path to save the figure.
+This parameter will only be used if save is True. Defaults to None.</p></li>
+<li><p><strong>name</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – name of the figure.
+This parameter will only be used if save is True. Defaults to None.</p></li>
+<li><p><strong>cmap</strong> (<em>Union</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – color map of the wavelet response function.
+Defaults to “Spectral”.</p></li>
+<li><p><strong>meanders</strong> (<em>Union</em><em>[</em><em>np.ndarray</em><em>, </em><em>list</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – meander x and y
+coordinates. Defaults to None.</p></li>
+<li><p><strong>curvature_side</strong> (<em>int</em><em>, </em><em>optional</em>) – side of the curvature to plot. This
+parameter will only be used if meanders is not None. The parameter
+can be 1 or -1. Defaults to 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>figure and axes of the plot.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[plt.Figure, plt.Axes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-WigglyRivers.utilities.interactivePlotly">
+<span id="wigglyrivers-utilities-interactiveplotly-module"></span><h2>WigglyRivers.utilities.interactivePlotly module<a class="headerlink" href="#module-WigglyRivers.utilities.interactivePlotly" title="Link to this heading"></a></h2>
+<p>The functions here are used to have the ineractive plots for the Meander
+Characterization App.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.interactivePlotly.check_meander_id">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.interactivePlotly.</span></span><span class="sig-name descname"><span class="pre">check_meander_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meander_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/interactivePlotly.html#check_meander_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.interactivePlotly.check_meander_id" title="Link to this definition"></a></dt>
+<dd><p>Check meander ids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>meander_ids</strong> (<em>list</em>) – Meander IDs.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new meander id.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.interactivePlotly.create_hover_template_meander">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.interactivePlotly.</span></span><span class="sig-name descname"><span class="pre">create_hover_template_meander</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meander_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/interactivePlotly.html#create_hover_template_meander"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.interactivePlotly.create_hover_template_meander" title="Link to this definition"></a></dt>
+<dd><p>create hover template for meanders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>meander_id</strong> (<em>int</em>) – Meander ID</p></li>
+<li><p><strong>river_obj</strong> (<em>Union</em><em>[</em><em>None</em><em>, </em><a class="reference internal" href="WigglyRivers.rivers.html#WigglyRivers.rivers.RiversNetwork.RiverTransect" title="WigglyRivers.rivers.RiversNetwork.RiverTransect"><em>RiverTransect</em></a><em>]</em><em>, </em><em>optional</em>) – RiverTransect object.
+Defaults to Union[None, RiverTransect].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>hover template.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.interactivePlotly.load_meanders">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.interactivePlotly.</span></span><span class="sig-name descname"><span class="pre">load_meanders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FigureWidget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapbox_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'epsg:4326'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FigureWidget</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/interactivePlotly.html#load_meanders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.interactivePlotly.load_meanders" title="Link to this definition"></a></dt>
+<dd><p>load current selection of meanders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>go.FigureWidget</em>) – plotly figure widget.</p></li>
+<li><p><strong>river_obj</strong> (<a class="reference internal" href="WigglyRivers.rivers.html#WigglyRivers.rivers.RiversNetwork.RiverTransect" title="WigglyRivers.rivers.RiversNetwork.RiverTransect"><em>RiverTransect</em></a>) – RiverTransect object.</p></li>
+<li><p><strong>mapbox_token</strong> (<em>Union</em><em>[</em><em>bool</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – mapbox token. This is needed
+to have the satellite image in the background. If None the plot will
+have a white background. Defaults to None.</p></li>
+<li><p><strong>current_crs</strong> (<em>str</em><em>, </em><em>optional</em>) – Current projection of the data. This is
+needed to reproject the data a WGS84 for mapbox plotting.
+Defaults to “epsg:4326”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure widget of the interactive plot.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>go.FigureWidget</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.interactivePlotly.plot_interactive_river_plain">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.interactivePlotly.</span></span><span class="sig-name descname"><span class="pre">plot_interactive_river_plain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clicked_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meander_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inflection_flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapbox_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'epsg:4326'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FigureWidget</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/interactivePlotly.html#plot_interactive_river_plain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.interactivePlotly.plot_interactive_river_plain" title="Link to this definition"></a></dt>
+<dd><p>This function plots an interactive plot to detect meanders in a river
+planform. This function can only be used in a Jupyter Notebook.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>np.ndarray</em><em>]</em>) – x coordinates of the river.</p></li>
+<li><p><strong>y</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>np.ndarray</em><em>]</em>) – y coordinates of the river.</p></li>
+<li><p><strong>clicked_points</strong> (<em>list</em><em>, </em><em>optional</em>) – list of clicked points. Defaults to [].</p></li>
+<li><p><strong>meander_ids</strong> (<em>list</em><em>, </em><em>optional</em>) – meander ids for the clicked points.
+Defaults to [].</p></li>
+<li><p><strong>river_obj</strong> (<em>Union</em><em>[</em><a class="reference internal" href="WigglyRivers.rivers.html#WigglyRivers.rivers.RiversNetwork.RiverTransect" title="WigglyRivers.rivers.RiversNetwork.RiverTransect"><em>RiverTransect</em></a><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – RiverTransect object.
+Defaults to None.</p></li>
+<li><p><strong>inflection_flag</strong> (<em>bool</em><em>, </em><em>optional</em>) – flag to plot infection points.
+Defaults to False.</p></li>
+<li><p><strong>mapbox_token</strong> (<em>Union</em><em>[</em><em>bool</em><em>, </em><em>None</em><em>]</em><em>, </em><em>optional</em>) – mapbox token. This is needed
+to have the satellite image in the background. If None the plot will
+have a white background. Defaults to None.</p></li>
+<li><p><strong>current_crs</strong> (<em>str</em><em>, </em><em>optional</em>) – Current projection of the data. This is
+needed to reproject the data a WGS84 for mapbox plotting.
+Defaults to “epsg:4326”.</p></li>
+<li><p><strong>zoom</strong> (<em>int</em><em>, </em><em>optional</em>) – Zoom of the plot. Defaults to 5.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure widget of the interactive plot.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>go.FigureWidget</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-WigglyRivers.utilities.utilities">
+<span id="wigglyrivers-utilities-utilities-module"></span><h2>WigglyRivers.utilities.utilities module<a class="headerlink" href="#module-WigglyRivers.utilities.utilities" title="Link to this heading"></a></h2>
+<p>The functions given on this package allow the user to manipulate and create
+functions from the computer.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.utilities.cr_folder">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.utilities.</span></span><span class="sig-name descname"><span class="pre">cr_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/utilities.html#cr_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.utilities.cr_folder" title="Link to this definition"></a></dt>
+<dd><p>Create a folder in a specific path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>Union</em><em>[</em><em>pl.Path</em><em>, </em><em>str</em><em>]</em>) – Path to create the folder.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.utilities.fix_widget_error">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.utilities.</span></span><span class="sig-name descname"><span class="pre">fix_widget_error</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/utilities.html#fix_widget_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.utilities.fix_widget_error" title="Link to this definition"></a></dt>
+<dd><p>Fix FigureWidget - ‘mapbox._derived’ Value Error.
+Adopted from:</p>
+<p><a class="reference external" href="https://github.com/plotly/plotly.py/issues/2570#issuecomment-738735816">https://github.com/plotly/plotly.py/issues/2570#issuecomment-738735816</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.utilities.get_folders">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.utilities.</span></span><span class="sig-name descname"><span class="pre">get_folders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/WigglyRivers/utilities/utilities.html#get_folders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.utilities.get_folders" title="Link to this definition"></a></dt>
+<dd><p>get folders in a specific path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>Union</em><em>[</em><em>pl.Path</em><em>, </em><em>str</em><em>]</em>) – get folders in a specific path.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of folders in the path.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.utilities.toc">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.utilities.</span></span><span class="sig-name descname"><span class="pre">toc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/utilities.html#toc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.utilities.toc" title="Link to this definition"></a></dt>
+<dd><p>print the time of execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time1</strong> (<em>float</em>) – time when execution started given by time.time().</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.utilities.utilities.unzip_file">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.utilities.utilities.</span></span><span class="sig-name descname"><span class="pre">unzip_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/utilities/utilities.html#unzip_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.utilities.utilities.unzip_file" title="Link to this definition"></a></dt>
+<dd><p>unzip a file to a specific path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>zip_file</strong> (<em>Union</em><em>[</em><em>pl.Path</em><em>, </em><em>str</em><em>]</em>) – Path to the zip file.</p></li>
+<li><p><strong>path_output</strong> (<em>Union</em><em>[</em><em>pl.Path</em><em>, </em><em>str</em><em>]</em>) – Path to extract the zip file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-WigglyRivers.utilities">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-WigglyRivers.utilities" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="WigglyRivers.tests.html" class="btn btn-neutral float-left" title="WigglyRivers.tests package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="WigglyRivers.wavelet_tree.html" class="btn btn-neutral float-right" title="WigglyRivers.wavelet_tree package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

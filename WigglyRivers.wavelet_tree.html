@@ -1,0 +1,1552 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers.wavelet_tree package &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=fc837d61"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="WigglyRivers.utilities package" href="WigglyRivers.utilities.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="WigglyRivers.html">WigglyRivers package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="WigglyRivers.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.nhd_extract.html">WigglyRivers.nhd_extract package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.rivers.html">WigglyRivers.rivers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.tests.html">WigglyRivers.tests package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="WigglyRivers.utilities.html">WigglyRivers.utilities package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">WigglyRivers.wavelet_tree package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.wavelet_tree.TreeScale">WigglyRivers.wavelet_tree.TreeScale module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.wavelet_tree.WaveletTreeFunctions">WigglyRivers.wavelet_tree.WaveletTreeFunctions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.wavelet_tree.waveletFunctions">WigglyRivers.wavelet_tree.waveletFunctions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-WigglyRivers.wavelet_tree">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#module-WigglyRivers.AppFiles">WigglyRivers.AppFiles module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#module-WigglyRivers.VersionControl">WigglyRivers.VersionControl module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="WigglyRivers.html#module-WigglyRivers">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="WigglyRivers.html">WigglyRivers package</a></li>
+      <li class="breadcrumb-item active">WigglyRivers.wavelet_tree package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/WigglyRivers.wavelet_tree.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="wigglyrivers-wavelet-tree-package">
+<h1>WigglyRivers.wavelet_tree package<a class="headerlink" href="#wigglyrivers-wavelet-tree-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-WigglyRivers.wavelet_tree.TreeScale">
+<span id="wigglyrivers-wavelet-tree-treescale-module"></span><h2>WigglyRivers.wavelet_tree.TreeScale module<a class="headerlink" href="#module-WigglyRivers.wavelet_tree.TreeScale" title="Link to this heading"></a></h2>
+<p>Creation of tree scales class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.TreeScale.</span></span><span class="sig-name descname"><span class="pre">RiverTreeScales</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is the basic form of rivers.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>uid</p></td>
+<td><p>Unique identifier</p></td>
+</tr>
+<tr class="row-odd"><td><p>trees</p></td>
+<td><p>Dictionary of trees</p></td>
+</tr>
+<tr class="row-even"><td><p>tree_ids</p></td>
+<td><p>List of tree ids</p></td>
+</tr>
+<tr class="row-odd"><td><p>metrics</p></td>
+<td><p>List of metrics</p></td>
+</tr>
+<tr class="row-even"><td><p>metrics_in_name</p></td>
+<td><p>List of metrics in name</p></td>
+</tr>
+</tbody>
+</table>
+<p>The following are the methods of the class.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Methods</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>scale_coordinates</p></td>
+<td><p>Scale coordinates by a given value</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.add_parameter_to_nodes">
+<span class="sig-name descname"><span class="pre">add_parameter_to_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.add_parameter_to_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.add_parameter_to_nodes" title="Link to this definition"></a></dt>
+<dd><p>Add paramter to node</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.build_trees_from_tree_scales_dict">
+<span class="sig-name descname"><span class="pre">build_trees_from_tree_scales_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree_scales</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.build_trees_from_tree_scales_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.build_trees_from_tree_scales_dict" title="Link to this definition"></a></dt>
+<dd><p>Build trees from tree scales dictionary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.compile_database">
+<span class="sig-name descname"><span class="pre">compile_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.compile_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.compile_database" title="Link to this definition"></a></dt>
+<dd><p>Compile current trees databases to a single table</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.create_connectivity_matrix">
+<span class="sig-name descname"><span class="pre">create_connectivity_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.create_connectivity_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.create_connectivity_matrix" title="Link to this definition"></a></dt>
+<dd><p>Create connectivity matrixrows and columns denote node IDs</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.filter_nodes">
+<span class="sig-name descname"><span class="pre">filter_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.filter_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.filter_nodes" title="Link to this definition"></a></dt>
+<dd><p>Filter nodes by key and value</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.load_tree">
+<span class="sig-name descname"><span class="pre">load_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.load_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.load_tree" title="Link to this definition"></a></dt>
+<dd><p>Load tree dictionary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.load_trees_dict">
+<span class="sig-name descname"><span class="pre">load_trees_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trees_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.load_trees_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.load_trees_dict" title="Link to this definition"></a></dt>
+<dd><p>Load data from a trees dictionary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.prune">
+<span class="sig-name descname"><span class="pre">prune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sinuosity'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.prune"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.prune" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.save_tree">
+<span class="sig-name descname"><span class="pre">save_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tree.p'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.save_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.save_tree" title="Link to this definition"></a></dt>
+<dd><p>Save tree dictionary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.save_tree_figure">
+<span class="sig-name descname"><span class="pre">save_tree_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_img</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tree.png'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.save_tree_figure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.save_tree_figure" title="Link to this definition"></a></dt>
+<dd><p>Save tree figure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.select_node">
+<span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.select_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.select_node" title="Link to this definition"></a></dt>
+<dd><p>Select node with node_id</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.update_database">
+<span class="sig-name descname"><span class="pre">update_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/TreeScale.html#RiverTreeScales.update_database"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.TreeScale.RiverTreeScales.update_database" title="Link to this definition"></a></dt>
+<dd><p>Update database</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-WigglyRivers.wavelet_tree.WaveletTreeFunctions">
+<span id="wigglyrivers-wavelet-tree-wavelettreefunctions-module"></span><h2>WigglyRivers.wavelet_tree.WaveletTreeFunctions module<a class="headerlink" href="#module-WigglyRivers.wavelet_tree.WaveletTreeFunctions" title="Link to this heading"></a></h2>
+<p>These functions are based on Vermeulen et al. (2016) Meander tree generation</p>
+<blockquote>
+<div><p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.calculate_cwt">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">calculate_cwt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">curvature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DOG'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#calculate_cwt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.calculate_cwt" title="Link to this definition"></a></dt>
+<dd><section id="description">
+<h3>Description:<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>This function uses package created by Predybaylo (2014), modified by
+von Papen (2018), and is based on the MATLAB package created by Torrence
+and Compo (1998).</p>
+<p>References:</p>
+<p>Torrence, C., &amp; Compo, G. P. (1998). A Practical Guide to Wavelet
+Analysis. Bulletin of the American Meteorological Society, 79(1), 61–78.
+<a class="reference external" href="https://doi.org/10.1175/1520-0477(1998">https://doi.org/10.1175/1520-0477(1998</a>)079&lt;0061:APGTWA&gt;2.0.CO;2</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="args">
+<h3>Args:<a class="headerlink" href="#args" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param curvature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Curvature of the river.</p>
+</dd>
+<dt class="field-even">param ds<span class="colon">:</span></dt>
+<dd class="field-even"><p>float,
+Spatial resolution of the curvature.</p>
+</dd>
+<dt class="field-odd">param pad<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int,
+pad the time series with zeros, 1 or 0.</p>
+</dd>
+<dt class="field-even">param dj<span class="colon">:</span></dt>
+<dd class="field-even"><p>float,
+spacing between discrete scales, 1/4 or 1/8.</p>
+</dd>
+<dt class="field-odd">param s0<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float,
+smallest scale of the wavelet, 2*dt or 1*dt.</p>
+</dd>
+<dt class="field-even">param j1<span class="colon">:</span></dt>
+<dd class="field-even"><p>float,
+number of scales minus one, 7/4 or 3/2.</p>
+</dd>
+<dt class="field-odd">param mother<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str,
+mother wavelet function, can be ‘DOG’, ‘MORLET’, or ‘PAUL’.</p>
+</dd>
+<dt class="field-even">param m<span class="colon">:</span></dt>
+<dd class="field-even"><p>int,
+order of the derivative of the Gaussian, 2 or 4.</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>wave: real values of the wavelet transform.
+period: period of the wavelet.
+scales: scales of the wavelet.
+coi: cone of influence.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.calculate_meander_shape">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">calculate_meander_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meander_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#calculate_meander_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.calculate_meander_shape" title="Link to this definition"></a></dt>
+<dd><section id="id1">
+<h3>Description:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Calculate the meander flatness and skewness using equation (7) and (8)
+from Vermulen et al. (2016).</p>
+<p>This function is based on the matlab code by Vermulen et al. (2016)</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<section id="id2">
+<h3>Args:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param wave<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Waveform array.</p>
+</dd>
+<dt class="field-even">param wavelength<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray,
+Period array.</p>
+</dd>
+<dt class="field-odd">param peak_row<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Peak row array.</p>
+</dd>
+<dt class="field-even">param peak_col<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray,
+Peak column array.</p>
+</dd>
+<dt class="field-odd">param meander_id<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Meander id array.</p>
+</dd>
+<dt class="field-even">param bounds<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray,
+Bounds array.</p>
+</dd>
+<dt class="field-odd">param scale<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Scale array.</p>
+</dd>
+<dt class="field-even">param ds<span class="colon">:</span></dt>
+<dd class="field-even"><p>float,
+Sampling distance.</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sk_val, fl_val</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.check_conn">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">check_conn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#check_conn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.check_conn" title="Link to this definition"></a></dt>
+<dd><section id="id3">
+<h3>Description:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Check if the connection matrix is valid.</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h3>Args:<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param conn<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Connection matrix</p>
+</dd>
+<dt class="field-even">type conn<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>conn</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.clean_tree">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">clean_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meander_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#clean_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.clean_tree" title="Link to this definition"></a></dt>
+<dd><section id="id5">
+<h3>Description:<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Remove all nodes from the tree with scales smaller than the meander
+scale.</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id6">
+<h3>Args:<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param conn<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Connection matrix</p>
+</dd>
+<dt class="field-even">type conn<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param meander_id<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Meander indices</p>
+</dd>
+<dt class="field-even">type meander_id<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.detect_meanders">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">detect_meanders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#detect_meanders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.detect_meanders" title="Link to this definition"></a></dt>
+<dd><section id="id7">
+<h3>Description:<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Detect meanders in a wavelet transform from generated tree.</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id8">
+<h3>Args:<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param wave<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Wavelet transform</p>
+</dd>
+<dt class="field-even">type wave<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param conn<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Connection matrix</p>
+</dd>
+<dt class="field-even">type conn<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_row<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Row indices of the peaks</p>
+</dd>
+<dt class="field-even">type peak_row<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_col<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Column indices of the peaks</p>
+</dd>
+<dt class="field-even">type peak_col<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.find_peak_in_poly">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">find_peak_in_poly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#find_peak_in_poly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.find_peak_in_poly" title="Link to this definition"></a></dt>
+<dd><section id="id9">
+<h3>Description:<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Detect peaks of a 2D function within the given simple polygons</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id10">
+<h3>Args:<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param poly<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Polygons defining the regions of the cwt.</p>
+</dd>
+<dt class="field-even">type poly<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param wave<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Wavelet transform</p>
+</dd>
+<dt class="field-even">type wave<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(peak_pwr, peak_row, peak_col) - Peak power, row and column</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.find_wave_significance">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">find_wave_significance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">curvature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigtest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">siglvl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DOG'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#find_wave_significance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.find_wave_significance" title="Link to this definition"></a></dt>
+<dd><section id="id11">
+<h3>Description:<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Calculate wave significiance.</p>
+<p>This function uses package created by Predybaylo (2014), modified by
+von Papen (2018), and is based on the MATLAB package created by Torrence
+and Compo (1998).</p>
+<p>References:</p>
+<p>Torrence, C., &amp; Compo, G. P. (1998). A Practical Guide to Wavelet
+Analysis. Bulletin of the American Meteorological Society, 79(1), 61–78.
+<a class="reference external" href="https://doi.org/10.1175/1520-0477(1998">https://doi.org/10.1175/1520-0477(1998</a>)079&lt;0061:APGTWA&gt;2.0.CO;2</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id12">
+<h3>Args:<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param curvature<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Curvature of the river.</p>
+</dd>
+<dt class="field-even">param ds<span class="colon">:</span></dt>
+<dd class="field-even"><p>float,
+Spatial resolution of the curvature.</p>
+</dd>
+<dt class="field-odd">param scales<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Scales of the wavelet.</p>
+</dd>
+<dt class="field-even">param sigtest<span class="colon">:</span></dt>
+<dd class="field-even"><p>int,
+perform significance test, 0, 1, or 2. Default is 0.
+If 0 (default), then just do a regulat chi-square test, i.e., Eqn (18) from Torrence and Compo (1998).
+If 1, then do a “time-average” test, i.e., Eqn (23).  In this case, DOF should be set to np.nan, the number of local wavelet spectra that were averaged together.  For the Global Wavelet Spectrum, this would be NA=N, where N is the number of points in the time series.
+If 2, then do a “scale-average” test, i.e., Eqn (25)-(28).  In this case, DOF should be set to a two-element vector [S1,S2], which gives the scale range that were averaged together.  For example, if the average between scales 2 and 8 was taken, then DOF=[2,8].</p>
+</dd>
+<dt class="field-odd">param lag1<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int,
+lag-1 autocorrelation, used for signif levels. Default is 0.</p>
+</dd>
+<dt class="field-even">param siglvl<span class="colon">:</span></dt>
+<dd class="field-even"><p>float,
+significance level to use. Default is 0.95.</p>
+</dd>
+<dt class="field-odd">param dof<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int,
+degrees of freedom for significance test.
+If sigtest=0, then (automatically) set to 2 (or 1 for mother=’DOG’).
+If sigtest=1, then set to DOF=np.nan, the number if times averaged.
+If sigtest=2, then set to DOF=[S1,S2], the range of scales averaged.</p>
+</dd>
+<dt class="field-even">param mother<span class="colon">:</span></dt>
+<dd class="field-even"><p>str,
+mother wavelet function, can be ‘DOG’, ‘MORLET’, or ‘PAUL’.</p>
+</dd>
+<dt class="field-odd">param param<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float,
+parameter for the mother wavelet.</p>
+</dd>
+<dt class="field-even">param gws<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray,
+global wavelet spectrum.</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>signif: significance levels as a function of scale.</p></li>
+<li><p>sig95: 95% significance level as a function of scale.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.find_zc_lines">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">find_zc_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cwt_matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#find_zc_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.find_zc_lines" title="Link to this definition"></a></dt>
+<dd><section id="id13">
+<h3>Description:<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Find the zero-crossing lines pairs and the location of the singular
+points in the spectrum.</p>
+<p>Based on Vermeulen et al. (2016) Meander tree generation</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id14">
+<h3>Args:<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<dl class="field-list">
+<dt class="field-odd">param cwt_matrix<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Wavelet transform of the curvature.</p>
+</dd>
+<dt class="field-even">return<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>conn: Vector in which each index corresponds to a tree node.</dt><dd><p>Roots nodes have a value of -1, while the other nodes have a
+value pointing to the row in conn of their parent node.</p>
+</dd>
+<dt>regions: Matrix that contains the same number of indices as conn.</dt><dd><p>for each index in conn the corresponding row in regions
+give the scale boundaries of the node and the spatial
+boundaries derived given the scale boundaries derived
+from where the zero crossing lines leave the scale space plane.
+The first column is the smallest bounding period, the second column
+is the largest bounding period, the third column is the spatial
+coordinate where the region starts and the last column is the
+spatial coordinate where the region ends.</p>
+</dd>
+<dt>poly: returns a vector of cells with the same size as conn containing</dt><dd><p>the coordinates of a polygon bounding the region of the
+corresponding node in conn. Unlike regions these coordinates follow
+the zero crossings lines bounding the region. The coordinates are
+given as [row, col].</p>
+</dd>
+<dt>zc_lines: return all zero corssing lines detected. Each element in</dt><dd><p>zc_lines contains a Nx2 matrix containing the coordinates of the
+zero crossing line given as [row, col].</p>
+</dd>
+</dl>
+<p>zc_sign: returns the sign of each zero crossing line in zc_lines.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.get_branch">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">get_branch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#get_branch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.get_branch" title="Link to this definition"></a></dt>
+<dd><section id="id15">
+<h3>Description:<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Get the branch of a node in a tree from leafs to root.</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id16">
+<h3>Args:<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param cp<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int,
+Node index</p>
+</dd>
+<dt class="field-even">type cp<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">param conn<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Connection matrix</p>
+</dd>
+<dt class="field-even">type conn<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.get_centers">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">get_centers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extract_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_to_poly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#get_centers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.get_centers" title="Link to this definition"></a></dt>
+<dd><section id="id17">
+<h3>Description:<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Computes the center of curving sections in the multiple loop tree</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id18">
+<h3>Args:<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param conn<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Connection matrix</p>
+</dd>
+<dt class="field-even">type conn<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_row<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Row indices of the peaks</p>
+</dd>
+<dt class="field-even">type peak_row<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_col<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Column indices of the peaks</p>
+</dd>
+<dt class="field-even">type peak_col<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param period<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Period of the wavelet transform</p>
+</dd>
+<dt class="field-even">type period<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param ds<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float,
+Delta of distance</p>
+</dd>
+<dt class="field-even">type ds<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+<dt class="field-odd">param x<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+X coordinates in the planimetry</p>
+</dd>
+<dt class="field-even">type x<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param y<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Y coordinates in the planimetry</p>
+</dd>
+<dt class="field-even">type y<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>xc: np.ndarray, X coordinates of the center of curving sections
+yc: np.ndarray, Y coordinates of the center of curving sections</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.get_tree_scales_dict">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">get_tree_scales_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_pwr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelength</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_curvature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_to_poly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#get_tree_scales_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.get_tree_scales_dict" title="Link to this definition"></a></dt>
+<dd><section id="id19">
+<h3>Description:<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Computes the scales of the tree branches and collects all
+the information in a dictionary.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id20">
+<h3>Args:<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param conn<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Connection matrix</p>
+</dd>
+<dt class="field-even">type conn<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_row<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Row indices of the peaks</p>
+</dd>
+<dt class="field-even">type peak_row<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_col<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Column indices of the peaks</p>
+</dd>
+<dt class="field-even">type peak_col<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_pwr<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Power of the peaks</p>
+</dd>
+<dt class="field-even">type peak_pwr<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param wavelength<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Period of the peaks</p>
+</dd>
+<dt class="field-even">type wavelength<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param scales<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Scales of the peaks</p>
+</dd>
+<dt class="field-even">type scales<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param ds<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float,
+Sampling distance</p>
+</dd>
+<dt class="field-even">type ds<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+<dt class="field-odd">param x<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+X coordinates of the river</p>
+</dd>
+<dt class="field-even">type x<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param y<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Y coordinates of the river</p>
+</dd>
+<dt class="field-even">type y<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param poly<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Polygon deliniating the scale tree</p>
+</dd>
+<dt class="field-even">type poly<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.get_zcline">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">get_zcline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zcr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rw_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_start</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#get_zcline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.get_zcline" title="Link to this definition"></a></dt>
+<dd><section id="id21">
+<h3>Description:<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Find zero crossing line given its starting position (singular point)</p>
+<p>Based on Vermeulen et al. (2016) Meander tree generation</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id22">
+<h3>Args:<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param zcr<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+zcr lines.</p>
+</dd>
+<dt class="field-even">type zcr<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param rw_start<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int,
+Starting row</p>
+</dd>
+<dt class="field-even">type rw_start<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">param col_start<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int,
+Starting column</p>
+</dd>
+<dt class="field-even">type col_start<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(rw, col)</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.hexl">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">hexl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inmat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#hexl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.hexl" title="Link to this definition"></a></dt>
+<dd><section id="id23">
+<h3>Description:<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Constructs a hexagonal lattice for saddle points and extremes detection.</p>
+<p>The size of the lattixe is [inmat.size(), 6], i.e. it has six elements
+in the third dimension each containing one of the dix surrounding
+elements in the lattice, in the following order: top left, top center,
+mid left, mid right, bottom center, bottom right.</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016),
+and is based on Kuijper (2004).</p>
+<p>References:</p>
+<dl class="simple">
+<dt>Kuijper, A. (2004), On detecting all saddle points in 2D images, Pattern</dt><dd><p>Recogn. Lett., 25 (15), 1665-1672, doi:10.1016/j.patrec.2004.06.017</p>
+</dd>
+</dl>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id24">
+<h3>Args:<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param inmat<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Input matrix</p>
+</dd>
+<dt class="field-even">type inmat<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.inpolygon">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">inpolygon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#inpolygon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.inpolygon" title="Link to this definition"></a></dt>
+<dd><section id="id25">
+<h3>Description:<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Check if points are inside a polygon</p>
+<p>Based on Vermeulen et al. (2016) Meander tree generation</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id26">
+<h3>Args:<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param x<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+x coordinates of polygon vertices</p>
+</dd>
+<dt class="field-even">type x<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param y<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+y coordinates of polygon vertices</p>
+</dd>
+<dt class="field-even">type y<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param xv<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+x coordinates of points to check</p>
+</dd>
+<dt class="field-even">type xv<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray,</p>
+</dd>
+<dt class="field-odd">param yv<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+y coordinates of points to check</p>
+</dd>
+<dt class="field-even">type yv<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>is_inside: boolean vector with True if point is inside polygon</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.meander_bounds">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">meander_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meander_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#meander_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.meander_bounds" title="Link to this definition"></a></dt>
+<dd><section id="id27">
+<h3>Description:<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Computes the start and end-point of meander</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id28">
+<h3>Args:<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param poly<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Polygon in the wavelet</p>
+</dd>
+<dt class="field-even">param meander_id<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray,
+Meander indices</p>
+</dd>
+<dt class="field-odd">param peak_row<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Row indices of the peaks</p>
+</dd>
+<dt class="field-even">return<span class="colon">:</span></dt>
+<dd class="field-even"><p>bounds: bounding indices for the meander</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.n_child">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">n_child</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#n_child"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.n_child" title="Link to this definition"></a></dt>
+<dd><section id="id29">
+<h3>Description:<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Get the number of children for each node.</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id30">
+<h3>Args:<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param conn<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Connection matrix</p>
+</dd>
+<dt class="field-even">type conn<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.plot_regions">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">plot_regions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#plot_regions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.plot_regions" title="Link to this definition"></a></dt>
+<dd><section id="id31">
+<h3>Description:<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Plot tree regions as done by Witkin 1984 based on the matlab code
+by Vermulen et al. (2016)</p>
+<p>References:</p>
+<p>Witkin, A. P. (1984), Scale-space filtering: A new approach to
+multi-scale description, in Acoustics, Speech, and Signal Processing,
+IEEE International Conference on ICASSP ’84, vol. 9, pp. 150–153,
+IEEE, doi:10.1109/ICASSP.1984.1172729.</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id32">
+<h3>Args:<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param regions<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Regions array comming from the scale_space_tree function.</p>
+</dd>
+<dt class="field-even">type regions<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param ax<span class="colon">:</span></dt>
+<dd class="field-odd"><p>axis handle,
+Axis handle to plot the regions.</p>
+</dd>
+<dt class="field-even">type ax<span class="colon">:</span></dt>
+<dd class="field-even"><p>plt.axis</p>
+</dd>
+<dt class="field-odd">param kwargs<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict,
+Keyword arguments to pass to the plot function.</p>
+</dd>
+<dt class="field-even">type kwargs<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>h</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.plot_tree">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">plot_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#plot_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.plot_tree" title="Link to this definition"></a></dt>
+<dd><section id="id33">
+<h3>Description:<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Plot a tree given its connection matrix and its node coordinates.</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id34">
+<h3>Args:<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param conn<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Connection matrix.</p>
+</dd>
+<dt class="field-even">type conn<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param x<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+x node coordinates.</p>
+</dd>
+<dt class="field-even">type x<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param y<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+y node coordinates.</p>
+</dd>
+<dt class="field-even">type y<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param ax<span class="colon">:</span></dt>
+<dd class="field-odd"><p>axis handle,
+Axis handle to plot the tree.</p>
+</dd>
+<dt class="field-even">type ax<span class="colon">:</span></dt>
+<dd class="field-even"><p>plt.axis</p>
+</dd>
+<dt class="field-odd">param kwargs<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">type kwargs<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.recursive_tree_structure">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">recursive_tree_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pair</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singular_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">belongs_to</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_node</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairs_taken</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#recursive_tree_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.recursive_tree_structure" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.remove_nodes">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">remove_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#remove_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.remove_nodes" title="Link to this definition"></a></dt>
+<dd><section id="id35">
+<h3>Description:<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Remove nodes from a tree (they become isolated root nodes).</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id36">
+<h3>Args:<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param conn<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Connection matrix</p>
+</dd>
+<dt class="field-even">type conn<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param frm<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Vector with nodes to remove</p>
+</dd>
+<dt class="field-even">type frm<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>conn: Connection matrix</p>
+</dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.remove_peak_from_nodes">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">remove_peak_from_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_pwr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#remove_peak_from_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.remove_peak_from_nodes" title="Link to this definition"></a></dt>
+<dd><section id="id37">
+<h3>Description:<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Remove a peak from the nodes.</p>
+<p>This function was coded in MATLAB initially on Vermulen et al. (2016).</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id38">
+<h3>Args:<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param frm<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Vector with nodes to remove</p>
+</dd>
+<dt class="field-even">type frm<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_row<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Row indices of the peaks</p>
+</dd>
+<dt class="field-even">type peak_row<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_col<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Column indices of the peaks</p>
+</dd>
+<dt class="field-even">type peak_col<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">param peak_pwr<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Power of the peaks</p>
+</dd>
+<dt class="field-even">type peak_pwr<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p>peak_row, peak_col, peak_pwr: np.ndarray,
+Row and column indices and power of the peaks</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.sadext">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">sadext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inmat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#sadext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.sadext" title="Link to this definition"></a></dt>
+<dd><section id="id39">
+<h3>Description:<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Detect saddle points and extremes in a 2D matrix (Vermulen, 2016;
+Kuijper, 2004)</p>
+<p>ID has the same size as inmat and contains an id which can have one
+of the following values:</p>
+<p>0: The point is a local extreme
+2: the point is a regular point
+4: The point is a saddle point
+6: The point is a degenerate saddle point</p>
+<p>This function requires the hexl function to build the hexagonal lattice.</p>
+<p>References:</p>
+<p>Kuijper, A. (2004), On detecting all saddle points in 2D images, Pattern
+Recogn. Lett., 25 (15), 1665-1672, doi:10.1016/j.patrec.2004.06.017</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id40">
+<h3>Args:<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param inmat<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">type inmat<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">rtype<span class="colon">:</span></dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.WaveletTreeFunctions.scale_space_tree">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.WaveletTreeFunctions.</span></span><span class="sig-name descname"><span class="pre">scale_space_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cwt_matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/WaveletTreeFunctions.html#scale_space_tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.WaveletTreeFunctions.scale_space_tree" title="Link to this definition"></a></dt>
+<dd><section id="id41">
+<h3>Description:<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Construct a ternary scale space tree from the zero crossings of the
+wavelet transform of the curvature.</p>
+<p>Based on Vermeulen et al. (2016) Meander tree generation</p>
+<p>References:</p>
+<p>Vermeulen, B., A. J. F. Hoitink, G. Zolezzi, J. D. Abad, and R. Aalto
+(2016), Multi-scale structure of meanders, Geophys. Res. Lett., 43,
+doi:10.1002/2016GL068238.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id42">
+<h3>Args:<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<dl class="field-list">
+<dt class="field-odd">param cwt_matrix<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Wavelet transform of the curvature.</p>
+</dd>
+<dt class="field-even">return<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>conn: Vector in which each index corresponds to a tree node.</dt><dd><p>Roots nodes have a value of -1, while the other nodes have a
+value pointing to the row in conn of their parent node.</p>
+</dd>
+<dt>regions: Matrix that contains the same number of indices as conn.</dt><dd><p>for each index in conn the corresponding row in regions
+give the scale boundaries of the node and the spatial
+boundaries derived given the scale boundaries derived
+from where the zero crossing lines leave the scale space plane.
+The first column is the smallest bounding period, the second column
+is the largest bounding period, the third column is the spatial
+coordinate where the region starts and the last column is the
+spatial coordinate where the region ends.</p>
+</dd>
+<dt>poly: returns a vector of cells with the same size as conn containing</dt><dd><p>the coordinates of a polygon bounding the region of the
+corresponding node in conn. Unlike regions these coordinates follow
+the zero crossings lines bounding the region. The coordinates are
+given as [row, col].</p>
+</dd>
+<dt>zc_lines: return all zero corssing lines detected. Each element in</dt><dd><p>zc_lines contains a Nx2 matrix containing the coordinates of the
+zero crossing line given as [row, col].</p>
+</dd>
+</dl>
+<p>zc_sign: returns the sign of each zero crossing line in zc_lines.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-WigglyRivers.wavelet_tree.waveletFunctions">
+<span id="wigglyrivers-wavelet-tree-waveletfunctions-module"></span><h2>WigglyRivers.wavelet_tree.waveletFunctions module<a class="headerlink" href="#module-WigglyRivers.wavelet_tree.waveletFunctions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.waveletFunctions.calculate_global_wavelet_spectrum">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.waveletFunctions.</span></span><span class="sig-name descname"><span class="pre">calculate_global_wavelet_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/waveletFunctions.html#calculate_global_wavelet_spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.waveletFunctions.calculate_global_wavelet_spectrum" title="Link to this definition"></a></dt>
+<dd><section id="id43">
+<h3>Description:<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Calculates the global wavelet spectrum (GWS) from the wavelet transform
+using equation (22) in Torrence and Compo (1998). This function also
+finds the index for the peaks in the global wavelet spectrum.</p>
+<p>Created by Daniel Gonzalez-Duque on 11/19/2023.</p>
+<p>References:</p>
+<p>Torrence, C., and G. P. Compo, 1998: A Practical Guide to Wavelet
+Analysis. Bull. Amer. Meteor. Soc., 79, 61–78,
+<a class="reference external" href="https://doi.org/10.1175/1520-0477(1998">https://doi.org/10.1175/1520-0477(1998</a>)079&lt;0061:APGTWA&gt;2.0.CO;2</p>
+</div></blockquote>
+</section>
+<section id="id44">
+<h3>Args:<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param wave<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Wavelet transform.</p>
+</dd>
+<dt class="field-even">return<span class="colon">:</span></dt>
+<dd class="field-even"><p>gws: np.ndarray,
+Global wavelet spectrum.
+peaks: np.ndarray,
+Indices for the peaks in the GWS.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.waveletFunctions.calculate_scale_averaged_wavelet_power">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.waveletFunctions.</span></span><span class="sig-name descname"><span class="pre">calculate_scale_averaged_wavelet_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_delta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/waveletFunctions.html#calculate_scale_averaged_wavelet_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.waveletFunctions.calculate_scale_averaged_wavelet_power" title="Link to this definition"></a></dt>
+<dd><section id="id45">
+<h3>Description:<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Calculates the scale-averaged wavelet power (SAWP) from the wavelet
+transform using equation (9) in Zolezzi and Güneralp (2016).</p>
+<p>Created by Daniel Gonzalez-Duque on 11/19/2023.</p>
+<p>References:</p>
+<p>Zolezzi, G., &amp; Güneralp, I. (2016). Continuous wavelet
+characterization of the wavelengths and regularity of
+meandering rivers. Geomorphology, 252, 98–111.
+<a class="reference external" href="https://doi.org/10.1016/j.geomorph.2015.07.029">https://doi.org/10.1016/j.geomorph.2015.07.029</a></p>
+</div></blockquote>
+</section>
+<section id="id46">
+<h3>Args:<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param wave<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Wavelet transform.</p>
+</dd>
+<dt class="field-even">param scales<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray,
+Vector of scales.</p>
+</dd>
+<dt class="field-odd">param dt<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float,
+Time or spatial resolution of the data.</p>
+</dd>
+<dt class="field-even">param dj<span class="colon">:</span></dt>
+<dd class="field-even"><p>float,
+Scale increment.</p>
+</dd>
+<dt class="field-odd">param c_delta<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float,
+Reconstruction factor.</p>
+</dd>
+<dt class="field-even">return<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scale-averaged wavelet power.</p>
+</dd>
+</dl>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.waveletFunctions.chisquare_inv">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.waveletFunctions.</span></span><span class="sig-name descname"><span class="pre">chisquare_inv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/waveletFunctions.html#chisquare_inv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.waveletFunctions.chisquare_inv" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.waveletFunctions.chisquare_solve">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.waveletFunctions.</span></span><span class="sig-name descname"><span class="pre">chisquare_solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">XGUESS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/waveletFunctions.html#chisquare_solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.waveletFunctions.chisquare_solve" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.waveletFunctions.iwavelet">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.waveletFunctions.</span></span><span class="sig-name descname"><span class="pre">iwavelet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MORLET'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/waveletFunctions.html#iwavelet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.waveletFunctions.iwavelet" title="Link to this definition"></a></dt>
+<dd><section id="id47">
+<h3>Description:<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>Inverse wavelet transform of Y, using [Eqn(11)] in Torrence and Compo
+(1998).</p>
+<p>Created by Daniel Gonzalez-Duque on 07/02/2023</p>
+</div></blockquote>
+</section>
+<section id="id48">
+<h3>Args:<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<dl class="field-list simple">
+<dt class="field-odd">param Y<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Wavelet transform of a time series.</p>
+</dd>
+<dt class="field-even">param dt<span class="colon">:</span></dt>
+<dd class="field-even"><p>float,
+Time interval between samples.</p>
+</dd>
+<dt class="field-odd">param scale<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,
+Vector of scale indices.</p>
+</dd>
+<dt class="field-even">param scale_indices<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray,
+Vector of scale indices where the reconstruction will be applied.</p>
+</dd>
+<dt class="field-odd">param mother<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str,
+Wavelet type.</p>
+</dd>
+<dt class="field-even">param param<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray
+Wavelet parameters.</p>
+</dd>
+<dt class="field-odd">return<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.waveletFunctions.wave_bases">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.waveletFunctions.</span></span><span class="sig-name descname"><span class="pre">wave_bases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mother</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/waveletFunctions.html#wave_bases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.waveletFunctions.wave_bases" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.waveletFunctions.wave_signif">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.waveletFunctions.</span></span><span class="sig-name descname"><span class="pre">wave_signif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigtest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">siglvl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MORLET'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/waveletFunctions.html#wave_signif"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.waveletFunctions.wave_signif" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="WigglyRivers.wavelet_tree.waveletFunctions.wavelet">
+<span class="sig-prename descclassname"><span class="pre">WigglyRivers.wavelet_tree.waveletFunctions.</span></span><span class="sig-name descname"><span class="pre">wavelet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">J1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mother</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/WigglyRivers/wavelet_tree/waveletFunctions.html#wavelet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#WigglyRivers.wavelet_tree.waveletFunctions.wavelet" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-WigglyRivers.wavelet_tree">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-WigglyRivers.wavelet_tree" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="WigglyRivers.utilities.html" class="btn btn-neutral float-left" title="WigglyRivers.utilities package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

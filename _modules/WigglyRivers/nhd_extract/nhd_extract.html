@@ -1,0 +1,746 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers.nhd_extract.nhd_extract &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../WigglyRivers.html">WigglyRivers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">WigglyRivers.nhd_extract.nhd_extract</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for WigglyRivers.nhd_extract.nhd_extract</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1">#</span>
+<span class="c1">#                       Coded by: Daniel Gonzalez-Duque</span>
+<span class="c1">#                               Last revised 2021-09-14</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="c1"># _____________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">   This class open the data and do preprocessing of the data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># -----------</span>
+<span class="c1"># Libraries</span>
+<span class="c1"># -----------</span>
+<span class="c1"># System Management</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="c1"># Data Management</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># Modules of the package</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">classExceptions</span> <span class="k">as</span> <span class="n">CE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">filesManagement</span> <span class="k">as</span> <span class="n">FM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">utilities</span> <span class="k">as</span> <span class="n">utl</span>
+
+<span class="c1"># ------------------</span>
+<span class="c1"># Logging</span>
+<span class="c1"># ------------------</span>
+<span class="c1"># Set logger</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">handlers</span><span class="o">=</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">()])</span>
+
+
+<span class="c1"># ------------------</span>
+<span class="c1"># Class</span>
+<span class="c1"># ------------------</span>
+<div class="viewcode-block" id="ExtractNHDPlusHRData">
+<a class="viewcode-back" href="../../../WigglyRivers.nhd_extract.html#WigglyRivers.nhd_extract.nhd_extract.ExtractNHDPlusHRData">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExtractNHDPlusHRData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Basic class to load and pre-processes NHD data. This class opens the NHDPlus</span>
+<span class="sd">    High-Resolution data and extracts the information needed to run the</span>
+<span class="sd">    meander characterization code.</span>
+
+<span class="sd">    The NHDPlus High-Reolution data can be downloaded from the following link:</span>
+<span class="sd">    https://www.usgs.gov/national-hydrography/nhdplus-high-resolution</span>
+
+<span class="sd">    The following are the available attributes</span>
+
+<span class="sd">    ===================== =====================================================</span>
+<span class="sd">    Attribute             Description</span>
+<span class="sd">    ===================== =====================================================</span>
+<span class="sd">    path_out              path to save the files.</span>
+<span class="sd">    save_format           save format of the information, the formats are:\n</span>
+<span class="sd">                          &#39;p&#39;: pickle.\n</span>
+<span class="sd">                          &#39;json&#39;: json type file.\n</span>
+<span class="sd">                          &#39;mat&#39;: MATLAB type file.\n</span>
+<span class="sd">                          &#39;csv&#39;: csv type file.\n</span>
+<span class="sd">                          &#39;txt&#39;: txt type file.\n</span>
+<span class="sd">    nhd_tables            NHD tables to be loaded, by default it will load the</span>
+<span class="sd">                          &#39;NHDPlusFlowlineVAA&#39;, &#39;NHDPlusEROMMA&#39;,</span>
+<span class="sd">                          &#39;NHDPlusIncrPrecipMA&#39;, &#39;NHDPlusIncrTempMA&#39;</span>
+<span class="sd">    ===================== =====================================================</span>
+
+<span class="sd">    The following are the methods of the class.</span>
+
+<span class="sd">    ===================== =====================================================</span>
+<span class="sd">    Methods               Description</span>
+<span class="sd">    ===================== =====================================================</span>
+<span class="sd">    set_logger            Set the logger to show every process.</span>
+<span class="sd">    get_data_from_nhd_gdb Extract coordinates and tables from NHD GDB.</span>
+<span class="sd">    load_nhd_data         Loads the tables and coordinates from the NHD GDB.</span>
+<span class="sd">    ===================== =====================================================</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path_output</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;file&quot;</span><span class="p">,</span>
+        <span class="n">comid_name</span><span class="o">=</span><span class="s2">&quot;NHDPlusID&quot;</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class constructor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># -------------------</span>
+        <span class="c1"># Logger</span>
+        <span class="c1"># -------------------</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span> <span class="o">=</span> <span class="n">logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start Logger in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># ------------------------</span>
+        <span class="c1"># Attribute management</span>
+        <span class="c1"># ------------------------</span>
+        <span class="c1"># Default data</span>
+        <span class="c1"># Path management</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_output</span> <span class="o">=</span> <span class="n">path_output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_format</span> <span class="o">=</span> <span class="s2">&quot;feather&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comid_name</span> <span class="o">=</span> <span class="n">comid_name</span>
+
+        <span class="c1"># Tables for NHD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nhd_tables</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;NHDPlusFlowlineVAA&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NHDPlusEROMMA&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="c1"># self._nhd_tables += [</span>
+        <span class="c1">#     f&#39;NHDPlusIncrPrecipMM{i:02d}&#39; for i in range(1, 13)</span>
+        <span class="c1">#     ]</span>
+        <span class="c1"># self._nhd_tables += [</span>
+        <span class="c1">#     f&#39;NHDPlusIncrTempMM{i:02d}&#39; for i in range(1, 13)</span>
+        <span class="c1"># ]</span>
+
+        <span class="c1"># Change parameters</span>
+        <span class="n">valid_kwargs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;save_format&quot;</span><span class="p">,</span> <span class="s2">&quot;nhd_tables&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_kwargs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid keyword argument </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+        <span class="c1"># ------------------</span>
+        <span class="c1"># Create Folder</span>
+        <span class="c1"># ------------------</span>
+        <span class="n">utl</span><span class="o">.</span><span class="n">cr_folder</span><span class="p">(</span><span class="n">path_output</span><span class="p">)</span>
+        <span class="c1"># ------------------</span>
+        <span class="c1"># Other Attributes</span>
+        <span class="c1"># ------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__save_formats</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">get_save_formats</span><span class="p">()</span>
+
+        <span class="c1"># ------------</span>
+        <span class="c1"># NHD Data</span>
+        <span class="c1"># ------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords_all</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># --------------------------</span>
+    <span class="c1"># get functions</span>
+    <span class="c1"># --------------------------</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;path for data saving&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_output</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_format</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;save format of the files&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_format</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nhd_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;nhd tables to be extracted&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nhd_tables</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;logger for debbuging&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logging</span>
+
+    <span class="c1"># --------------------------</span>
+    <span class="c1"># setters</span>
+    <span class="c1"># --------------------------</span>
+    <span class="nd">@path_output</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_output</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set path for data saving&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting path_output to &#39;</span><span class="si">{</span><span class="n">path_output</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_output</span> <span class="o">=</span> <span class="n">path_output</span>
+
+    <span class="nd">@save_format</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_format</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set save format of the files&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">save_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__save_formats</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;format &#39;</span><span class="si">{</span><span class="n">save_format</span><span class="si">}</span><span class="s2">&#39; not implemented. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Use any of these formats &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__save_formats</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">CE</span><span class="o">.</span><span class="n">FormatError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;format &#39;</span><span class="si">{</span><span class="n">save_format</span><span class="si">}</span><span class="s2">&#39; not implemented. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Use formats &#39;p&#39;, &#39;mat&#39;, &#39;json&#39;, &#39;txt&#39;, or&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;csv&#39;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting save_format to &#39;</span><span class="si">{</span><span class="n">save_format</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_format</span> <span class="o">=</span> <span class="n">save_format</span>
+
+    <span class="nd">@nhd_tables</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nhd_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nhd_tables</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;set nhd tables to be extracted&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting nhd_tables to &#39;</span><span class="si">{</span><span class="n">nhd_tables</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nhd_tables</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">nhd_tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">nhd_tables</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nhd_tables</span> <span class="o">=</span> <span class="n">nhd_tables</span>
+
+    <span class="c1"># --------------------------</span>
+    <span class="c1"># read and save files</span>
+    <span class="c1"># --------------------------</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_xy</span><span class="p">(</span><span class="n">shapefile</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">xy</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">xy</span>
+            <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">c</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shapefile</span><span class="p">,</span> <span class="n">comid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Description:</span>
+<span class="sd">        --------------</span>
+<span class="sd">            Get starting and ending coordinates from shapefile Line.</span>
+<span class="sd">        ________________________________________________________________________</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        -----</span>
+<span class="sd">            :param shapefile: geopandas.geometry,</span>
+<span class="sd">                Geometry of the shapefile.</span>
+<span class="sd">            :type shapefile: geopandas.geometry</span>
+<span class="sd">            :param comid: str</span>
+<span class="sd">                comid of the reach.</span>
+<span class="sd">            :type comid: str</span>
+<span class="sd">            :return: (coords, coords_all)</span>
+<span class="sd">                coords: start, middle, and end coordinates</span>
+<span class="sd">                coords_all: all coordinates.</span>
+<span class="sd">            :rtype: tuple(list, dict)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">xy</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">xy</span>
+            <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;MultiLineString&quot;</span><span class="p">:</span>
+                    <span class="n">geoms</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">geoms</span>
+                    <span class="n">c_values</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_xy</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span> <span class="k">for</span> <span class="n">geom</span> <span class="ow">in</span> <span class="n">geoms</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">i_c</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c_values</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">i_c</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">x</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">y</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+                    <span class="n">min_x_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span>
+                    <span class="n">max_x_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span>
+                    <span class="n">mid_x_y</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="p">(</span><span class="n">min_x_y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">max_x_y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                        <span class="p">(</span><span class="n">min_x_y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">max_x_y</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="p">]</span>
+                    <span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">min_x_y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mid_x_y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">max_x_y</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                    <span class="n">y_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">min_x_y</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mid_x_y</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">max_x_y</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;comid </span><span class="si">{</span><span class="n">comid</span><span class="si">}</span><span class="s2"> has no coordinates&quot;</span><span class="p">)</span>
+                    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                    <span class="n">coords_all</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="n">comid</span><span class="p">:</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">])]</span>
+                    <span class="p">}</span>
+                    <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_all</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nb">int</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))],</span>
+                <span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="nb">int</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))],</span>
+                <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">x_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">y_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">coords_all</span> <span class="o">=</span> <span class="p">{</span><span class="n">comid</span><span class="p">:</span> <span class="p">[</span><span class="n">x_all</span><span class="p">,</span> <span class="n">y_all</span><span class="p">]}</span>
+        <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_all</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_organize_coordinates</span><span class="p">(</span>
+        <span class="n">coords_dict</span><span class="p">,</span> <span class="n">comid</span><span class="o">=</span><span class="s2">&quot;NHDPlusID&quot;</span><span class="p">,</span> <span class="n">neglect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comid_list</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Organize the coordinates from dict to lists including</span>
+<span class="sd">        the reference comid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        :param coords_dict: dict,</span>
+<span class="sd">            dictionary with all the coordiantes.</span>
+<span class="sd">        :type coords_dict: dict</span>
+<span class="sd">        :param comid: str,</span>
+<span class="sd">            comid in the dictionary name.</span>
+<span class="sd">        :type comid: str</span>
+<span class="sd">        :param neglect: list,</span>
+<span class="sd">            List with comids that will not be included.</span>
+<span class="sd">        :type neglect: list</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">neglect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">neglect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="c1"># comid_hr = coords_dict[comid]</span>
+        <span class="k">if</span> <span class="n">comid_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">comid_hr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">coords_dict</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">comid_hr</span> <span class="o">=</span> <span class="n">comid_list</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;FType&quot;</span><span class="p">,</span> <span class="n">comid</span><span class="p">,</span> <span class="s2">&quot;projection&quot;</span><span class="p">,</span> <span class="s2">&quot;NHDPlusID&quot;</span><span class="p">,</span> <span class="s2">&quot;comid&quot;</span><span class="p">,</span> <span class="s2">&quot;COMID&quot;</span><span class="p">]</span>
+        <span class="n">length_hr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">coords_dict</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">comid_hr</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">coords_hr_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">length_hr</span><span class="p">)))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">comid_hr_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">length_hr</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i_c</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">comid_hr</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neglect</span><span class="p">[</span><span class="n">neglect</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">coords_hr_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coords_dict</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+            <span class="n">comid_hr_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">coords_hr_c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">coords_hr_all</span><span class="p">[:,</span> <span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">comid_hr_c</span><span class="p">)]</span> <span class="o">=</span> <span class="n">coords_hr_c</span>
+            <span class="n">comid_hr_all</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">comid_hr_c</span><span class="p">)]</span> <span class="o">=</span> <span class="n">comid_hr_c</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">comid_hr_c</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neglect</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">coords_hr_all</span> <span class="o">=</span> <span class="n">coords_hr_all</span><span class="p">[:,</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">comid_hr_all</span><span class="p">)]</span>
+            <span class="n">comid_hr_all</span> <span class="o">=</span> <span class="n">comid_hr_all</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">comid_hr_all</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">coords_hr_all</span><span class="p">,</span> <span class="n">comid_hr_all</span>
+
+<div class="viewcode-block" id="ExtractNHDPlusHRData.get_data_from_nhd_gbd">
+<a class="viewcode-back" href="../../../WigglyRivers.nhd_extract.html#WigglyRivers.nhd_extract.nhd_extract.ExtractNHDPlusHRData.get_data_from_nhd_gbd">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data_from_nhd_gbd</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">file_data</span><span class="p">,</span>
+        <span class="n">flowlines</span><span class="o">=</span><span class="s2">&quot;NHDFlowline&quot;</span><span class="p">,</span>
+        <span class="n">comid</span><span class="o">=</span><span class="s2">&quot;NHDPlusID&quot;</span><span class="p">,</span>
+        <span class="n">tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">projection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Description:</span>
+<span class="sd">        ------------</span>
+<span class="sd">            Get table data from the NHD GBD.</span>
+<span class="sd">        ________________________________________________________________________</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        ------</span>
+<span class="sd">            :param file_data: str,</span>
+<span class="sd">                GBD data file.</span>
+<span class="sd">            :type file_data: str</span>
+<span class="sd">            :param flowlines: str,</span>
+<span class="sd">                Layer in the NHD data set that has the Flowlines.</span>
+<span class="sd">            :type flowlines: str</span>
+<span class="sd">            :param tables: str,</span>
+<span class="sd">                Additional tables that will be asociated to the flowlines.</span>
+<span class="sd">            :type tables: str</span>
+<span class="sd">            :param comid: str, default NHDPlusID.</span>
+<span class="sd">                comid of the NHD files.</span>
+<span class="sd">            :type comid: str</span>
+<span class="sd">            :param projection: str, default epsg:2856.</span>
+<span class="sd">                Projection of the NHD file into geographic coordinates</span>
+<span class="sd">                to calculate the distances.</span>
+<span class="sd">            :type projection: str</span>
+<span class="sd">            :param save_shp: bool, default True.</span>
+<span class="sd">                Save shapefile with initial table.</span>
+<span class="sd">            :type save_shp: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Get tables</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start: Extracting data from &#39;</span><span class="si">{</span><span class="n">file_data</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nhd_tables</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">comid_name</span> <span class="o">=</span> <span class="n">comid</span>
+
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Open Data</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="n">file_data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">file_data</span> <span class="o">=</span> <span class="n">file_data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;zip&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot; WARNING: GDB in zip file, loading from zip&quot;</span> <span class="s2">&quot; file&quot;</span>
+            <span class="p">)</span>
+            <span class="n">gbd_file_name</span> <span class="o">=</span> <span class="n">file_data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="c1"># get whole path of file_data</span>
+            <span class="n">path_data</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">file_data</span><span class="p">)</span>
+            <span class="n">path_data</span> <span class="o">=</span> <span class="n">path_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="n">path_data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">path_data</span> <span class="o">=</span> <span class="n">path_data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">path_data</span><span class="p">)</span>
+            <span class="c1"># file_data = f&#39;zip://{file_data}!{gbd_file_name}.gdb&#39;</span>
+            <span class="n">file_data</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;zip://</span><span class="si">{</span><span class="n">path_data</span><span class="si">}</span><span class="s2">!</span><span class="si">{</span><span class="n">gbd_file_name</span><span class="si">}</span><span class="s2">.gdb&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Openning </span><span class="si">{</span><span class="n">file_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Load the flowlines</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; Start: Load Shapefile&quot;</span><span class="p">)</span>
+        <span class="n">shapefile</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">read_gdb</span><span class="p">(</span><span class="n">file_data</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">flowlines</span><span class="p">)</span>
+        <span class="n">shapefile</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span> <span class="o">=</span> <span class="n">shapefile</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+        <span class="n">shapefile</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span> <span class="o">=</span> <span class="n">shapefile</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; Done: Load Shapefile&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">projection</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Setting shapefile projection to </span><span class="si">{</span><span class="n">projection</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">shapefile_projected</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">projection</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">shapefile_projected</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">to_crs</span><span class="p">({</span><span class="s2">&quot;init&quot;</span><span class="p">:</span> <span class="n">projection</span><span class="p">})</span>
+
+            <span class="n">coords_all_projected</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">comid</span><span class="p">:</span> <span class="n">shapefile_projected</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;FType&quot;</span><span class="p">:</span> <span class="n">shapefile_projected</span><span class="p">[</span><span class="s2">&quot;FType&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="n">projection</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">coords_projected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">shapefile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">6</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Get Coordinates</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Get the start and ending points</span>
+        <span class="n">coords_all</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">comid</span><span class="p">:</span> <span class="n">shapefile</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="s2">&quot;FType&quot;</span><span class="p">:</span> <span class="n">shapefile</span><span class="p">[</span><span class="s2">&quot;FType&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; Start: Extraction of coordinates&quot;</span><span class="p">)</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">shapefile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">6</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shapefile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">bounds</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">bounds</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">coords_all_comid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_coordinates</span><span class="p">(</span>
+                <span class="n">bounds</span><span class="p">,</span> <span class="n">shapefile</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">coords_all</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">coords_all_comid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">projection</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Extract coordinates in projected coordinates</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">bounds_proj</span> <span class="o">=</span> <span class="n">shapefile_projected</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="n">bounds_proj</span> <span class="o">=</span> <span class="n">shapefile_projected</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">coords_projected</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">coords_all_comid_projected</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_coordinates</span><span class="p">(</span>
+                        <span class="n">bounds_proj</span><span class="p">,</span> <span class="n">shapefile_projected</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">coords_all_projected</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">coords_all_comid_projected</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; Done: Extraction of coordinates&quot;</span><span class="p">)</span>
+
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Check NHDWaterbody</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Extract NHDWaterbody</span>
+        <span class="n">shapefile_wb</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">read_gdb</span><span class="p">(</span><span class="n">file_data</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;NHDWaterbody&quot;</span><span class="p">)</span>
+        <span class="n">shapefile_wb</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span> <span class="o">=</span> <span class="n">shapefile_wb</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+        <span class="n">shapefile_wb</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span> <span class="o">=</span> <span class="n">shapefile_wb</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">join_left_intersects_df</span> <span class="o">=</span> <span class="n">shapefile</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span>
+            <span class="n">shapefile_wb</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;within&quot;</span>
+        <span class="p">)</span>
+        <span class="c1"># Get records that are in the waterbody</span>
+        <span class="n">flowlines_within</span> <span class="o">=</span> <span class="n">join_left_intersects_df</span><span class="p">[</span>
+            <span class="n">join_left_intersects_df</span><span class="o">.</span><span class="n">index_right</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">comid_within</span> <span class="o">=</span> <span class="n">flowlines_within</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">comid</span><span class="si">}</span><span class="s2">_left&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># Add flag to the flowlines</span>
+        <span class="n">shapefile</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">comid</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">shapefile</span><span class="p">[</span><span class="s2">&quot;within_waterbody&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shapefile</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">shapefile</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">comid_within</span><span class="p">,</span> <span class="s2">&quot;within_waterbody&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Convert to pandas dataframe</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">shapefile</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Remove geometry</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Make COMID the index</span>
+        <span class="c1"># table = table.set_index(comid)</span>
+
+        <span class="c1"># print(coords.shape)</span>
+        <span class="c1"># Merge coords</span>
+        <span class="n">coords_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">comid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+            <span class="s2">&quot;xup_deg&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;yup_deg&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;xm_deg&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="s2">&quot;ym_deg&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="s2">&quot;xdown_deg&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">],</span>
+            <span class="s2">&quot;ydown_deg&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">projection</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coords_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;xup_m&quot;</span><span class="p">:</span> <span class="n">coords_projected</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;yup_m&quot;</span><span class="p">:</span> <span class="n">coords_projected</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="s2">&quot;xm_m&quot;</span><span class="p">:</span> <span class="n">coords_projected</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
+                    <span class="s2">&quot;ym_m&quot;</span><span class="p">:</span> <span class="n">coords_projected</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">],</span>
+                    <span class="s2">&quot;xdown_m&quot;</span><span class="p">:</span> <span class="n">coords_projected</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">],</span>
+                    <span class="s2">&quot;ydown_m&quot;</span><span class="p">:</span> <span class="n">coords_projected</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">],</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">xup_m</span> <span class="o">=</span> <span class="n">coords_dict</span><span class="p">[</span><span class="s2">&quot;xup_m&quot;</span><span class="p">]</span>
+            <span class="n">xdown_m</span> <span class="o">=</span> <span class="n">coords_dict</span><span class="p">[</span><span class="s2">&quot;xdown_m&quot;</span><span class="p">]</span>
+            <span class="n">yup_m</span> <span class="o">=</span> <span class="n">coords_dict</span><span class="p">[</span><span class="s2">&quot;yup_m&quot;</span><span class="p">]</span>
+            <span class="n">ydown_m</span> <span class="o">=</span> <span class="n">coords_dict</span><span class="p">[</span><span class="s2">&quot;ydown_m&quot;</span><span class="p">]</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i_comid</span><span class="p">,</span> <span class="n">id_comid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">coords_all_projected</span><span class="p">[</span><span class="n">id_comid</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">coords_all_projected</span><span class="p">[</span><span class="n">id_comid</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">length</span><span class="p">[</span><span class="n">i_comid</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">sn</span> <span class="o">=</span> <span class="n">length</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">xup_m</span> <span class="o">-</span> <span class="n">xdown_m</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">yup_m</span> <span class="o">-</span> <span class="n">ydown_m</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="n">coords_dict</span><span class="p">[</span><span class="s2">&quot;sinuosity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sn</span>
+            <span class="n">coords_dict</span><span class="p">[</span><span class="s2">&quot;length_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">length</span>
+
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">coords_dict</span><span class="p">)</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">comid</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Merge other tables</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; Start: Merging Tables&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i_t</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tables</span><span class="p">):</span>
+            <span class="c1"># Load new table</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Merging </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">t_n</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">read_gdb</span><span class="p">(</span><span class="n">file_data</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">t_n</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_n</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+                <span class="n">t_n</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_n</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  WARNING: Table </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> not in the GDB&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">t_n</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">t_n</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">),</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table merge length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">t_n</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Include NaNs if table does not exists</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_n</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Filling empty table&quot;</span><span class="p">)</span>
+                <span class="c1"># get COMIDS</span>
+                <span class="n">comid_t_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                <span class="c1"># Extract columns</span>
+                <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+                <span class="n">columns_t_n</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">t_n</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="n">columns_t_n</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                <span class="c1"># Extract data</span>
+                <span class="n">data_t_n</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">i</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">comid_t_n</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">columns_t_n</span>
+                <span class="p">}</span>
+                <span class="n">data_t_n</span><span class="p">[</span><span class="n">comid</span><span class="p">]</span> <span class="o">=</span> <span class="n">comid_t_n</span>
+                <span class="n">t_n</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_t_n</span><span class="p">)</span>
+            <span class="n">t_n</span> <span class="o">=</span> <span class="n">t_n</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">comid</span><span class="p">)</span>
+            <span class="n">cols_to_use</span> <span class="o">=</span> <span class="n">t_n</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="n">table</span><span class="p">,</span>
+                    <span class="n">t_n</span><span class="p">[</span><span class="n">cols_to_use</span><span class="p">],</span>
+                    <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ERROR: Could not merge </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; Done: Merging Tables&quot;</span><span class="p">)</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Save Tables</span>
+        <span class="c1"># -------------------------------</span>
+        <span class="c1"># Save raw tables</span>
+        <span class="n">path_output</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path_output</span><span class="si">}</span><span class="s2">/tables/&quot;</span>
+        <span class="n">table_save</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="c1"># save_data = {column: table[column].values for column in table.columns}</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">name_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_tables_raw.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_format</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Saving </span><span class="si">{</span><span class="n">path_output</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">FM</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span><span class="n">table_save</span><span class="p">,</span> <span class="n">path_output</span><span class="p">,</span> <span class="n">name_out</span><span class="p">)</span>
+
+        <span class="c1"># Save coordinates</span>
+        <span class="n">save_data_coord</span> <span class="o">=</span> <span class="n">coords_all</span>
+        <span class="n">save_data_coord</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;NHDPlusID&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">save_data_coord</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;FType&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">save_data_coord</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;projection&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">path_output</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path_output</span><span class="si">}</span><span class="s2">/coordinates/&quot;</span>
+        <span class="n">name_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_coords_raw.hdf5&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_format</span> <span class="o">!=</span> <span class="s2">&quot;hdf5&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;  WARNING: The coordinates are always saved&quot;</span> <span class="s2">&quot; as &#39;hdf5&#39;&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Saving </span><span class="si">{</span><span class="n">path_output</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">FM</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span><span class="n">save_data_coord</span><span class="p">,</span> <span class="n">path_output</span><span class="p">,</span> <span class="n">name_out</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">projection</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Save coordinates projected</span>
+            <span class="n">save_data_coord</span> <span class="o">=</span> <span class="n">coords_all_projected</span>
+            <span class="n">name_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_coords_p_</span><span class="si">{</span><span class="n">projection</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">_raw.hdf5&#39;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_format</span> <span class="o">!=</span> <span class="s2">&quot;hdf5&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;  WARNING: The coordinates are always &quot;</span> <span class="s2">&quot;saved as &#39;hdf5&#39;&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Saving </span><span class="si">{</span><span class="n">path_output</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">FM</span><span class="o">.</span><span class="n">save_data</span><span class="p">(</span><span class="n">save_data_coord</span><span class="p">,</span> <span class="n">path_output</span><span class="p">,</span> <span class="n">name_out</span><span class="p">)</span>
+
+        <span class="c1"># Load variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">table_save</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords_all</span> <span class="o">=</span> <span class="n">save_data_coord</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Done: Extracting data from &#39;</span><span class="si">{</span><span class="n">file_data</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="ExtractNHDPlusHRData.load_nhd_data">
+<a class="viewcode-back" href="../../../WigglyRivers.nhd_extract.html#WigglyRivers.nhd_extract.nhd_extract.ExtractNHDPlusHRData.load_nhd_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_nhd_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_table</span><span class="p">,</span> <span class="n">data_coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DESCRIPTION:</span>
+<span class="sd">            Get table data from the NHD GBD.</span>
+<span class="sd">        ________________________________________________________________________</span>
+<span class="sd">        INPUT:</span>
+<span class="sd">            :param data_table: str,</span>
+<span class="sd">                Raw data table.</span>
+<span class="sd">            :param data_coords: str,</span>
+<span class="sd">                Coordiantes in the pickle file.</span>
+<span class="sd">        ________________________________________________________________________</span>
+<span class="sd">        OUTPUT:</span>
+<span class="sd">            :return loaded_data: dict,</span>
+<span class="sd">                dictionary with new data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading table in </span><span class="si">{</span><span class="n">data_table</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_table</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data_coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading coordiantes in </span><span class="si">{</span><span class="n">data_coords</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coords_all</span> <span class="o">=</span> <span class="n">FM</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_coords</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

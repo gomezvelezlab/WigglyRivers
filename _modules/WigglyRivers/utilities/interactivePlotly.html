@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WigglyRivers.utilities.interactivePlotly &mdash; WigglyRivers 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            WigglyRivers
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../WigglyRivers.html">WigglyRivers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">WigglyRivers</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">WigglyRivers.utilities.interactivePlotly</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for WigglyRivers.utilities.interactivePlotly</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># ______________________________________________________________________________</span>
+<span class="c1"># ______________________________________________________________________________</span>
+<span class="c1">#</span>
+<span class="c1">#                       Coded by Daniel Gonzalez-Duque</span>
+<span class="c1">#                           Last revised 2025-02-13</span>
+<span class="c1"># ______________________________________________________________________________</span>
+<span class="c1"># ______________________________________________________________________________</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The functions here are used to have the ineractive plots for the Meander</span>
+<span class="sd">Characterization App.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># ------------------------</span>
+<span class="c1"># Importing Modules</span>
+<span class="c1"># ------------------------</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+
+<span class="c1"># Data Managment</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Graphs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+
+<span class="c1"># Personal libraries</span>
+
+
+<span class="c1"># ------------------------</span>
+<span class="c1"># Functions</span>
+<span class="c1"># ------------------------</span>
+<div class="viewcode-block" id="plot_interactive_river_plain">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.interactivePlotly.plot_interactive_river_plain">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_interactive_river_plain</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">clicked_points</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
+    <span class="n">meander_ids</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
+    <span class="n">river_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">inflection_flag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">mapbox_token</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">current_crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;epsg:4326&quot;</span><span class="p">,</span>
+    <span class="n">zoom</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">go</span><span class="o">.</span><span class="n">FigureWidget</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This function plots an interactive plot to detect meanders in a river</span>
+<span class="sd">    planform. This function can only be used in a Jupyter Notebook.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (Union[list, np.ndarray]): x coordinates of the river.</span>
+<span class="sd">        y (Union[list, np.ndarray]): y coordinates of the river.</span>
+<span class="sd">        clicked_points (list, optional): list of clicked points. Defaults to [].</span>
+<span class="sd">        meander_ids (list, optional): meander ids for the clicked points.</span>
+<span class="sd">            Defaults to [].</span>
+<span class="sd">        river_obj (Union[RiverTransect, None], optional): RiverTransect object.</span>
+<span class="sd">            Defaults to None.</span>
+<span class="sd">        inflection_flag (bool, optional): flag to plot infection points.</span>
+<span class="sd">            Defaults to False.</span>
+<span class="sd">        mapbox_token (Union[bool, None], optional): mapbox token. This is needed</span>
+<span class="sd">            to have the satellite image in the background. If None the plot will</span>
+<span class="sd">            have a white background. Defaults to None.</span>
+<span class="sd">        current_crs (str, optional): Current projection of the data. This is</span>
+<span class="sd">            needed to reproject the data a WGS84 for mapbox plotting.</span>
+<span class="sd">            Defaults to &quot;epsg:4326&quot;.</span>
+<span class="sd">        zoom (int, optional): Zoom of the plot. Defaults to 5.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        go.FigureWidget: Figure widget of the interactive plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if mapbox token is not None</span>
+    <span class="k">if</span> <span class="n">mapbox_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">satellite</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">current_crs</span> <span class="o">!=</span> <span class="s2">&quot;epsg:4326&quot;</span><span class="p">:</span>
+            <span class="n">wgs84</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+            <span class="n">projected</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="p">(</span><span class="n">current_crs</span><span class="p">)</span>
+            <span class="n">transformer</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="n">projected</span><span class="p">,</span> <span class="n">wgs84</span><span class="p">)</span>
+            <span class="n">y_lat</span><span class="p">,</span> <span class="n">x_lon</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_lon</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">y_lat</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">mean_x_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x_lon</span><span class="p">)</span>
+        <span class="n">mean_y_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_lat</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">satellite</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># global meander_id</span>
+    <span class="n">traces</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">satellite</span><span class="p">:</span>
+        <span class="n">traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">go</span><span class="o">.</span><span class="n">Scattermapbox</span><span class="p">(</span>
+                <span class="n">lat</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_lat</span><span class="p">),</span>
+                <span class="n">lon</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_lon</span><span class="p">),</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;River&quot;</span><span class="p">,</span>
+                <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">traces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;River&quot;</span><span class="p">,</span>
+                <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">FigureWidget</span><span class="p">(</span><span class="n">traces</span><span class="p">)</span>
+    <span class="c1"># f.update_layout(showlegend=False)</span>
+    <span class="n">scatter</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">hovermode</span> <span class="o">=</span> <span class="s2">&quot;closest&quot;</span>
+    <span class="k">if</span> <span class="n">satellite</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+            <span class="n">autosize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">mapbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">accesstoken</span><span class="o">=</span><span class="n">mapbox_token</span><span class="p">,</span>
+                <span class="n">bearing</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">center</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">lat</span><span class="o">=</span><span class="n">mean_y_lat</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="n">mean_x_lon</span><span class="p">),</span>
+                <span class="n">pitch</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">zoom</span><span class="o">=</span><span class="n">zoom</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="s2">&quot;satellite&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+            <span class="n">margin</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">scaleanchor</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">scaleratio</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+            <span class="n">plot_bgcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">autosize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+            <span class="n">margin</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">update_xaxes</span><span class="p">(</span>
+            <span class="n">mirror</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;outside&quot;</span><span class="p">,</span>
+            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span>
+            <span class="n">mirror</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">ticks</span><span class="o">=</span><span class="s2">&quot;outside&quot;</span><span class="p">,</span>
+            <span class="n">showline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">linecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="n">showgrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">zeroline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Load Previous Meanders</span>
+    <span class="k">if</span> <span class="n">river_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">load_meanders</span><span class="p">(</span>
+            <span class="n">f</span><span class="p">,</span> <span class="n">river_obj</span><span class="p">,</span> <span class="n">mapbox_token</span><span class="o">=</span><span class="n">mapbox_token</span><span class="p">,</span> <span class="n">current_crs</span><span class="o">=</span><span class="n">current_crs</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_point</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">selector</span><span class="p">):</span>
+        <span class="n">meander_id</span> <span class="o">=</span> <span class="n">check_meander_id</span><span class="p">(</span><span class="n">meander_ids</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">points</span><span class="o">.</span><span class="n">point_inds</span><span class="p">:</span>
+            <span class="c1"># Save points</span>
+            <span class="n">clicked_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">hover_template</span> <span class="o">=</span> <span class="n">create_hover_template_meander</span><span class="p">(</span><span class="n">meander_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">satellite</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                    <span class="n">go</span><span class="o">.</span><span class="n">Scattermapbox</span><span class="p">(</span>
+                        <span class="n">lat</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_lat</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+                        <span class="n">lon</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_lon</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+                        <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                        <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">trace</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span>
+                        <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">trace</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                        <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">clicked_points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Add lines between points</span>
+                <span class="n">idx_1</span> <span class="o">=</span> <span class="n">clicked_points</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">idx_2</span> <span class="o">=</span> <span class="n">clicked_points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">idx_start</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">idx_1</span><span class="p">,</span> <span class="n">idx_2</span><span class="p">)</span>
+                <span class="n">idx_end</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">idx_1</span><span class="p">,</span> <span class="n">idx_2</span><span class="p">)</span>
+                <span class="c1"># Add meander to river object</span>
+                <span class="k">if</span> <span class="n">river_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">river_obj</span><span class="o">.</span><span class="n">add_meander</span><span class="p">(</span>
+                        <span class="n">meander_id</span><span class="p">,</span> <span class="n">ind_start</span><span class="o">=</span><span class="n">idx_start</span><span class="p">,</span> <span class="n">ind_end</span><span class="o">=</span><span class="n">idx_end</span>
+                    <span class="p">)</span>
+                <span class="n">hover_template</span> <span class="o">=</span> <span class="n">create_hover_template_meander</span><span class="p">(</span>
+                    <span class="n">meander_id</span><span class="p">,</span> <span class="n">river_obj</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">satellite</span><span class="p">:</span>
+                    <span class="n">x_line</span> <span class="o">=</span> <span class="n">x_lon</span><span class="p">[</span><span class="n">idx_start</span> <span class="p">:</span> <span class="n">idx_end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">y_line</span> <span class="o">=</span> <span class="n">y_lat</span><span class="p">[</span><span class="n">idx_start</span> <span class="p">:</span> <span class="n">idx_end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                        <span class="n">go</span><span class="o">.</span><span class="n">Scattermapbox</span><span class="p">(</span>
+                            <span class="n">lat</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_line</span><span class="p">),</span>
+                            <span class="n">lon</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x_line</span><span class="p">),</span>
+                            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+                            <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">x_line</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">idx_start</span> <span class="p">:</span> <span class="n">idx_end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">y_line</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">idx_start</span> <span class="p">:</span> <span class="n">idx_end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                        <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                            <span class="n">x</span><span class="o">=</span><span class="n">x_line</span><span class="p">,</span>
+                            <span class="n">y</span><span class="o">=</span><span class="n">y_line</span><span class="p">,</span>
+                            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                            <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+                            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+                <span class="n">f</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span>
+                    <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                    <span class="n">selector</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Append meander id</span>
+                <span class="n">meander_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meander_id</span><span class="p">)</span>
+                <span class="c1"># Reset points</span>
+                <span class="c1"># clicked_points = []</span>
+
+    <span class="n">scatter</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">update_point</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span></div>
+
+
+
+<div class="viewcode-block" id="check_meander_id">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.interactivePlotly.check_meander_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_meander_id</span><span class="p">(</span><span class="n">meander_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check meander ids.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        meander_ids (list): Meander IDs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: new meander id.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">meander_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">meander_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">meander_id</span> <span class="ow">in</span> <span class="n">meander_ids</span><span class="p">:</span>
+            <span class="n">meander_id</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">meander_id</span></div>
+
+
+
+<div class="viewcode-block" id="load_meanders">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.interactivePlotly.load_meanders">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_meanders</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">FigureWidget</span><span class="p">,</span>
+    <span class="n">river_obj</span><span class="p">,</span>
+    <span class="n">mapbox_token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">current_crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;epsg:4326&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">go</span><span class="o">.</span><span class="n">FigureWidget</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;load current selection of meanders.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        f (go.FigureWidget): plotly figure widget.</span>
+<span class="sd">        river_obj (RiverTransect): RiverTransect object.</span>
+<span class="sd">        mapbox_token (Union[bool, None], optional): mapbox token. This is needed</span>
+<span class="sd">            to have the satellite image in the background. If None the plot will</span>
+<span class="sd">            have a white background. Defaults to None.</span>
+<span class="sd">        current_crs (str, optional): Current projection of the data. This is</span>
+<span class="sd">            needed to reproject the data a WGS84 for mapbox plotting.</span>
+<span class="sd">            Defaults to &quot;epsg:4326&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        go.FigureWidget: Figure widget of the interactive plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if River has meanders</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">river_obj</span><span class="o">.</span><span class="n">meanders</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">meander_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">river_obj</span><span class="o">.</span><span class="n">meanders</span><span class="p">):</span>
+            <span class="n">hover_template</span> <span class="o">=</span> <span class="n">create_hover_template_meander</span><span class="p">(</span>
+                <span class="n">meander_id</span><span class="p">,</span> <span class="n">river_obj</span>
+            <span class="p">)</span>
+            <span class="n">meander</span> <span class="o">=</span> <span class="n">river_obj</span><span class="o">.</span><span class="n">meanders</span><span class="p">[</span><span class="n">meander_id</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">meander</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">meander</span><span class="o">.</span><span class="n">y</span>
+            <span class="k">if</span> <span class="n">mapbox_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">satellite</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">current_crs</span> <span class="o">!=</span> <span class="s2">&quot;epsg:4326&quot;</span><span class="p">:</span>
+                    <span class="n">wgs84</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+                    <span class="n">projected</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="p">(</span><span class="n">current_crs</span><span class="p">)</span>
+                    <span class="n">transformer</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="n">projected</span><span class="p">,</span> <span class="n">wgs84</span><span class="p">)</span>
+                    <span class="n">y_lat</span><span class="p">,</span> <span class="n">x_lon</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">x_lon</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="n">y_lat</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">satellite</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="n">satellite</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                    <span class="n">go</span><span class="o">.</span><span class="n">Scattermapbox</span><span class="p">(</span>
+                        <span class="n">lon</span><span class="o">=</span><span class="p">[</span><span class="n">x_lon</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                        <span class="n">lat</span><span class="o">=</span><span class="p">[</span><span class="n">y_lat</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                        <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                    <span class="n">go</span><span class="o">.</span><span class="n">Scattermapbox</span><span class="p">(</span>
+                        <span class="n">lon</span><span class="o">=</span><span class="p">[</span><span class="n">x_lon</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+                        <span class="n">lat</span><span class="o">=</span><span class="p">[</span><span class="n">y_lat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                        <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                    <span class="n">go</span><span class="o">.</span><span class="n">Scattermapbox</span><span class="p">(</span>
+                        <span class="n">lon</span><span class="o">=</span><span class="n">x_lon</span><span class="p">,</span>
+                        <span class="n">lat</span><span class="o">=</span><span class="n">y_lat</span><span class="p">,</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                        <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                        <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                        <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                        <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                        <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+                        <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                        <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="n">f</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                        <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                        <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                        <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+                        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Meander </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">hovertemplate</span><span class="o">=</span><span class="n">hover_template</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span></div>
+
+
+
+<div class="viewcode-block" id="create_hover_template_meander">
+<a class="viewcode-back" href="../../../WigglyRivers.utilities.html#WigglyRivers.utilities.interactivePlotly.create_hover_template_meander">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_hover_template_meander</span><span class="p">(</span><span class="n">meander_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">river_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;create hover template for meanders.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        meander_id (int): Meander ID</span>
+<span class="sd">        river_obj (Union[None, RiverTransect], optional): RiverTransect object.</span>
+<span class="sd">            Defaults to Union[None, RiverTransect].</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: hover template.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hover_template</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;b&gt;Meander ID: </span><span class="si">{</span><span class="n">meander_id</span><span class="si">}</span><span class="s2">&lt;/b&gt;&quot;</span>
+    <span class="k">if</span> <span class="n">river_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lambda_value</span> <span class="o">=</span> <span class="n">river_obj</span><span class="o">.</span><span class="n">meanders</span><span class="p">[</span><span class="n">meander_id</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;lambda_fm&quot;</span><span class="p">]</span>
+        <span class="n">l_value</span> <span class="o">=</span> <span class="n">river_obj</span><span class="o">.</span><span class="n">meanders</span><span class="p">[</span><span class="n">meander_id</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;L_fm&quot;</span><span class="p">]</span>
+        <span class="n">sinuosity_value</span> <span class="o">=</span> <span class="n">river_obj</span><span class="o">.</span><span class="n">meanders</span><span class="p">[</span><span class="n">meander_id</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;sigma_fm&quot;</span><span class="p">]</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">river_obj</span><span class="o">.</span><span class="n">meanders</span><span class="p">[</span><span class="n">meander_id</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;R_hm&quot;</span><span class="p">]</span>
+        <span class="n">hover_template</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;br&gt;Lambda_fm: </span><span class="si">{</span><span class="n">lambda_value</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> m&quot;</span>
+        <span class="n">hover_template</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;br&gt;L_fm: </span><span class="si">{</span><span class="n">l_value</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> m&quot;</span>
+        <span class="n">hover_template</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;br&gt;Sinuosity_fm: </span><span class="si">{</span><span class="n">sinuosity_value</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">hover_template</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;br&gt;Radius_hm: </span><span class="si">{</span><span class="n">radius</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="n">hover_template</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Daniel Gonzalez-Duque, Jesus Gomez-Velez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
