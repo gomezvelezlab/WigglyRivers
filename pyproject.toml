@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "WigglyRivers"
-version = "1.1.0"
+version = "1.1.1"
 description = "Exploring the multiscale meandering characteristics of river transects"
 authors = [
     {name = "Daniel Gonzalez-Duque", email = "gonzalez-duque.1@osu.edu"},
