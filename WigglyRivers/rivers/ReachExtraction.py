@@ -7,7 +7,7 @@
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 """
-   This class extracts the complete reaches obtained with the model
+This class extracts the complete reaches obtained with the model
 """
 # -----------
 # Libraries
@@ -668,7 +668,7 @@ class CompleteReachExtraction:
                     break
             i += 1
         comid_network = comid_network[comid_network != 0]
-        comid_network = comid_network.astype(int)
+        comid_network = comid_network.astype(np.int64)
         comid_network = comid_network.astype(str)
         return comid_network, huc_n
 
